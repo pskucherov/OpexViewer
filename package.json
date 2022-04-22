@@ -1,0 +1,47 @@
+{
+  "name": "opexviewer",
+  "author": "pskucherov",
+  "license": "Apache-2.0",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint-fix": "npx eslint --fix ."
+  },
+  "precommit": {
+    "run": "lint-fix"
+  },
+  "dependencies": {
+    "next": "12.1.5",
+    "react": "18.0.0",
+    "react-dom": "18.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.9",
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/eslint-plugin": "^7.17.7",
+    "babel-eslint": "^10.1.0",
+    "eslint": "8.13.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-next": "12.1.5",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-no-loops": "^0.3.0",
+    "eslint-plugin-no-use-extend-native": "^0.5.0",
+    "eslint-plugin-optimize-regex": "^1.2.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-sonarjs": "^0.13.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.6.2",
+    "reactstrap": "^9.0.2",
+    "bootstrap": "^5.1.3"
+  }
+}
