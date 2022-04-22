@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { Nav, Navbar, NavbarBrand, NavbarToggler, Collapse, NavItem, NavLink, NavbarText   } from 'reactstrap';
+import { Nav, Navbar, NavbarBrand, NavbarToggler, Collapse, NavItem, NavLink, NavbarText } from 'reactstrap';
 
 export default function Home() {
     return (
@@ -13,38 +13,38 @@ export default function Home() {
             </Head>
 
             <main className={styles.main}>
-            <div>
-  <Navbar
-    color="light"
-    expand="md"
-    light
-  >
-    <NavbarBrand href="/">
+                <div>
+                    <Navbar
+                        color="light"
+                        expand="md"
+                        light
+                    >
+                        <NavbarBrand href="/">
       reactstrap
-    </NavbarBrand>
-    <NavbarToggler onClick={function noRefCheck(){}} />
-    <Collapse navbar>
-      <Nav
-        className="me-auto"
-        navbar
-      >
-        <NavItem>
-          <NavLink href="/components/">
+                        </NavbarBrand>
+                        <NavbarToggler onClick={function noRefCheck() {}} />
+                        <Collapse navbar>
+                            <Nav
+                                className="me-auto"
+                                navbar
+                            >
+                                <NavItem>
+                                    <NavLink href="/components/">
             Components
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink href="https://github.com/reactstrap/reactstrap">
+                                    </NavLink>
+                                </NavItem>
+                                <NavItem>
+                                    <NavLink href="https://github.com/reactstrap/reactstrap">
             GitHub
-          </NavLink>
-        </NavItem>
-      </Nav>
-      <NavbarText>
+                                    </NavLink>
+                                </NavItem>
+                            </Nav>
+                            <NavbarText>
         Simple Text
-      </NavbarText>
-    </Collapse>
-  </Navbar>
-</div>
+                            </NavbarText>
+                        </Collapse>
+                    </Navbar>
+                </div>
 
                 <h1 className={styles.title}>
           OpexViewer
