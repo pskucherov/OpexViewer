@@ -1,3 +1,8 @@
+const requestOptions = {
+    cache: 'no-cache',
+    'Content-Type': 'application/json',
+};
+
 /**
  * Проверка сервера, что доступен по ссылке.
  *
@@ -24,14 +29,27 @@ const checkServer = async url => {
     return false;
 };
 
+const addToken = async (url, token) => {
+    let response;
+
+    try {
+        response = await window.fetch(url + '/addtoken?token=' + token, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getTokens = async url => {
     let response;
 
     try {
-        response = await window.fetch(url + '/gettokens', {
-            cache: 'no-cache',
-            'Content-Type': 'application/json',
-        });
+        response = await window.fetch(url + '/gettokens', requestOptions);
     } catch (error) {
         return false;
     }
@@ -47,10 +65,7 @@ const delToken = async (url, token) => {
     let response;
 
     try {
-        response = await window.fetch(url + '/deltoken?token=' + token, {
-            cache: 'no-cache',
-            'Content-Type': 'application/json',
-        });
+        response = await window.fetch(url + '/deltoken?token=' + token, requestOptions);
     } catch (error) {
         return false;
     }
@@ -64,6 +79,7 @@ const delToken = async (url, token) => {
 
 export {
     checkServer,
+    addToken,
     getTokens,
     delToken,
 };

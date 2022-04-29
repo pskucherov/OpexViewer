@@ -3,7 +3,7 @@ import React from 'react';
 import styles from '../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
 
-import { checkServer, getTokens, delToken } from '../utils/serverStatus';
+import { checkServer, getTokens, addToken, delToken } from '../utils/serverStatus';
 
 import Page from '../components/Page/Page';
 
@@ -14,7 +14,6 @@ export default function Settings() {
         >
             <AddServerForm />
             <SettingsForm />
-            <TokensList />
         </Page>
     );
 }
@@ -34,17 +33,17 @@ const AddServerForm = () => {
         setServerUri(e.target.value);
     }, []);
 
-    const checkRequest = async () => {
-        const serverStatus = await checkServer(serverUri);
-
-        setServerInvalid(!serverStatus);
-        setInprogress(false);
-    };
-
     // Проверяем состояние сервера при открытии страницы.
     React.useEffect(() => {
+        const checkRequest = async () => {
+            const serverStatus = await checkServer(serverUri);
+
+            setServerInvalid(!serverStatus);
+            setInprogress(false);
+        };
+
         checkRequest();
-    }, [serverInvalid]);
+    }, [serverInvalid, serverUri]);
 
     // Обработчик сохранения формы.
     const handleSubmit = React.useCallback(async e => {
@@ -105,7 +104,10 @@ const SettingsForm = () => {
             setInprogress(true);
         }
 
-        // TODO: отправка токена
+        const tokenStatus = await addToken(defaultServerUri, token);
+
+        setTokenInvalid(!tokenStatus || tokenStatus.error);
+        setInprogress(false);
     }, [token, tokenInvalid]);
 
     return (
@@ -114,40 +116,44 @@ const SettingsForm = () => {
                 <FormText><h4>Добавить Token</h4></FormText>
                 <FormGroup className={styles.label}>
                     <Label>Token <a href="https://tinkoff.github.io/investAPI/token/" target="_blank" rel="noreferrer" >(?)</a></Label>
-                    <Input name="token" placeholder={token} onChange={handleInputChange}
+                    <Input name="token" placeholder={token} value={token !== defaultToken ? token : ''} onChange={handleInputChange}
                         invalid={tokenInvalid}
                     />
-                    <FormFeedback>Укажитие token для робота.</FormFeedback>
+                    <FormFeedback>Укажитие действующий token.</FormFeedback>
                 </FormGroup>
                 {inProgress ?
                     <Spinner size="sm" color="primary" /> :
                     <Button className={styles.Submit} >Добавить</Button>
                 }
             </Form>
+            <TokensList token={token} />
         </>
 
     );
 };
 
-const TokensList = () => {
-    const [tokens, setTokens] = React.useState();
+const TokensList = props => {
+    const [tokens, setTokens] = React.useState([]);
 
-    const tokenRequest = async () => {
+    const tokenRequest = React.useCallback(async () => {
         // TODO: redux server uri
-        const tokens = await getTokens(defaultServerUri);
+        const newTokens = await getTokens(defaultServerUri);
 
-        setTokens(tokens);
-    };
+        if (newTokens && newTokens.length !== tokens.length) {
+            setTokens(newTokens);
+        }
+    }, [tokens.length]);
 
     // Проверяем состояние сервера при открытии страницы.
     React.useEffect(() => {
         tokenRequest();
-    }, [tokens]);
+    }, [props.token, tokenRequest]);
 
     // Обработчик удаления
     const onDelClick = React.useCallback(async token => {
         await delToken(defaultServerUri, token);
-    }, []);
+        await tokenRequest();
+    }, [tokenRequest]);
 
     // Обработчик выбора токена
     const onSelectClick = React.useCallback(async () => {
