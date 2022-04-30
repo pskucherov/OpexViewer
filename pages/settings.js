@@ -161,6 +161,10 @@ const TokensList = props => {
 
     // Обработчик выбора токена
     const onSelectClick = React.useCallback(async token => {
+        // TODO: select token.
+        const selectTokens = await getTokens(defaultServerUri, token);
+
+        await tokenRequest();
         await selectToken(defaultServerUri, token);
         await tokenRequest(true);
     }, [tokenRequest]);
