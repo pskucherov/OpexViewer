@@ -3,7 +3,7 @@ import React from 'react';
 import styles from '../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
 
-import { checkServer, getTokens, addToken, delToken } from '../utils/serverStatus';
+import { checkServer, selectToken, getTokens, addToken, delToken } from '../utils/serverStatus';
 
 import Page from '../components/Page/Page';
 
@@ -89,26 +89,28 @@ const SettingsForm = () => {
     const [tokenInvalid, setTokenInvalid] = React.useState(false);
     const [inProgress, setInprogress] = React.useState(false);
 
-    // Сохраняем в переменную значения заполняемых полей.
-    const handleInputChange = React.useCallback(e => {
-        setToken(e.target.value);
-    }, []);
-
     // Обработчик сохранения формы.
     const handleSubmit = React.useCallback(async e => {
         e.preventDefault();
+        const newToken = e.target[0].value;
 
-        setTokenInvalid(!token || token === defaultToken);
+        setTokenInvalid(!newToken || newToken === defaultToken);
 
         if (!tokenInvalid) {
             setInprogress(true);
         }
 
-        const tokenStatus = await addToken(defaultServerUri, token);
+        const tokenStatus = await addToken(defaultServerUri, newToken);
+        const isInvalid = !tokenStatus || tokenStatus.error;
 
-        setTokenInvalid(!tokenStatus || tokenStatus.error);
+        setTokenInvalid(isInvalid);
+
+        if (!isInvalid) {
+            setToken(newToken);
+        }
+
         setInprogress(false);
-    }, [token, tokenInvalid]);
+    }, [tokenInvalid]);
 
     return (
         <>
@@ -116,7 +118,9 @@ const SettingsForm = () => {
                 <FormText><h4>Добавить Token</h4></FormText>
                 <FormGroup className={styles.label}>
                     <Label>Token <a href="https://tinkoff.github.io/investAPI/token/" target="_blank" rel="noreferrer" >(?)</a></Label>
-                    <Input name="token" placeholder={token} value={token !== defaultToken ? token : ''} onChange={handleInputChange}
+                    <Input
+                        name="token"
+                        placeholder={token}
                         invalid={tokenInvalid}
                     />
                     <FormFeedback>Укажитие действующий token.</FormFeedback>
@@ -135,11 +139,11 @@ const SettingsForm = () => {
 const TokensList = props => {
     const [tokens, setTokens] = React.useState([]);
 
-    const tokenRequest = React.useCallback(async () => {
+    const tokenRequest = React.useCallback(async force => {
         // TODO: redux server uri
         const newTokens = await getTokens(defaultServerUri);
 
-        if (newTokens && newTokens.length !== tokens.length) {
+        if (force || newTokens && newTokens.length !== tokens.length) {
             setTokens(newTokens);
         }
     }, [tokens.length]);
@@ -161,6 +165,8 @@ const TokensList = props => {
         const selectTokens = await getTokens(defaultServerUri, token);
 
         await tokenRequest();
+        await selectToken(defaultServerUri, token);
+        await tokenRequest(true);
     }, [tokenRequest]);
 
     return Boolean(tokens && tokens.length) && (
@@ -182,9 +188,11 @@ const TokensList = props => {
                             Удалить
                         </Button>
                         <Button
-                            className={styles.SelectButton} onClick={onSelectClick.bind(this, t.token)}
+                            className={styles.SelectButton}
+                            onClick={onSelectClick.bind(this, t.token)}
+                            disabled={t.selected}
                         >
-                            Выбрать
+                            {t.selected ? 'Выбран\u00a0' : 'Выбрать'}
                         </Button>
                     </FormGroup>
                 ))}
