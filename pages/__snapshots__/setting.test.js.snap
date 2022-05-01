@@ -1,0 +1,394 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Setting Should render SettingsForm 1`] = `
+Object {
+  "asFragment": [Function],
+  "baseElement": <body>
+    <div>
+      <div
+        class="container"
+      >
+        <main
+          class="main"
+        >
+          <div>
+            <nav
+              class="navbar navbar-expand-md navbar-light bg-light"
+            >
+              <div
+                class="container-fluid"
+              >
+                <a
+                  class="navbar-brand"
+                  href="/"
+                >
+                  OpexViewer
+                </a>
+                <button
+                  aria-label="Toggle navigation"
+                  class="navbar-toggler"
+                  type="button"
+                >
+                  <span
+                    class="navbar-toggler-icon"
+                  />
+                </button>
+                <div
+                  class="collapse navbar-collapse"
+                >
+                  <ul
+                    class="me-auto navbar-nav"
+                  >
+                    <li
+                      class="nav-item"
+                    >
+                      <a
+                        class="nav-link"
+                        href="/settings"
+                      >
+                        Настройки
+                      </a>
+                    </li>
+                  </ul>
+                  <span
+                    class="navbar-text"
+                  >
+                    Token: sandbox
+                  </span>
+                </div>
+              </div>
+            </nav>
+          </div>
+          <h1
+            class="title"
+          >
+            Настройки
+          </h1>
+          <form
+            class="SettingsForm"
+          >
+            <small
+              class="form-text text-muted"
+            >
+              <h4>
+                Сервер торгового робота
+              </h4>
+            </small>
+            <div
+              class="label mb-3"
+            >
+              <label
+                class="form-label"
+              >
+                Server 
+                <a
+                  href="https://github.com/pskucherov/TinkoffTradingBot"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  (?)
+                </a>
+              </label>
+              <input
+                class="form-control"
+                name="serveruri"
+                placeholder="http://localhost:8000/"
+                type="text"
+                value="http://localhost:8000/"
+              />
+              <div
+                class="invalid-feedback"
+              >
+                Сервер недоступен.
+              </div>
+            </div>
+            <div
+              class="spinner-border-sm spinner-border text-primary"
+              role="status"
+            >
+              <span
+                class="visually-hidden"
+              >
+                Loading...
+              </span>
+            </div>
+          </form>
+          <form
+            class="SettingsForm"
+          >
+            <small
+              class="form-text text-muted"
+            >
+              <h4>
+                Добавить Token
+              </h4>
+            </small>
+            <div
+              class="label mb-3"
+            >
+              <label
+                class="form-label"
+              >
+                Token 
+                <a
+                  href="https://tinkoff.github.io/investAPI/token/"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  (?)
+                </a>
+              </label>
+              <input
+                aria-invalid="false"
+                class="form-control"
+                name="token"
+                placeholder="t.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg"
+                type="text"
+              />
+              <div
+                class="invalid-feedback"
+              >
+                Укажитие действующий token.
+              </div>
+            </div>
+            <button
+              class="Submit btn btn-secondary"
+            >
+              Добавить
+            </button>
+          </form>
+        </main>
+        <footer
+          class="footer"
+        >
+          <a
+            href="https://t.me/pskucherov"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            pskucherov
+          </a>
+        </footer>
+      </div>
+    </div>
+  </body>,
+  "container": <div>
+    <div
+      class="container"
+    >
+      <main
+        class="main"
+      >
+        <div>
+          <nav
+            class="navbar navbar-expand-md navbar-light bg-light"
+          >
+            <div
+              class="container-fluid"
+            >
+              <a
+                class="navbar-brand"
+                href="/"
+              >
+                OpexViewer
+              </a>
+              <button
+                aria-label="Toggle navigation"
+                class="navbar-toggler"
+                type="button"
+              >
+                <span
+                  class="navbar-toggler-icon"
+                />
+              </button>
+              <div
+                class="collapse navbar-collapse"
+              >
+                <ul
+                  class="me-auto navbar-nav"
+                >
+                  <li
+                    class="nav-item"
+                  >
+                    <a
+                      class="nav-link"
+                      href="/settings"
+                    >
+                      Настройки
+                    </a>
+                  </li>
+                </ul>
+                <span
+                  class="navbar-text"
+                >
+                  Token: sandbox
+                </span>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <h1
+          class="title"
+        >
+          Настройки
+        </h1>
+        <form
+          class="SettingsForm"
+        >
+          <small
+            class="form-text text-muted"
+          >
+            <h4>
+              Сервер торгового робота
+            </h4>
+          </small>
+          <div
+            class="label mb-3"
+          >
+            <label
+              class="form-label"
+            >
+              Server 
+              <a
+                href="https://github.com/pskucherov/TinkoffTradingBot"
+                rel="noreferrer"
+                target="_blank"
+              >
+                (?)
+              </a>
+            </label>
+            <input
+              class="form-control"
+              name="serveruri"
+              placeholder="http://localhost:8000/"
+              type="text"
+              value="http://localhost:8000/"
+            />
+            <div
+              class="invalid-feedback"
+            >
+              Сервер недоступен.
+            </div>
+          </div>
+          <div
+            class="spinner-border-sm spinner-border text-primary"
+            role="status"
+          >
+            <span
+              class="visually-hidden"
+            >
+              Loading...
+            </span>
+          </div>
+        </form>
+        <form
+          class="SettingsForm"
+        >
+          <small
+            class="form-text text-muted"
+          >
+            <h4>
+              Добавить Token
+            </h4>
+          </small>
+          <div
+            class="label mb-3"
+          >
+            <label
+              class="form-label"
+            >
+              Token 
+              <a
+                href="https://tinkoff.github.io/investAPI/token/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                (?)
+              </a>
+            </label>
+            <input
+              aria-invalid="false"
+              class="form-control"
+              name="token"
+              placeholder="t.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg"
+              type="text"
+            />
+            <div
+              class="invalid-feedback"
+            >
+              Укажитие действующий token.
+            </div>
+          </div>
+          <button
+            class="Submit btn btn-secondary"
+          >
+            Добавить
+          </button>
+        </form>
+      </main>
+      <footer
+        class="footer"
+      >
+        <a
+          href="https://t.me/pskucherov"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          pskucherov
+        </a>
+      </footer>
+    </div>
+  </div>,
+  "debug": [Function],
+  "findAllByAltText": [Function],
+  "findAllByDisplayValue": [Function],
+  "findAllByLabelText": [Function],
+  "findAllByPlaceholderText": [Function],
+  "findAllByRole": [Function],
+  "findAllByTestId": [Function],
+  "findAllByText": [Function],
+  "findAllByTitle": [Function],
+  "findByAltText": [Function],
+  "findByDisplayValue": [Function],
+  "findByLabelText": [Function],
+  "findByPlaceholderText": [Function],
+  "findByRole": [Function],
+  "findByTestId": [Function],
+  "findByText": [Function],
+  "findByTitle": [Function],
+  "getAllByAltText": [Function],
+  "getAllByDisplayValue": [Function],
+  "getAllByLabelText": [Function],
+  "getAllByPlaceholderText": [Function],
+  "getAllByRole": [Function],
+  "getAllByTestId": [Function],
+  "getAllByText": [Function],
+  "getAllByTitle": [Function],
+  "getByAltText": [Function],
+  "getByDisplayValue": [Function],
+  "getByLabelText": [Function],
+  "getByPlaceholderText": [Function],
+  "getByRole": [Function],
+  "getByTestId": [Function],
+  "getByText": [Function],
+  "getByTitle": [Function],
+  "queryAllByAltText": [Function],
+  "queryAllByDisplayValue": [Function],
+  "queryAllByLabelText": [Function],
+  "queryAllByPlaceholderText": [Function],
+  "queryAllByRole": [Function],
+  "queryAllByTestId": [Function],
+  "queryAllByText": [Function],
+  "queryAllByTitle": [Function],
+  "queryByAltText": [Function],
+  "queryByDisplayValue": [Function],
+  "queryByLabelText": [Function],
+  "queryByPlaceholderText": [Function],
+  "queryByRole": [Function],
+  "queryByTestId": [Function],
+  "queryByText": [Function],
+  "queryByTitle": [Function],
+  "rerender": [Function],
+  "unmount": [Function],
+}
+`;

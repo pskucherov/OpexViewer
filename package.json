@@ -18,6 +18,7 @@
     "run": "lint-fix"
   },
   "dependencies": {
+    "jest-environment-jsdom": "^28.0.2",
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0"
