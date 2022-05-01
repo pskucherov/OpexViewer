@@ -1,8 +1,9 @@
 module.exports = {
     rootDir: './',
+    testEnvironment: 'jsdom',
     setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     transform: {
-        '\\.js$': ['babel-jest', { configFile: '<rootDir>/.babelrc' }],
+        '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
     },
     moduleNameMapper: {
         '\\.(css|less|scss|sss|styl)$': '<rootDir>/node_modules/jest-css-modules',
