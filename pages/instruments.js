@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 
 import styles from '../styles/Settings.module.css';
 import Page from '../components/Page/Page';
@@ -135,6 +136,8 @@ const GroupInstruments = props => {
 };
 
 const CardInstrument = props => {
+    const router = useRouter();
+
     return (
         <Card>
             {/*
@@ -159,22 +162,12 @@ const CardInstrument = props => {
                 <Button
                     color="primary"
                     outline
-                    disabled
+                    onClick={() => {
+                        router.push('/terminal/' + props.figi);
+                    }}
                 >
-                            Терминал
+                    Терминал
                 </Button>
-                <Button
-                    color="primary"
-                    outline
-                >
-                            Бэктест
-                </Button>
-                {/* <Button
-                    color="primary"
-                    outline
-                >
-                            Обновить
-                </Button> */}
             </CardBody>
         </Card>
     );
