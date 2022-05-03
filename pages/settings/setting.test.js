@@ -1,5 +1,5 @@
 import React from 'react';
-import Settings from './settings';
+import Settings from './index.js';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
