@@ -1,11 +1,11 @@
 import React from 'react';
 
-import styles from '../styles/Settings.module.css';
+import styles from '../../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
 
-import { checkServer, selectToken, getTokens, addToken, delToken } from '../utils/serverStatus';
+import { checkServer, selectToken, getTokens, addToken, delToken } from '../../utils/serverStatus';
 
-import Page from '../components/Page/Page';
+import Page from '../../components/Page/Page';
 
 export default function Settings() {
     return (
@@ -161,6 +161,10 @@ const TokensList = props => {
 
     // Обработчик выбора токена
     const onSelectClick = React.useCallback(async token => {
+        // TODO: select token.
+        const selectTokens = await getTokens(defaultServerUri, token);
+
+        await tokenRequest();
         await selectToken(defaultServerUri, token);
         await tokenRequest(true);
     }, [tokenRequest]);
