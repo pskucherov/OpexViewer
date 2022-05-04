@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import React from 'react';
 import Page from '../../components/Page/Page';
-import { getInstrument } from '../../utils/instruments';
+import { getInstrument, getTradingSchedules } from '../../utils/instruments';
 import { Spinner, FormGroup, Label, FormText, Button, ButtonGroup } from 'reactstrap';
 
 import DatePicker from 'react-datepicker';
@@ -36,6 +36,8 @@ const SelectInterval = props => {
     );
 };
 
+const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
+
 export default function TerminalFigi(props) {
     const router = useRouter();
     const { figi } = router.query;
@@ -45,11 +47,27 @@ export default function TerminalFigi(props) {
     const [instrument, setInstrument] = React.useState();
     const [selectedDate, setSelectedDate] = React.useState(new Date());
 
-    // const getTradingSchedulesCb = React.useCallback(async exchange => {
-    //     const schedule = await tradingSchedules(exchange, selectedDate);
+    const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {
+        const currentDate = date || selectedDate;
 
-    //     setIsTradingDay(Boolean(schedule.exchanges[0].days[0].isTradingDay));
-    // }, [selectedDate]);
+        let isTradingDayParam = true;
+        const today = new Date();
+
+        // Проводятся ли торги можно запрашивать только для текущей и будущих дат.
+        // Для прошлых считаем, что торги проводятся и смотрим на наличие исторических данных.
+        if (isToday(currentDate, today) || currentDate >= today) {
+            const schedule = await getTradingSchedules(exchange, currentDate);
+
+            isTradingDayParam = Boolean(schedule && schedule.exchanges && schedule.exchanges[0].days[0].isTradingDay);
+        }
+
+        setIsTradingDay(isTradingDayParam);
+    }, [selectedDate]);
+
+    const onCalendareChange = React.useCallback(async date => {
+        setSelectedDate(date);
+        getTradingSchedulesCb(instrument.exchange, date);
+    }, [instrument, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
         const i = await getInstrument(figi);
@@ -58,18 +76,15 @@ export default function TerminalFigi(props) {
             router.push('/instruments');
         } else {
             setInstrument(i);
+            await getTradingSchedulesCb(i.exchange);
             setInprogress(false);
         }
-    }, [figi, router]);
+    }, [figi, router, getTradingSchedulesCb]);
 
     React.useEffect(() => {
         if (!router.isReady || instrument) {
             return;
         }
-
-        // if (typeof isTradingDay === 'undefined') {
-
-        // }
 
         if (!figi) {
             router.push('/instruments');
@@ -88,6 +103,8 @@ export default function TerminalFigi(props) {
                     inProgress={inProgress}
                     figi={figi}
                     instrument={instrument}
+                    isTradingDay={isTradingDay}
+                    onCalendareChange={onCalendareChange}
                 />
             </Page>
         );
@@ -101,7 +118,8 @@ const Head = props => {
 
     const handleChange = React.useCallback(date => {
         setStartDate(date);
-    }, []);
+        props.onCalendareChange(date);
+    }, [props]);
 
     const isWeekday = React.useCallback(date => {
         const day = new Date(date).getDay();
@@ -116,8 +134,10 @@ const Head = props => {
                     dateFormat="dd.MM.yyyy"
                     selected = {startDate}
                     onChange={handleChange}
-                    maxDate={new Date()}
+
+                    // maxDate={new Date()}
                     filterDate={isWeekday}
+                    todayButton="Сегодня"
                     withPortal
                 />
             </FormGroup>
@@ -128,7 +148,10 @@ const Head = props => {
 
 const Content = props => (
     <>
-        <Head setInprogress={props.setInprogress} />
+        <Head
+            setInprogress={props.setInprogress}
+            onCalendareChange={props.onCalendareChange}
+        />
         {props.inProgress ? (
             <>
                 <center>
@@ -142,7 +165,10 @@ const Content = props => (
             <>
                 {props.figi}
                 <br></br>
-                {props.instrument && JSON.stringify(props.instrument)}
+                { props.isTradingDay ?
+                    props.instrument && JSON.stringify(props.instrument) :
+                    'В этот день торгов нет.'
+                }
             </>
         )}
     </>
