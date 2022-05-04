@@ -37,14 +37,15 @@ const SelectInstrument = () => {
             page: 'bluechipsfutures',
             name: 'Фьючерсы',
         },
-        {
-            page: 'bluechipsshares',
-            name: 'Объём торгов внутри дня (ТОП-3)',
-        },
-        {
-            page: 'bluechipsshares',
-            name: 'Волатильность внутри дня (ТОП-3)',
-        },
+
+        // {
+        //     page: 'bluechipsshares',
+        //     name: 'Объём торгов внутри дня (ТОП-3)',
+        // },
+        // {
+        //     page: 'bluechipsshares',
+        //     name: 'Волатильность внутри дня (ТОП-3)',
+        // },
     ];
 
     const instrumentPage = React.useMemo(() => instrumentsButtons, []);
@@ -107,7 +108,15 @@ const GroupInstruments = props => {
     const chunks = [];
     const group = [];
 
-    props.instrumenst.forEach((i, k) => {
+    props.instrumenst.sort((a, b) => {
+        if (a.name > b.name) {
+            return 1;
+        } else if (a.name < b.name) {
+            return -1;
+        }
+
+        return 0;
+    }).forEach((i, k) => {
         const card = (
             <CardInstrument
                 name={i.name + ` (${i.ticker})`}

@@ -57,8 +57,9 @@ export default function TerminalFigi(props) {
         // Для прошлых считаем, что торги проводятся и смотрим на наличие исторических данных.
         if (isToday(currentDate, today) || currentDate >= today) {
             const schedule = await getTradingSchedules(exchange, currentDate);
-
-            isTradingDayParam = Boolean(schedule && schedule.exchanges && schedule.exchanges[0].days[0].isTradingDay);
+            if (schedule && schedule.exchanges) {
+                isTradingDayParam = Boolean(schedule.exchanges[0].days[0].isTradingDay);
+            }
         }
 
         setIsTradingDay(isTradingDayParam);
