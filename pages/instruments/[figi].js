@@ -1,31 +1,35 @@
 import { useRouter } from 'next/router';
 import React from 'react';
 import Page from '../../components/Page/Page';
+import Chart from '../../components/Chart/Chart';
 import { getInstrument, getTradingSchedules } from '../../utils/instruments';
 import { Spinner, FormGroup, Label, FormText, Button, ButtonGroup } from 'reactstrap';
 
 import DatePicker from 'react-datepicker';
-const interval = ['1 мин', '5 мин', '15 мин', '1 час'];
+const INIT_INTERVAL_TEXT = ['1 мин', '5 мин', '15 мин', '1 час'];
 
 import 'react-datepicker/dist/react-datepicker.css';
 
+const INIT_INTERVAL = 1;
+
 const SelectInterval = props => {
-    const [selected, setSelected] = React.useState(1);
+    const { setInterval, interval } = props;
 
     const onButtonClick = React.useCallback(num => {
-        props.setInprogress(true);
-        setSelected(num);
-    }, [props]);
+        // Задаёт интервал для всей страницы.
+        // Этот интервал будет использован для построения графика.
+        setInterval(num);
+    }, [setInterval]);
 
     return (
         <ButtonGroup>
             {
-                interval.map((i, k) => (
+                INIT_INTERVAL_TEXT.map((i, k) => (
                     <Button
                         key={k}
                         color="primary"
                         outline
-                        active={selected === k}
+                        active={interval === k}
                         onClick={onButtonClick.bind(this, k)}
                     >
                         {i}
@@ -42,6 +46,7 @@ export default function TerminalFigi(props) {
     const router = useRouter();
     const { figi } = router.query;
 
+    const [interval, setInterval] = React.useState(INIT_INTERVAL);
     const [inProgress, setInprogress] = React.useState(true);
     const [isTradingDay, setIsTradingDay] = React.useState();
     const [instrument, setInstrument] = React.useState();
@@ -57,6 +62,7 @@ export default function TerminalFigi(props) {
         // Для прошлых считаем, что торги проводятся и смотрим на наличие исторических данных.
         if (isToday(currentDate, today) || currentDate >= today) {
             const schedule = await getTradingSchedules(exchange, currentDate);
+
             if (schedule && schedule.exchanges) {
                 isTradingDayParam = Boolean(schedule.exchanges[0].days[0].isTradingDay);
             }
@@ -94,33 +100,40 @@ export default function TerminalFigi(props) {
         }
     }, [figi, instrument, router.isReady, getInstrumentCb, router]);
 
-    if (instrument && (!props || !props.onlyComponent)) {
-        return (
-            <Page
-                title={instrument.name + ` (${instrument.ticker})`}
-            >
-                <Content
-                    setInprogress={setInprogress}
-                    inProgress={inProgress}
-                    figi={figi}
-                    instrument={instrument}
-                    isTradingDay={isTradingDay}
-                    onCalendareChange={onCalendareChange}
-                />
-            </Page>
-        );
-    } else {
-        return <Content />;
-    }
+    // if (instrument && (!props || !props.onlyComponent)) {
+    return (
+        <Page
+            title={instrument && (instrument.name + ` (${instrument.ticker})`)}
+        >
+            <Content
+                setInprogress={setInprogress}
+                inProgress={inProgress}
+                figi={figi}
+                instrument={instrument}
+                isTradingDay={isTradingDay}
+                onCalendareChange={onCalendareChange}
+                interval={interval}
+                setInterval={setInterval}
+                selectedDate={selectedDate}
+                setIsTradingDay={setIsTradingDay}
+            />
+        </Page>
+    );
+
+    // } else {
+    //     return <Content />;
+    // }
 }
 
 const Head = props => {
+    const { interval, onCalendareChange, setInterval } = props;
+
     const [startDate, setStartDate] = React.useState(new Date());
 
     const handleChange = React.useCallback(date => {
         setStartDate(date);
-        props.onCalendareChange(date);
-    }, [props]);
+        onCalendareChange(date);
+    }, [onCalendareChange]);
 
     const isWeekday = React.useCallback(date => {
         const day = new Date(date).getDay();
@@ -142,35 +155,45 @@ const Head = props => {
                     withPortal
                 />
             </FormGroup>
-            <SelectInterval setInprogress={props.setInprogress} />
+            <SelectInterval
+                interval={interval}
+                setInterval={setInterval}
+            />
         </center>
     );
 };
 
-const Content = props => (
-    <>
-        <Head
-            setInprogress={props.setInprogress}
-            onCalendareChange={props.onCalendareChange}
-        />
-        {props.inProgress ? (
-            <>
-                <center>
-                    <br></br>
-                    <Spinner color="primary">
+const Content = props => {
+    return (
+        <>
+            <Head
+                interval={props.interval}
+                setInterval={props.setInterval}
+                onCalendareChange={props.onCalendareChange}
+            />
+            {props.inProgress ? (
+                <>
+                    <center>
+                        <br></br>
+                        <Spinner color="primary">
                         Loading...
-                    </Spinner>
-                </center>
-            </>
-        ) : (
-            <>
-                {props.figi}
-                <br></br>
-                { props.isTradingDay ?
-                    props.instrument && JSON.stringify(props.instrument) :
-                    'В этот день торгов нет.'
-                }
-            </>
-        )}
-    </>
-);
+                        </Spinner>
+                    </center>
+                </>
+            ) : ''}
+
+            { props.isTradingDay ? '' : (<><br></br><br></br><center>Данных про торги нет</center></>) }
+
+            {/* // props.instrument && JSON.stringify(props.instrument) */}
+            <Chart
+                interval={props.interval}
+                setInprogress={props.setInprogress}
+                inProgress={props.inProgress}
+                isTradingDay={props.isTradingDay}
+                selectedDate={props.selectedDate}
+                figi={props.figi}
+                instrument={props.instrument}
+                setIsTradingDay={props.setIsTradingDay}
+            />
+        </>);
+};

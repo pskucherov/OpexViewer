@@ -172,7 +172,7 @@ const CardInstrument = props => {
                     color="primary"
                     outline
                     onClick={() => {
-                        router.push('/terminal/' + props.figi);
+                        router.push('/instruments/' + props.figi);
                     }}
                 >
                     Терминал

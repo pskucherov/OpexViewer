@@ -24,6 +24,7 @@ module.exports = {
         'plugin:sonarjs/recommended',
         'plugin:promise/recommended',
         'next/core-web-vitals',
+
     ],
     plugins: [
         'optimize-regex',
