@@ -33,6 +33,12 @@ export default function SettingsForm() {
         setInprogress(false);
     }, [settingState.tokenInvalid, dispatch]);
 
+    useEffect(()=>{
+        if (!localStorage.getItem('setting') || settingState.serverUri !== defaultServerUri || settingState.token !== defaultToken) {
+            localStorage.setItem('setting', JSON.stringify(settingState));
+        }
+    }, [settingState.tokenInvalid]);
+
     return (
         <>
             <Form className={styles.SettingsForm} onSubmit={handleSubmit}>

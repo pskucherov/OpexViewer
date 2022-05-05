@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styles from '../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, FormText, Badge } from 'reactstrap';
-import { getTokens,selectToken, delToken } from '../utils/serverStatus';
+import { getTokens, selectToken, delToken } from '../utils/serverStatus';
 const defaultServerUri = 'http://localhost:8000/';
-export default function TokensList(props){
+
+export default function TokensList(props) {
     const [tokens, setTokens] = useState([]);
     const tokenRequest = React.useCallback(async force => {
         // TODO: redux server uri
@@ -61,4 +62,4 @@ export default function TokensList(props){
             </Form>
         </>
     );
-};
+}

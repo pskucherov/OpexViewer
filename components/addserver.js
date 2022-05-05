@@ -4,6 +4,8 @@ import { settingActions } from '../store/setting-slice';
 import React, { useState, useCallback, useEffect } from 'react';
 import styles from '../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText } from 'reactstrap';
+const defaultServerUri = 'http://localhost:8000/';
+const defaultToken = 't.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg';
 
 export default function AddServerForm() {
     const [inProgress, setInprogress] = useState(true);
@@ -25,6 +27,9 @@ export default function AddServerForm() {
             setInprogress(false);
         };
 
+        if (!localStorage.getItem('setting') || settingState.serverUri !== defaultServerUri || settingState.token !== defaultToken) {
+            localStorage.setItem('setting', JSON.stringify(settingState));
+        }
         checkRequest();
     }, [dispatch, settingState.serverUri]);
 

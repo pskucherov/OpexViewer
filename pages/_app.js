@@ -13,12 +13,11 @@ function MyApp({ Component, pageProps }) {
     useEffect(()=>{
         const check = async ()=> {
             const stored = localStorage.getItem('setting');
-
             if (stored) {
                 const serveruri = JSON.parse(stored).serverUri;
                 const serverStatus = await checkServer(serveruri);
 
-                if (!serverStatus) {
+                if (serverStatus) {
                     router.push('/settings');
                 }
             }
