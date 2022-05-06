@@ -11,12 +11,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint-fix": "npx eslint --fix ."
+    "lint-fix": "npx eslint --fix .",
+    "test": "jest"
   },
   "precommit": {
     "run": "lint-fix"
   },
   "dependencies": {
+    "jest-environment-jsdom": "^28.0.2",
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0"
@@ -25,7 +27,10 @@
     "@babel/core": "^7.17.9",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/eslint-plugin": "^7.17.7",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.1.1",
     "babel-eslint": "^10.1.0",
+    "babel-jest": "^28.0.3",
     "bootstrap": "^5.1.3",
     "eslint": "8.13.0",
     "eslint-config-next": "12.1.5",
@@ -41,6 +46,8 @@
     "eslint-plugin-sonarjs": "^0.13.0",
     "highcharts": "^10.1.0",
     "highcharts-react-official": "^3.1.0",
+    "jest": "^28.1.0",
+    "jest-css-modules": "^2.1.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.6.2",
     "react-datepicker": "^4.7.0",
