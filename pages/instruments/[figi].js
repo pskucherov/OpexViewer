@@ -5,11 +5,9 @@ import Chart from '../../components/Chart/Chart';
 import { getInstrument, getTradingSchedules } from '../../utils/instruments';
 import { Spinner, FormGroup, Label, FormText, Button, ButtonGroup } from 'reactstrap';
 
-// eslint-disable-next-line import/no-unresolved
 import DatePicker from 'react-datepicker';
 const INIT_INTERVAL_TEXT = ['1 мин', '5 мин', '15 мин', '1 час'];
 
-// eslint-disable-next-line import/no-unresolved
 import 'react-datepicker/dist/react-datepicker.css';
 
 const INIT_INTERVAL = 1;
