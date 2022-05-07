@@ -18,7 +18,6 @@
     "run": "lint-fix"
   },
   "dependencies": {
-    "jest-environment-jsdom": "^28.0.2",
     "next": "12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0"
@@ -47,6 +46,7 @@
     "highcharts": "^10.1.0",
     "highcharts-react-official": "^3.1.0",
     "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.0.2",
     "jest-css-modules": "^2.1.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.6.2",
