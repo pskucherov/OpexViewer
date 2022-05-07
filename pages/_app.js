@@ -1,13 +1,81 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import '../styles/globals.css';
-import React, { useEffect } from 'react';
+import Page from '../components/Page/Page';
 
+import { useRouter } from 'next/router';
+
+import React, { useEffect } from 'react';
+import { getSelectedToken, checkServer } from '../utils/serverStatus';
+
+const defaultServerUri = 'http://localhost:8000/';
+
+/* eslint-disable sonarjs/cognitive-complexity */
 function MyApp({ Component, pageProps }) {
+    const router = useRouter();
+
+    const routerPush = router.push;
+    const { isReady, pathname } = router;
+
+    const [ready, setReady] = React.useState(false);
+    const [title, setTitle] = React.useState('');
+    const [serverStatus, setServerStatus] = React.useState();
+
+    const [isSandboxToken, setIsSandboxToken] = React.useState();
+
+    const checkToken = React.useCallback(async () => {
+        const t = await getSelectedToken(defaultServerUri);
+
+        if (!t) {
+            setIsSandboxToken();
+
+            if (await checkServer(defaultServerUri)) {
+                setServerStatus(true);
+            } else {
+                setServerStatus(false);
+            }
+        } else {
+            setServerStatus(true);
+        }
+
+        if (t && typeof t.isSandbox === 'boolean') {
+            setIsSandboxToken(t.isSandbox);
+        } else if (pathname !== '/settings') {
+            routerPush('/settings');
+        }
+    }, [routerPush, pathname]);
+
     useEffect(() => {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
-    }, []);
 
-    return <Component {...pageProps} />;
+        let interval;
+
+        if (isReady && ready) {
+            interval = setInterval(checkToken, 15000);
+            checkToken();
+        }
+
+        setReady(true);
+
+        return () => {
+            interval && clearInterval(interval);
+        };
+    }, [ready, isReady, checkToken]);
+
+    return typeof isSandboxToken !== 'undefined' || pathname === '/settings' ? (
+        <Page
+            title={title}
+            isSandboxToken={isSandboxToken}
+            serverStatus={serverStatus}
+        >
+            <Component
+                {...pageProps}
+                isSandboxToken={isSandboxToken}
+                serverUri={defaultServerUri}
+                setTitle={setTitle}
+                checkToken={checkToken}
+            />
+        </Page>
+    ) : null;
 }
 
 export default MyApp;

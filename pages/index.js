@@ -1,7 +1,13 @@
 import React from 'react';
 import Page from '../components/Page/Page';
 
-export default function Home() {
+export default function Home(props) {
+    const { setTitle } = props;
+
+    React.useEffect(() => {
+        setTitle('');
+    }, [setTitle]);
+
     // const requestOptions = {
     //     cache: 'no-cache',
     //     'Content-Type': 'application/json',
@@ -71,10 +77,10 @@ export default function Home() {
     // }, [checkServer]);
 
     return (
-        <Page>
+        <>
             <div>1</div>
             <div>2</div>
             <div>3</div>
-        </Page>
+        </>
     );
 }

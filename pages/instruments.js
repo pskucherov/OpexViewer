@@ -11,14 +11,14 @@ import { getInstruments } from '../utils/instruments';
 // Волатильность внутри дня (ТОП-10)
 // Фьючерсы
 
-export default function Instruments() {
-    return (
-        <Page
-            title="Instruments"
-        >
-            <SelectInstrument/>
-        </Page>
-    );
+export default function Instruments(props) {
+    const { setTitle } = props;
+
+    React.useEffect(() => {
+        setTitle('Инструменты');
+    }, [setTitle]);
+
+    return (<SelectInstrument/>);
 }
 
 // TODO: redux

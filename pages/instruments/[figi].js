@@ -13,13 +13,13 @@ import 'react-datepicker/dist/react-datepicker.css';
 const INIT_INTERVAL = 1;
 
 const SelectInterval = props => {
-    const { setInterval, interval } = props;
+    const { setTickerInterval, interval } = props;
 
     const onButtonClick = React.useCallback(num => {
         // Задаёт интервал для всей страницы.
         // Этот интервал будет использован для построения графика.
-        setInterval(num);
-    }, [setInterval]);
+        setTickerInterval(num);
+    }, [setTickerInterval]);
 
     return (
         <ButtonGroup>
@@ -43,14 +43,20 @@ const SelectInterval = props => {
 const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
 
 export default function TerminalFigi(props) {
+    const { setTitle } = props;
     const router = useRouter();
+    const routerPush = router.push;
+    const { isReady } = router;
+
     const { figi } = router.query;
 
-    const [interval, setInterval] = React.useState(INIT_INTERVAL);
+    const [interval, setTickerInterval] = React.useState(INIT_INTERVAL);
     const [inProgress, setInprogress] = React.useState(true);
     const [isTradingDay, setIsTradingDay] = React.useState();
     const [instrument, setInstrument] = React.useState();
     const [selectedDate, setSelectedDate] = React.useState(new Date());
+
+    const { iName, iTicker } = instrument || {};
 
     const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {
         const currentDate = date || selectedDate;
@@ -74,51 +80,50 @@ export default function TerminalFigi(props) {
     const onCalendareChange = React.useCallback(async date => {
         setSelectedDate(date);
         getTradingSchedulesCb(instrument.exchange, date);
-    }, [instrument, getTradingSchedulesCb]);
+    }, [instrument.exchange, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
         const i = await getInstrument(figi);
 
         if (!i || !i.ticker) {
-            router.push('/instruments');
+            routerPush('/instruments');
         } else {
             setInstrument(i);
             await getTradingSchedulesCb(i.exchange);
             setInprogress(false);
         }
-    }, [figi, router, getTradingSchedulesCb]);
+    }, [figi, routerPush, getTradingSchedulesCb]);
 
     React.useEffect(() => {
-        if (!router.isReady || instrument) {
+        if (!isReady || instrument) {
             return;
         }
 
         if (!figi) {
-            router.push('/instruments');
+            routerPush('/instruments');
         } else {
             getInstrumentCb();
         }
-    }, [figi, instrument, router.isReady, getInstrumentCb, router]);
+    }, [figi, instrument, isReady, getInstrumentCb, routerPush]);
 
     // if (instrument && (!props || !props.onlyComponent)) {
-    return (
-        <Page
-            title={instrument && (instrument.name + ` (${instrument.ticker})`)}
-        >
-            <Content
-                setInprogress={setInprogress}
-                inProgress={inProgress}
-                figi={figi}
-                instrument={instrument}
-                isTradingDay={isTradingDay}
-                onCalendareChange={onCalendareChange}
-                interval={interval}
-                setInterval={setInterval}
-                selectedDate={selectedDate}
-                setIsTradingDay={setIsTradingDay}
-            />
-        </Page>
-    );
+
+    React.useEffect(() => {
+        setTitle(iName + ` (${iTicker})`);
+    }, [setTitle, iName, iTicker]);
+
+    return (<Content
+        setInprogress={setInprogress}
+        inProgress={inProgress}
+        figi={figi}
+        instrument={instrument}
+        isTradingDay={isTradingDay}
+        onCalendareChange={onCalendareChange}
+        interval={interval}
+        setTickerInterval={setTickerInterval}
+        selectedDate={selectedDate}
+        setIsTradingDay={setIsTradingDay}
+    />);
 
     // } else {
     //     return <Content />;
@@ -126,7 +131,7 @@ export default function TerminalFigi(props) {
 }
 
 const Head = props => {
-    const { interval, onCalendareChange, setInterval } = props;
+    const { interval, onCalendareChange, setTickerInterval } = props;
 
     const [startDate, setStartDate] = React.useState(new Date());
 
@@ -157,7 +162,7 @@ const Head = props => {
             </FormGroup>
             <SelectInterval
                 interval={interval}
-                setInterval={setInterval}
+                setTickerInterval={setTickerInterval}
             />
         </center>
     );
@@ -168,7 +173,7 @@ const Content = props => {
         <>
             <Head
                 interval={props.interval}
-                setInterval={props.setInterval}
+                setTickerInterval={props.setTickerInterval}
                 onCalendareChange={props.onCalendareChange}
             />
             {props.inProgress ? (
@@ -182,7 +187,7 @@ const Content = props => {
                 </>
             ) : ''}
 
-            { props.isTradingDay ? '' : (<><br></br><br></br><center>Данных про торги нет</center></>) }
+            { props.isTradingDay ? '' : (<><br></br><br></br><center>Торги не проводятся или нет данных.</center></>) }
 
             {/* // props.instrument && JSON.stringify(props.instrument) */}
             <Chart

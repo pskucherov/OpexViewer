@@ -7,21 +7,27 @@ import { checkServer, selectToken, getTokens, addToken, delToken } from '../util
 
 import Page from '../components/Page/Page';
 
-export default function Settings() {
+export default function Settings(props) {
+    const { setTitle, checkToken } = props;
+
+    React.useEffect(() => {
+        setTitle('Настройки');
+    }, [setTitle]);
+
     return (
-        <Page
-            title="Настройки"
-        >
-            <AddServerForm />
-            <SettingsForm />
-        </Page>
+        <>
+            <AddServerForm checkToken={checkToken} />
+            <SettingsForm checkToken={checkToken} />
+        </>
     );
 }
 
 const defaultToken = 't.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg';
 const defaultServerUri = 'http://localhost:8000/';
 
-const AddServerForm = () => {
+const AddServerForm = props => {
+    const { checkToken } = props;
+
     const [serverUri, setServerUri] = React.useState(defaultServerUri);
     const [inProgress, setInprogress] = React.useState(true);
 
@@ -58,9 +64,9 @@ const AddServerForm = () => {
             setServerInvalid(false);
         }
 
-        // TODO: сохранить сервер.
         setInprogress(false);
-    }, [serverUri]);
+        checkToken();
+    }, [serverUri, checkToken]);
 
     return (
         <>
@@ -83,7 +89,9 @@ const AddServerForm = () => {
     );
 };
 
-const SettingsForm = () => {
+const SettingsForm = props => {
+    const { checkToken } = props;
+
     const [token, setToken] = React.useState(defaultToken);
 
     const [tokenInvalid, setTokenInvalid] = React.useState(false);
@@ -110,7 +118,8 @@ const SettingsForm = () => {
         }
 
         setInprogress(false);
-    }, [tokenInvalid]);
+        checkToken();
+    }, [tokenInvalid, checkToken]);
 
     return (
         <>
@@ -130,13 +139,18 @@ const SettingsForm = () => {
                     <Button className={styles.Submit} >Добавить</Button>
                 }
             </Form>
-            <TokensList token={token} />
+            <TokensList
+                token={token}
+                checkToken={checkToken}
+            />
         </>
 
     );
 };
 
 const TokensList = props => {
+    const { token, checkToken } = props;
+
     const [tokens, setTokens] = React.useState([]);
 
     const tokenRequest = React.useCallback(async force => {
@@ -151,19 +165,21 @@ const TokensList = props => {
     // Проверяем состояние сервера при открытии страницы.
     React.useEffect(() => {
         tokenRequest();
-    }, [props.token, tokenRequest]);
+    }, [token, tokenRequest]);
 
     // Обработчик удаления
     const onDelClick = React.useCallback(async token => {
         await delToken(defaultServerUri, token);
         await tokenRequest();
-    }, [tokenRequest]);
+        checkToken();
+    }, [checkToken, tokenRequest]);
 
     // Обработчик выбора токена
     const onSelectClick = React.useCallback(async token => {
         await selectToken(defaultServerUri, token);
         await tokenRequest(true);
-    }, [tokenRequest]);
+        checkToken();
+    }, [checkToken, tokenRequest]);
 
     return Boolean(tokens && tokens.length) && (
         <>

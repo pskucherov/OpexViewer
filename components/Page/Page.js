@@ -1,9 +1,17 @@
 import React from 'react';
 import Head from 'next/head';
 import styles from '../../styles/Home.module.css';
-import { Nav, Navbar, NavbarBrand, NavbarToggler, Collapse, NavItem, NavLink, NavbarText } from 'reactstrap';
+import {
+    Badge, Nav, Navbar, NavbarBrand, NavbarToggler,
+    Collapse, NavItem, NavLink, NavbarText,
+} from 'reactstrap';
 
 export default function Page(props) {
+    const { isSandboxToken, serverStatus } = props;
+
+    // 0 нужно задать, 1 sandbox, 2 production
+    const whatToken = typeof isSandboxToken === 'undefined' ? 0 : isSandboxToken ? 1 : 2;
+
     return (
         <div className={styles.container}>
             <Head>
@@ -30,14 +38,20 @@ export default function Page(props) {
                                 navbar
                             >
                                 <NavItem>
+                                    <NavLink href="/instruments">
+                                        Инструменты
+                                    </NavLink>
+                                </NavItem>
+                                <NavItem>
                                     <NavLink href="/settings">
                                         Настройки
                                     </NavLink>
                                 </NavItem>
                             </Nav>
-                            <NavbarText>
-                                Token: sandbox
-                            </NavbarText>
+                            <HeadBadges
+                                whatToken={whatToken}
+                                serverStatus={serverStatus}
+                            />
                         </Collapse>
                     </Navbar>
                 </div>
@@ -61,3 +75,42 @@ export default function Page(props) {
         </div>
     );
 }
+
+const HeadBadges = props => {
+    const {
+        whatToken,
+        serverStatus,
+    } = props;
+
+    return (<NavbarText>
+        <ServerBadge
+            whatToken={whatToken}
+            serverStatus={serverStatus}
+        />
+        {serverStatus ? (<Badge
+            color={whatToken === 2 ? 'success' : whatToken ? 'warning' : 'danger'}
+            href="/settings"
+        >
+        Токен: {whatToken === 2 ? 'боевой' : whatToken ? 'песочница' : 'не задан'}
+        </Badge>) : ''}
+
+    </NavbarText>);
+};
+
+const ServerBadge = props => {
+    const {
+        whatToken,
+        serverStatus,
+    } = props;
+
+    return !whatToken ? (
+        <Badge
+            color={serverStatus ? 'success' : 'danger'}
+            href="/settings"
+            style={{
+                marginRight: '20px',
+            }}
+        >
+        Сервер: {serverStatus ? 'ok' : 'недоступен'}
+        </Badge>) : '';
+};

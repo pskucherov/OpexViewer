@@ -61,6 +61,22 @@ const selectToken = async (url, token) => {
     return false;
 };
 
+const getSelectedToken = async url => {
+    let response;
+
+    try {
+        response = await window.fetch(url + '/getselectedtoken', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getTokens = async url => {
     let response;
 
@@ -96,6 +112,7 @@ const delToken = async (url, token) => {
 export {
     checkServer,
     selectToken,
+    getSelectedToken,
     addToken,
     getTokens,
     delToken,
