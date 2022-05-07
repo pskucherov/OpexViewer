@@ -56,7 +56,7 @@ export default function TerminalFigi(props) {
     const [instrument, setInstrument] = React.useState();
     const [selectedDate, setSelectedDate] = React.useState(new Date());
 
-    const { iName, iTicker } = instrument || {};
+    const { iName, iTicker, exchange } = instrument || {};
 
     const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {
         const currentDate = date || selectedDate;
@@ -79,8 +79,8 @@ export default function TerminalFigi(props) {
 
     const onCalendareChange = React.useCallback(async date => {
         setSelectedDate(date);
-        getTradingSchedulesCb(instrument.exchange, date);
-    }, [instrument.exchange, getTradingSchedulesCb]);
+        exchange && getTradingSchedulesCb(exchange, date);
+    }, [exchange, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
         const i = await getInstrument(figi);
@@ -106,8 +106,6 @@ export default function TerminalFigi(props) {
         }
     }, [figi, instrument, isReady, getInstrumentCb, routerPush]);
 
-    // if (instrument && (!props || !props.onlyComponent)) {
-
     React.useEffect(() => {
         setTitle(iName + ` (${iTicker})`);
     }, [setTitle, iName, iTicker]);
@@ -124,10 +122,6 @@ export default function TerminalFigi(props) {
         selectedDate={selectedDate}
         setIsTradingDay={setIsTradingDay}
     />);
-
-    // } else {
-    //     return <Content />;
-    // }
 }
 
 const Head = props => {
@@ -189,7 +183,6 @@ const Content = props => {
 
             { props.isTradingDay ? '' : (<><br></br><br></br><center>Торги не проводятся или нет данных.</center></>) }
 
-            {/* // props.instrument && JSON.stringify(props.instrument) */}
             <Chart
                 interval={props.interval}
                 setInprogress={props.setInprogress}

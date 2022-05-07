@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { getSelectedToken, checkServer } from '../utils/serverStatus';
 
-const defaultServerUri = 'http://localhost:8000/';
+const defaultServerUri = 'http://localhost:8000';
 
 /* eslint-disable sonarjs/cognitive-complexity */
 function MyApp({ Component, pageProps }) {
@@ -21,6 +21,7 @@ function MyApp({ Component, pageProps }) {
     const [serverStatus, setServerStatus] = React.useState();
 
     const [isSandboxToken, setIsSandboxToken] = React.useState();
+    const [accountId, setAccountId] = React.useState();
 
     const checkToken = React.useCallback(async () => {
         const t = await getSelectedToken(defaultServerUri);
@@ -35,6 +36,12 @@ function MyApp({ Component, pageProps }) {
             }
         } else {
             setServerStatus(true);
+
+            if (t.accountId && t.accountId !== accountId) {
+                setAccountId(t.accountId);
+            } else if (!t.accountId) {
+                routerPush('/accounts');
+            }
         }
 
         if (t && typeof t.isSandbox === 'boolean') {
@@ -42,7 +49,7 @@ function MyApp({ Component, pageProps }) {
         } else if (pathname !== '/settings') {
             routerPush('/settings');
         }
-    }, [routerPush, pathname]);
+    }, [routerPush, pathname, accountId]);
 
     useEffect(() => {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
@@ -59,23 +66,28 @@ function MyApp({ Component, pageProps }) {
         return () => {
             interval && clearInterval(interval);
         };
-    }, [ready, isReady, checkToken]);
+    }, [ready, isReady]); // checkToken в deps специально не добавлен, чтобы не было лишних запросов.
 
-    return typeof isSandboxToken !== 'undefined' || pathname === '/settings' ? (
-        <Page
-            title={title}
-            isSandboxToken={isSandboxToken}
-            serverStatus={serverStatus}
-        >
-            <Component
-                {...pageProps}
+    return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
+        pathname === '/settings' ||
+        pathname === '/accounts'
+    ) ? (
+            <Page
+                title={title}
                 isSandboxToken={isSandboxToken}
-                serverUri={defaultServerUri}
-                setTitle={setTitle}
-                checkToken={checkToken}
-            />
-        </Page>
-    ) : null;
+                serverStatus={serverStatus}
+                accountId={accountId}
+            >
+                <Component
+                    {...pageProps}
+                    isSandboxToken={isSandboxToken}
+                    serverUri={defaultServerUri}
+                    setTitle={setTitle}
+                    checkToken={checkToken}
+                    accountId={accountId}
+                />
+            </Page>
+        ) : null;
 }
 
 export default MyApp;

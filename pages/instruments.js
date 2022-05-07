@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 import styles from '../styles/Settings.module.css';
@@ -23,44 +23,50 @@ export default function Instruments(props) {
 
 // TODO: redux
 const defaultServerUri = 'http://localhost:8000/';
+const instrumentsButtons = [
+    {
+        page: 'bluechipsshares',
+        name: 'Голубые фишки',
+    },
+    {
+        page: 'bluechipsfutures',
+        name: 'Фьючерсы',
+    },
+
+    // {
+    //     page: 'bluechipsshares',
+    //     name: 'Объём торгов внутри дня (ТОП-3)',
+    // },
+    // {
+    //     page: 'bluechipsshares',
+    //     name: 'Волатильность внутри дня (ТОП-3)',
+    // },
+];
 
 const SelectInstrument = () => {
-    const [buttonActive, setButtonActive] = React.useState();
-    const [inProgress, setInprogress] = React.useState(false);
-    const [instrumenst, setInstrumenst] = React.useState();
-    const instrumentsButtons = [
-        {
-            page: 'bluechipsshares',
-            name: 'Голубые фишки',
-        },
-        {
-            page: 'bluechipsfutures',
-            name: 'Фьючерсы',
-        },
-
-        // {
-        //     page: 'bluechipsshares',
-        //     name: 'Объём торгов внутри дня (ТОП-3)',
-        // },
-        // {
-        //     page: 'bluechipsshares',
-        //     name: 'Волатильность внутри дня (ТОП-3)',
-        // },
-    ];
-
-    const instrumentPage = React.useMemo(() => instrumentsButtons, []);
+    const [buttonActive, setButtonActive] = useState();
+    const [inProgress, setInprogress] = useState(false);
+    const [instrumenst, setInstrumenst] = useState();
+    const [isReady, setIsReady] = useState();
 
     const onButtonClick = React.useCallback(async num => {
         setButtonActive(num);
         setInprogress(true);
-        setInstrumenst(await getInstruments(defaultServerUri + instrumentPage[num].page));
+        setInstrumenst(await getInstruments(defaultServerUri + instrumentsButtons[num].page));
         setInprogress(false);
-    }, [instrumentPage]);
+    }, []);
+
+    useEffect(() => {
+        setIsReady(true);
+        if (isReady) {
+            onButtonClick(0);
+        }
+    }, [isReady, onButtonClick]);
 
     return (
         <>
             <ButtonGroup>
-                {instrumentPage.slice(0, 2).map((i, k) => (
+                {instrumentsButtons.slice(0, 2).map((i, k) => (
                     <Button
                         key={k}
                         color="primary"
@@ -75,7 +81,7 @@ const SelectInstrument = () => {
             </ButtonGroup>
             <br></br>
             <ButtonGroup>
-                {instrumentPage.slice(2, 4).map((i, k) => (
+                {instrumentsButtons.slice(2, 4).map((i, k) => (
                     <Button
                         key={k}
                         color="primary"

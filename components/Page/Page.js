@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import Head from 'next/head';
 import styles from '../../styles/Home.module.css';
 import {
@@ -7,13 +7,18 @@ import {
 } from 'reactstrap';
 
 export default function Page(props) {
-    const { isSandboxToken, serverStatus } = props;
+    const { isSandboxToken, serverStatus, accountId } = props;
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = useCallback(() => {
+        setIsMenuOpen(!isMenuOpen);
+    }, [isMenuOpen]);
 
     // 0 нужно задать, 1 sandbox, 2 production
     const whatToken = typeof isSandboxToken === 'undefined' ? 0 : isSandboxToken ? 1 : 2;
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container} >
             <Head>
                 <title>OpexViewer</title>
                 <meta name="description" content="Торговый терминал для автоматической и полуавтоматической торговли" />
@@ -21,22 +26,29 @@ export default function Page(props) {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </Head>
 
-            <main className={styles.main}>
+            <main className={styles.main} >
                 <div>
                     <Navbar
                         color="light"
                         expand="md"
                         light
+                        animation="false"
                     >
                         <NavbarBrand href="/">
                             OpexViewer
                         </NavbarBrand>
-                        <NavbarToggler onClick={function noRefCheck() {}} />
-                        <Collapse navbar>
+                        <NavbarToggler animation="false" onClick={toggleMenu} />
+                        <Collapse animation="false" isOpen={isMenuOpen} navbar>
                             <Nav
                                 className="me-auto"
                                 navbar
+
                             >
+                                <NavItem>
+                                    <NavLink href="/accounts">
+                                        Счета
+                                    </NavLink>
+                                </NavItem>
                                 <NavItem>
                                     <NavLink href="/instruments">
                                         Инструменты
@@ -51,6 +63,7 @@ export default function Page(props) {
                             <HeadBadges
                                 whatToken={whatToken}
                                 serverStatus={serverStatus}
+                                accountId={accountId}
                             />
                         </Collapse>
                     </Navbar>
@@ -80,11 +93,17 @@ const HeadBadges = props => {
     const {
         whatToken,
         serverStatus,
+        accountId,
     } = props;
 
     return (<NavbarText>
         <ServerBadge
             whatToken={whatToken}
+            serverStatus={serverStatus}
+        />
+        <AccountBadge
+            whatToken={whatToken}
+            accountId={accountId}
             serverStatus={serverStatus}
         />
         {serverStatus ? (<Badge
@@ -112,5 +131,24 @@ const ServerBadge = props => {
             }}
         >
         Сервер: {serverStatus ? 'ok' : 'недоступен'}
+        </Badge>) : '';
+};
+
+const AccountBadge = props => {
+    const {
+        whatToken,
+        accountId,
+        serverStatus,
+    } = props;
+
+    return whatToken && serverStatus ? (
+        <Badge
+            color="primary"
+            href="/accounts"
+            style={{
+                marginRight: '20px',
+            }}
+        >
+            {!accountId ? 'Выберите счёт' : String(accountId).substring(0, 13)}
         </Badge>) : '';
 };
