@@ -39,7 +39,7 @@ function MyApp({ Component, pageProps }) {
 
             if (t.accountId && t.accountId !== accountId) {
                 setAccountId(t.accountId);
-            } else if (!t.accountId) {
+            } else if (!t.accountId && pathname !== '/settings') {
                 routerPush('/accounts');
             }
         }

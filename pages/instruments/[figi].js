@@ -56,8 +56,6 @@ export default function TerminalFigi(props) {
     const [instrument, setInstrument] = React.useState();
     const [selectedDate, setSelectedDate] = React.useState(new Date());
 
-    const { iName, iTicker, exchange } = instrument || {};
-
     const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {
         const currentDate = date || selectedDate;
 
@@ -79,8 +77,8 @@ export default function TerminalFigi(props) {
 
     const onCalendareChange = React.useCallback(async date => {
         setSelectedDate(date);
-        exchange && getTradingSchedulesCb(exchange, date);
-    }, [exchange, getTradingSchedulesCb]);
+        instrument.exchange && getTradingSchedulesCb(instrument.exchange, date);
+    }, [instrument, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
         const i = await getInstrument(figi);
@@ -107,8 +105,10 @@ export default function TerminalFigi(props) {
     }, [figi, instrument, isReady, getInstrumentCb, routerPush]);
 
     React.useEffect(() => {
-        setTitle(iName + ` (${iTicker})`);
-    }, [setTitle, iName, iTicker]);
+        if (instrument) {
+            setTitle(instrument.name + ` (${instrument.ticker})`);
+        }
+    }, [setTitle, instrument]);
 
     return (<Content
         setInprogress={setInprogress}
@@ -183,6 +183,7 @@ const Content = props => {
 
             { props.isTradingDay ? '' : (<><br></br><br></br><center>Торги не проводятся или нет данных.</center></>) }
 
+            {/* Если дата не сегодняшняя, то компонент бэктестирования*/}
             <Chart
                 interval={props.interval}
                 setInprogress={props.setInprogress}
