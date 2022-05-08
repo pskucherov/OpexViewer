@@ -5,339 +5,195 @@ Object {
   "asFragment": [Function],
   "baseElement": <body>
     <div>
-      <div
-        class="container"
+      <form
+        class="SettingsForm"
       >
-        <main
-          class="main"
+        <small
+          class="form-text text-muted"
         >
-          <div>
-            <nav
-              class="navbar navbar-expand-md navbar-light bg-light"
+          <h4>
+            Сервер торгового робота
+          </h4>
+        </small>
+        <div
+          class="label mb-3"
+        >
+          <label
+            class="form-label"
+          >
+            Server 
+            <a
+              href="https://github.com/pskucherov/TinkoffTradingBot"
+              rel="noreferrer"
+              target="_blank"
             >
-              <div
-                class="container-fluid"
-              >
-                <a
-                  class="navbar-brand"
-                  href="/"
-                >
-                  OpexViewer
-                </a>
-                <button
-                  aria-label="Toggle navigation"
-                  class="navbar-toggler"
-                  type="button"
-                >
-                  <span
-                    class="navbar-toggler-icon"
-                  />
-                </button>
-                <div
-                  class="collapse navbar-collapse"
-                >
-                  <ul
-                    class="me-auto navbar-nav"
-                  >
-                    <li
-                      class="nav-item"
-                    >
-                      <a
-                        class="nav-link"
-                        href="/settings"
-                      >
-                        Настройки
-                      </a>
-                    </li>
-                  </ul>
-                  <span
-                    class="navbar-text"
-                  >
-                    Token: sandbox
-                  </span>
-                </div>
-              </div>
-            </nav>
+              (?)
+            </a>
+          </label>
+          <input
+            class="form-control"
+            name="serveruri"
+            placeholder="http://localhost:8000/"
+            type="text"
+            value="http://localhost:8000/"
+          />
+          <div
+            class="invalid-feedback"
+          >
+            Сервер недоступен.
           </div>
-          <h1
-            class="title"
-          >
-            Настройки
-          </h1>
-          <form
-            class="SettingsForm"
-          >
-            <small
-              class="form-text text-muted"
-            >
-              <h4>
-                Сервер торгового робота
-              </h4>
-            </small>
-            <div
-              class="label mb-3"
-            >
-              <label
-                class="form-label"
-              >
-                Server 
-                <a
-                  href="https://github.com/pskucherov/TinkoffTradingBot"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  (?)
-                </a>
-              </label>
-              <input
-                class="form-control"
-                name="serveruri"
-                placeholder="http://localhost:8000/"
-                type="text"
-                value="http://localhost:8000/"
-              />
-              <div
-                class="invalid-feedback"
-              >
-                Сервер недоступен.
-              </div>
-            </div>
-            <div
-              class="spinner-border-sm spinner-border text-primary"
-              role="status"
-            >
-              <span
-                class="visually-hidden"
-              >
-                Loading...
-              </span>
-            </div>
-          </form>
-          <form
-            class="SettingsForm"
-          >
-            <small
-              class="form-text text-muted"
-            >
-              <h4>
-                Добавить Token
-              </h4>
-            </small>
-            <div
-              class="label mb-3"
-            >
-              <label
-                class="form-label"
-              >
-                Token 
-                <a
-                  href="https://tinkoff.github.io/investAPI/token/"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  (?)
-                </a>
-              </label>
-              <input
-                aria-invalid="false"
-                class="form-control"
-                name="token"
-                placeholder="t.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg"
-                type="text"
-              />
-              <div
-                class="invalid-feedback"
-              >
-                Укажитие действующий token.
-              </div>
-            </div>
-            <button
-              class="Submit btn btn-secondary"
-            >
-              Добавить
-            </button>
-          </form>
-        </main>
-        <footer
-          class="footer"
+        </div>
+        <div
+          class="spinner-border-sm spinner-border text-primary"
+          role="status"
         >
-          <a
-            href="https://t.me/pskucherov"
-            rel="noopener noreferrer"
-            target="_blank"
+          <span
+            class="visually-hidden"
           >
-            pskucherov
-          </a>
-        </footer>
-      </div>
+            Loading...
+          </span>
+        </div>
+      </form>
+      <form
+        class="SettingsForm"
+      >
+        <small
+          class="form-text text-muted"
+        >
+          <h4>
+            Добавить Token
+          </h4>
+        </small>
+        <div
+          class="label mb-3"
+        >
+          <label
+            class="form-label"
+          >
+            Token 
+            <a
+              href="https://tinkoff.github.io/investAPI/token/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              (?)
+            </a>
+          </label>
+          <input
+            aria-invalid="false"
+            class="form-control"
+            name="token"
+            placeholder="t.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg"
+            type="text"
+          />
+          <div
+            class="invalid-feedback"
+          >
+            Укажитие действующий token.
+          </div>
+        </div>
+        <button
+          class="Submit btn btn-secondary"
+        >
+          Добавить
+        </button>
+      </form>
     </div>
   </body>,
   "container": <div>
-    <div
-      class="container"
+    <form
+      class="SettingsForm"
     >
-      <main
-        class="main"
+      <small
+        class="form-text text-muted"
       >
-        <div>
-          <nav
-            class="navbar navbar-expand-md navbar-light bg-light"
+        <h4>
+          Сервер торгового робота
+        </h4>
+      </small>
+      <div
+        class="label mb-3"
+      >
+        <label
+          class="form-label"
+        >
+          Server 
+          <a
+            href="https://github.com/pskucherov/TinkoffTradingBot"
+            rel="noreferrer"
+            target="_blank"
           >
-            <div
-              class="container-fluid"
-            >
-              <a
-                class="navbar-brand"
-                href="/"
-              >
-                OpexViewer
-              </a>
-              <button
-                aria-label="Toggle navigation"
-                class="navbar-toggler"
-                type="button"
-              >
-                <span
-                  class="navbar-toggler-icon"
-                />
-              </button>
-              <div
-                class="collapse navbar-collapse"
-              >
-                <ul
-                  class="me-auto navbar-nav"
-                >
-                  <li
-                    class="nav-item"
-                  >
-                    <a
-                      class="nav-link"
-                      href="/settings"
-                    >
-                      Настройки
-                    </a>
-                  </li>
-                </ul>
-                <span
-                  class="navbar-text"
-                >
-                  Token: sandbox
-                </span>
-              </div>
-            </div>
-          </nav>
+            (?)
+          </a>
+        </label>
+        <input
+          class="form-control"
+          name="serveruri"
+          placeholder="http://localhost:8000/"
+          type="text"
+          value="http://localhost:8000/"
+        />
+        <div
+          class="invalid-feedback"
+        >
+          Сервер недоступен.
         </div>
-        <h1
-          class="title"
-        >
-          Настройки
-        </h1>
-        <form
-          class="SettingsForm"
-        >
-          <small
-            class="form-text text-muted"
-          >
-            <h4>
-              Сервер торгового робота
-            </h4>
-          </small>
-          <div
-            class="label mb-3"
-          >
-            <label
-              class="form-label"
-            >
-              Server 
-              <a
-                href="https://github.com/pskucherov/TinkoffTradingBot"
-                rel="noreferrer"
-                target="_blank"
-              >
-                (?)
-              </a>
-            </label>
-            <input
-              class="form-control"
-              name="serveruri"
-              placeholder="http://localhost:8000/"
-              type="text"
-              value="http://localhost:8000/"
-            />
-            <div
-              class="invalid-feedback"
-            >
-              Сервер недоступен.
-            </div>
-          </div>
-          <div
-            class="spinner-border-sm spinner-border text-primary"
-            role="status"
-          >
-            <span
-              class="visually-hidden"
-            >
-              Loading...
-            </span>
-          </div>
-        </form>
-        <form
-          class="SettingsForm"
-        >
-          <small
-            class="form-text text-muted"
-          >
-            <h4>
-              Добавить Token
-            </h4>
-          </small>
-          <div
-            class="label mb-3"
-          >
-            <label
-              class="form-label"
-            >
-              Token 
-              <a
-                href="https://tinkoff.github.io/investAPI/token/"
-                rel="noreferrer"
-                target="_blank"
-              >
-                (?)
-              </a>
-            </label>
-            <input
-              aria-invalid="false"
-              class="form-control"
-              name="token"
-              placeholder="t.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg"
-              type="text"
-            />
-            <div
-              class="invalid-feedback"
-            >
-              Укажитие действующий token.
-            </div>
-          </div>
-          <button
-            class="Submit btn btn-secondary"
-          >
-            Добавить
-          </button>
-        </form>
-      </main>
-      <footer
-        class="footer"
+      </div>
+      <div
+        class="spinner-border-sm spinner-border text-primary"
+        role="status"
       >
-        <a
-          href="https://t.me/pskucherov"
-          rel="noopener noreferrer"
-          target="_blank"
+        <span
+          class="visually-hidden"
         >
-          pskucherov
-        </a>
-      </footer>
-    </div>
+          Loading...
+        </span>
+      </div>
+    </form>
+    <form
+      class="SettingsForm"
+    >
+      <small
+        class="form-text text-muted"
+      >
+        <h4>
+          Добавить Token
+        </h4>
+      </small>
+      <div
+        class="label mb-3"
+      >
+        <label
+          class="form-label"
+        >
+          Token 
+          <a
+            href="https://tinkoff.github.io/investAPI/token/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            (?)
+          </a>
+        </label>
+        <input
+          aria-invalid="false"
+          class="form-control"
+          name="token"
+          placeholder="t.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg"
+          type="text"
+        />
+        <div
+          class="invalid-feedback"
+        >
+          Укажитие действующий token.
+        </div>
+      </div>
+      <button
+        class="Submit btn btn-secondary"
+      >
+        Добавить
+      </button>
+    </form>
   </div>,
   "debug": [Function],
   "findAllByAltText": [Function],

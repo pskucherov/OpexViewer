@@ -6,7 +6,7 @@ import '@testing-library/jest-dom';
 describe('Setting', () => {
     it('Should render SettingsForm', () => {
         const textToFind = 'Добавить Token';
-        const component = render(<Settings/>);
+        const component = render(<Settings setTitle={() => {}} />);
 
         const heading = screen.getByText(textToFind);
 
@@ -17,7 +17,7 @@ describe('Setting', () => {
     it('Should render Token', () => {
         const textToFind = 'Добавить';
 
-        render(<Settings/>);
+        render(<Settings setTitle={() => {}} />);
 
         const heading = screen.getByText(textToFind);
 
