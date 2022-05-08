@@ -1,58 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getLogs } from '../utils/serverStatus';
 import { Button } from 'reactstrap';
 import styles from '../styles/Settings.module.css';
 
-const Logs = () => {
-    const [data, setData] = useState({});
+export default function Logs(props) {
+    const [data, setData] = useState([]);
     const [type, setType] = useState('server');
+    const [counter, setCounter] = useState(0);
 
-    function chengeType() {
+    const { setTitle } = props;
+
+    const chengeType = useCallback(event => {
         if (type !== event.target.value) {
             setType(event.target.value);
-            console.log('Новый' + event.target.value);
         }
-        console.log(type);
-    }
+    }, [type]);
 
     useEffect(function() {
-        const url = 'http://localhost:8000/';
-
         const checkRequest = async () => {
-            const Log = await getLogs(url, type);
+            const Log = await getLogs(props.serverUri, type);
 
-
-            if (data !== Log) {
-                setData(Log);
+            if (Log) {
+                setTitle(type + ' logs');
+                setData(Log.split('\r\n'));
+                setCounter(data.length);
+            } else {
+                setCounter(data.length);
             }
         };
         const timer = setInterval(() => {
             checkRequest();
-        }, 10000);
-    }, [type]);
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [type, setTitle, props.serverUri, data]);
 
     return (
         <div>
-            <h1>Logs Page</h1>
-            <h2>{type}</h2>
+            <h1>Всего ошибок: {counter}</h1>
             <div>
                 <Button
                     className={styles.SelectButton}
-                    onClick={() => chengeType()}
+                    onClick={chengeType}
                     value="API">
         API Logs
                 </Button>
                 <Button
                     className={styles.SelectButton}
-                    onClick={() => chengeType()}
+                    onClick={chengeType}
                     value="server">
         Server Logs
                 </Button>
             </div>
-            {data !== false &&
-            <div>{data.toString().split('\n').map((str, index) => <p key={index}>{str}</p>)} </div> || <div>Нет данных</div> }
+            <div>
+                {
+                    data.map((str, index) =>
+                        <p key={index}>{str}</p>)
+                }
+            </div>
         </div>
     );
-};
-
-export default Logs;
+}

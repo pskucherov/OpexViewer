@@ -33,7 +33,7 @@ const getLogs = async (url, type) => {
     let response;
 
     try {
-        response = await window.fetch(url + `logs${type}`, requestOptions);
+        response = await window.fetch(url + `/logs/${type}`, requestOptions);
     } catch (error) {
         return false;
     }
