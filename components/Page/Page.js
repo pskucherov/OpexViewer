@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef } from 'react';
 import Head from 'next/head';
-import styles from '../../styles/Home.module.css';
+import styles from '../../styles/Page.module.css';
 import {
     Badge, Nav, Navbar, NavbarBrand, NavbarToggler,
     Collapse, NavItem, NavLink, NavbarText,
@@ -126,9 +126,7 @@ const ServerBadge = props => {
         <Badge
             color={serverStatus ? 'success' : 'danger'}
             href="/settings"
-            style={{
-                marginRight: '20px',
-            }}
+            className={styles.PageBadge}
         >
         Сервер: {serverStatus ? 'ok' : 'недоступен'}
         </Badge>) : '';
@@ -145,9 +143,7 @@ const AccountBadge = props => {
         <Badge
             color="primary"
             href="/accounts"
-            style={{
-                marginRight: '20px',
-            }}
+            className={styles.PageBadge}
         >
             {!accountId ? 'Выберите счёт' : String(accountId).substring(0, 13)}
         </Badge>) : '';

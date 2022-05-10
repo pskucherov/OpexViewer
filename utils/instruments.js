@@ -62,6 +62,25 @@ const getCandles = async (figi, interval, from, to) => {
     return false;
 };
 
+const getOrderBook = async (url, figi, time) => {
+    let response;
+
+    url = `${url}/getcachedorderbook/${figi}` + (time ? `?time=${time}` : '');
+
+    try {
+        response = await window.fetch(url,
+            requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getTradingSchedules = async (exchange, from, to) => {
     let response;
 
@@ -94,4 +113,6 @@ export {
 
     getTradingSchedules,
     getCandles,
+
+    getOrderBook,
 };

@@ -1,0 +1,14 @@
+.TerminalColChart {
+    min-width: 350px;
+}
+
+.TerminalColOrderBook {
+    max-width: 400px;
+}
+
+.OrderBook {
+    min-width: 310px;
+    max-width: 1040px;
+    height: 400px;
+    margin: 0 auto;
+}

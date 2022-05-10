@@ -66,7 +66,9 @@ function MyApp({ Component, pageProps }) {
         return () => {
             interval && clearInterval(interval);
         };
-    }, [ready, isReady]); // checkToken в deps специально не добавлен, чтобы не было лишних запросов.
+
+    // checkToken в deps специально не добавлен, чтобы не было лишних запросов.
+    }, [ready, isReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
         pathname === '/settings' ||

@@ -1,5 +1,6 @@
 .container {
-  padding: 0 2rem;
+  padding: 0;
+  margin: 0;
 }
 
 .main {
@@ -104,6 +105,10 @@
 .logo {
   height: 1em;
   margin-left: 0.5rem;
+}
+
+.PageBadge {
+  margin-right: 20px;
 }
 
 @media (max-width: 600px) {

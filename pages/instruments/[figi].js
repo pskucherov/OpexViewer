@@ -1,9 +1,11 @@
 import { useRouter } from 'next/router';
-import React from 'react';
-import Page from '../../components/Page/Page';
+import React, { useState } from 'react';
 import Chart from '../../components/Chart/Chart';
+import Backtest from '../../components/Backtest/Backtest';
 import { getInstrument, getTradingSchedules } from '../../utils/instruments';
 import { Spinner, FormGroup, Label, FormText, Button, ButtonGroup } from 'reactstrap';
+
+import { getFromSS, setToSS } from '../../utils/storage';
 
 import DatePicker from 'react-datepicker';
 const INIT_INTERVAL_TEXT = ['1 мин', '5 мин', '15 мин', '1 час'];
@@ -19,6 +21,7 @@ const SelectInterval = props => {
         // Задаёт интервал для всей страницы.
         // Этот интервал будет использован для построения графика.
         setTickerInterval(num);
+        setToSS('interval', num);
     }, [setTickerInterval]);
 
     return (
@@ -43,18 +46,21 @@ const SelectInterval = props => {
 const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
 
 export default function TerminalFigi(props) {
-    const { setTitle } = props;
+    const { setTitle, serverUri } = props;
     const router = useRouter();
     const routerPush = router.push;
     const { isReady } = router;
 
     const { figi } = router.query;
 
-    const [interval, setTickerInterval] = React.useState(INIT_INTERVAL);
+    const lsData = getFromSS();
+
+    const [interval, setTickerInterval] = React.useState(lsData['interval'] || INIT_INTERVAL);
     const [inProgress, setInprogress] = React.useState(true);
     const [isTradingDay, setIsTradingDay] = React.useState();
     const [instrument, setInstrument] = React.useState();
-    const [selectedDate, setSelectedDate] = React.useState(new Date());
+    const [selectedDate, setSelectedDate] = React.useState(lsData['selectedDate'] && new Date(lsData['selectedDate']) || new Date());
+    const [isBacktest, setIsBackTest] = useState(!isToday(new Date(), selectedDate));
 
     const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {
         const currentDate = date || selectedDate;
@@ -77,7 +83,10 @@ export default function TerminalFigi(props) {
 
     const onCalendareChange = React.useCallback(async date => {
         setSelectedDate(date);
+        setToSS('selectedDate', date);
+
         instrument.exchange && getTradingSchedulesCb(instrument.exchange, date);
+        setIsBackTest(!isToday(new Date(), new Date(date)));
     }, [instrument, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
@@ -121,18 +130,15 @@ export default function TerminalFigi(props) {
         setTickerInterval={setTickerInterval}
         selectedDate={selectedDate}
         setIsTradingDay={setIsTradingDay}
+        isBacktest={isBacktest}
+        serverUri={serverUri}
     />);
 }
 
 const Head = props => {
-    const { interval, onCalendareChange, setTickerInterval } = props;
-
-    const [startDate, setStartDate] = React.useState(new Date());
-
-    const handleChange = React.useCallback(date => {
-        setStartDate(date);
-        onCalendareChange(date);
-    }, [onCalendareChange]);
+    const {
+        interval, onCalendareChange, setTickerInterval, selectedDate,
+    } = props;
 
     const isWeekday = React.useCallback(date => {
         const day = new Date(date).getDay();
@@ -145,12 +151,11 @@ const Head = props => {
             <FormGroup>
                 <DatePicker
                     dateFormat="dd.MM.yyyy"
-                    selected = {startDate}
-                    onChange={handleChange}
+                    selected={selectedDate}
+                    onChange={onCalendareChange}
 
-                    // maxDate={new Date()}
+                    maxDate={new Date()}
                     filterDate={isWeekday}
-                    todayButton="Сегодня"
                     withPortal
                 />
             </FormGroup>
@@ -163,12 +168,15 @@ const Head = props => {
 };
 
 const Content = props => {
+    const { serverUri } = props;
+
     return (
         <>
             <Head
                 interval={props.interval}
                 setTickerInterval={props.setTickerInterval}
                 onCalendareChange={props.onCalendareChange}
+                selectedDate={props.selectedDate}
             />
             {props.inProgress ? (
                 <>
@@ -181,18 +189,32 @@ const Content = props => {
                 </>
             ) : ''}
 
-            { props.isTradingDay ? '' : (<><br></br><br></br><center>Торги не проводятся или нет данных.</center></>) }
+            {props.isTradingDay ? '' : (<><br></br><br></br><center>Торги не проводятся или нет данных.</center></>) }
 
-            {/* Если дата не сегодняшняя, то компонент бэктестирования*/}
-            <Chart
-                interval={props.interval}
-                setInprogress={props.setInprogress}
-                inProgress={props.inProgress}
-                isTradingDay={props.isTradingDay}
-                selectedDate={props.selectedDate}
-                figi={props.figi}
-                instrument={props.instrument}
-                setIsTradingDay={props.setIsTradingDay}
-            />
+            {props.isBacktest ? (
+                <Backtest
+                    interval={props.interval}
+                    setInprogress={props.setInprogress}
+                    inProgress={props.inProgress}
+                    isTradingDay={props.isTradingDay}
+                    selectedDate={props.selectedDate}
+                    figi={props.figi}
+                    instrument={props.instrument}
+                    setIsTradingDay={props.setIsTradingDay}
+                    serverUri={serverUri}
+                />
+            ) : (
+                <Chart
+                    interval={props.interval}
+                    setInprogress={props.setInprogress}
+                    inProgress={props.inProgress}
+                    isTradingDay={props.isTradingDay}
+                    selectedDate={props.selectedDate}
+                    figi={props.figi}
+                    instrument={props.instrument}
+                    setIsTradingDay={props.setIsTradingDay}
+                    serverUri={serverUri}
+                />
+            )}
         </>);
 };
