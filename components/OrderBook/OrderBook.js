@@ -23,7 +23,8 @@ export function OrderBook(props) {
     const {
         data,
         step,
-        setLastPriceInChart,
+
+        //  setLastPriceInChart,
         serverUri,
         figi,
         interval,
@@ -47,26 +48,29 @@ export function OrderBook(props) {
             getLastPriceAndOrderBook(serverUri, figi));
 
         if (c && c.length) {
-            if (typeof step === 'undefined' && setLastPriceInChart && !isBackTest) {
+            if (typeof step === 'undefined' && !isBackTest) {
                 const time = new Date(c[0]['lastPrices'][0].time);
                 const price = getPrice(c[0]['lastPrices'][0]['price']);
 
                 setLastPrice(price);
-                setLastPriceInChart(price, time);
+
+                // Переделать, чтобы orderbook не обновлял цену у графика.
+                // setLastPriceInChart(price, time);
             }
             setOrderbook(c[1]);
         }
-    }, [figi, interval, serverUri, setLastPriceInChart, isBackTest, date, time]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [figi, interval, serverUri, isBackTest, date, time]); // eslint-disable-line react-hooks/exhaustive-deps
 
     React.useEffect(() => {
         Accessibility(Highcharts);
-    }, [getOrderBookHandle]);
+    }, []);
 
     React.useEffect(() => {
-        const i = !isBackTest && setInterval(() => { getOrderBookHandle() }, 1000);
+        getOrderBookHandle();
+        const i = !isBackTest && setInterval(() => { getOrderBookHandle() }, 1500);
 
         return () => { i && clearInterval(i) };
-    }, [getOrderBookHandle, isBackTest]);
+    }, [interval, isBackTest, getOrderBookHandle]);
 
     let i;
     let bids;
@@ -145,10 +149,12 @@ export function OrderBook(props) {
             name: 'Спрос',
             data: bids,
             color: '#03a7a8',
+            animation: false,
         }, {
             name: 'Предложение',
             data: asks,
             color: '#fc5857',
+            animation: false,
         }],
     };
 

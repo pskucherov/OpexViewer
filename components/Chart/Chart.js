@@ -12,6 +12,7 @@ import { BacktestButtons } from '../Backtest/BacktestButtons';
 import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
 import { statusRobot } from '../../utils/robots';
+import { RobotsButtons } from '../Robots/RobotsButtons';
 
 export default function Chart(props) {
     const {
@@ -23,9 +24,6 @@ export default function Chart(props) {
 
     const [data, setData] = React.useState([]);
     const [volume, setVolume] = React.useState([]);
-    const [backtestData, setBacktestData] = React.useState();
-    const [backtestVolume, setBacktestVolume] = React.useState();
-    const [maxStep, setMaxStep] = useState(0);
     const [step, setStep] = useState();
     const [selectedRobot, setSelectedRobots] = useState();
 
@@ -55,26 +53,12 @@ export default function Chart(props) {
                 nextVolume.push([timezoneData, m.volume]);
             });
 
-            // Убираем последнюю цену из графика
-            const newLastLineData = nextData[nextData.length - 1];
-
-            if (
-                newLastLineData[1] === newLastLineData[2] &&
-                newLastLineData[2] === newLastLineData[3] &&
-                newLastLineData[3] === newLastLineData[4] &&
-                newLastLineData[1] === newLastLineData[4]
-            ) {
-                nextData.pop();
-            }
-
             setData(nextData);
             setVolume(nextVolume);
-
-            setMaxStep(nextData.length - 1);
         }
 
         return c;
-    }, [figi, interval, selectedDate, setMaxStep]);
+    }, [figi, interval, selectedDate, setData, setVolume]);
 
     const getCandlesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {
@@ -91,25 +75,26 @@ export default function Chart(props) {
             }
             setInprogress(false);
         }
-    }, [instrument, figi, setInprogress, selectedDate, setIsTradingDay, updateCandlesHandle]);
+    }, [instrument, interval, figi, setInprogress, selectedDate, // eslint-disable-line react-hooks/exhaustive-deps
+        setIsTradingDay, updateCandlesHandle, setData, setVolume]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const setLastPriceInChart = useCallback((price, time) => {
-        const newLastLineData = data[data.length - 1];
-        const newData = [...data];
+    // const setLastPriceInChart = useCallback((price, time) => {
+    //     const newLastLineData = data[data.length - 1];
+    //     const newData = [...data];
 
-        // Убираем последнюю цену из графика
-        if (
-            newLastLineData[1] === newLastLineData[2] &&
-            newLastLineData[2] === newLastLineData[3] &&
-            newLastLineData[3] === newLastLineData[4] &&
-            newLastLineData[1] === newLastLineData[4]
-        ) {
-            newData.pop();
-        }
+    //     // Убираем последнюю цену из графика
+    //     if (
+    //         newLastLineData[1] === newLastLineData[2] &&
+    //         newLastLineData[2] === newLastLineData[3] &&
+    //         newLastLineData[3] === newLastLineData[4] &&
+    //         newLastLineData[1] === newLastLineData[4]
+    //     ) {
+    //         newData.pop();
+    //     }
 
-        newData.push([new Date(time).getTime() - (new Date().getTimezoneOffset() * 60000), price, price, price, price]);
-        setData(newData);
-    }, [data, setData]);
+    //     newData.push([new Date(time).getTime() - (new Date().getTimezoneOffset() * 60000), price, price, price, price]);
+    //     setData(newData);
+    // }, [data, setData, interval]);
 
     React.useEffect(() => {
         PriceIndicator(Highcharts);
@@ -118,9 +103,13 @@ export default function Chart(props) {
     React.useEffect(() => {
         getCandlesHandle();
 
-        const i = setInterval(() => { updateCandlesHandle() }, 5000);
+        const i = setInterval(() => {
+            updateCandlesHandle();
+        }, 5000);
 
-        return () => { clearInterval(i) };
+        return () => {
+            clearTimeout(i);
+        };
     }, [interval, getCandlesHandle, updateCandlesHandle]);
 
     const options = {
@@ -128,11 +117,11 @@ export default function Chart(props) {
         series: [
             {
                 ...chartOptions.series[0],
-                data: backtestData || data,
+                data: data,
             },
             {
                 ...chartOptions.series[1],
-                data: backtestVolume || volume,
+                data: volume,
             },
         ],
     };
@@ -143,6 +132,7 @@ export default function Chart(props) {
         >
             <Terminal
                 data={data}
+                dl={data.length}
                 isTradingDay={isTradingDay}
                 inProgress={inProgress}
                 setInprogress={setInprogress}
@@ -150,7 +140,8 @@ export default function Chart(props) {
                 serverUri={serverUri}
                 interval={interval}
                 figi={figi}
-                setLastPriceInChart={setLastPriceInChart}
+
+                // setLastPriceInChart={setLastPriceInChart}
                 isBackTest={false}
             />
             <Robots
@@ -158,15 +149,8 @@ export default function Chart(props) {
                 setSelectedRobots={setSelectedRobots}
                 disabled={typeof step !== 'undefined'}
             />
-            <BacktestButtons
+            <RobotsButtons
                 interval={interval}
-                setStep={setStep}
-                step={step}
-                maxStep={maxStep}
-                setBacktestData={setBacktestData}
-                setBacktestVolume={setBacktestVolume}
-                data={data}
-                volume={volume}
                 selectedRobot={selectedRobot}
                 serverUri={serverUri}
                 figi={figi}

@@ -22,7 +22,7 @@ export function Terminal(props) {
         serverUri,
         interval,
         figi,
-
+        dl,
         setLastPriceInChart,
     } = props;
 
@@ -55,7 +55,8 @@ export function Terminal(props) {
                         serverUri={serverUri}
                         interval={interval}
                         figi={figi}
-                        setLastPriceInChart={setLastPriceInChart}
+
+                        // setLastPriceInChart={setLastPriceInChart}
                         isBackTest={isBackTest}
                     />
                 </Col>
