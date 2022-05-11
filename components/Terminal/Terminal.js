@@ -18,10 +18,12 @@ export function Terminal(props) {
         setInprogress,
         options,
         step,
-
+        isBackTest,
         serverUri,
         interval,
         figi,
+
+        setLastPriceInChart,
     } = props;
 
     const refChart = React.useRef(null);
@@ -53,8 +55,8 @@ export function Terminal(props) {
                         serverUri={serverUri}
                         interval={interval}
                         figi={figi}
-
-                        // currentPrice={currentPrice}
+                        setLastPriceInChart={setLastPriceInChart}
+                        isBackTest={isBackTest}
                     />
                 </Col>
             </Row>

@@ -4,7 +4,7 @@ import Highcharts from 'highcharts/highstock';
 
 import Accessibility from 'highcharts/modules/accessibility';
 import { getPrice } from '../../utils/price';
-import { getOrderBook } from '../../utils/instruments';
+import { getLastPriceAndOrderBook, getOrderBook } from '../../utils/instruments';
 
 import styles from '../../styles/Terminal.module.css';
 
@@ -23,12 +23,18 @@ export function OrderBook(props) {
     const {
         data,
         step,
-        currentPrice,
+        setLastPriceInChart,
         serverUri,
         figi,
         interval,
+        isBackTest,
+
+        // TODO: определить для бэктеста
+        date,
+        time,
     } = props;
 
+    const [lastPrice, setLastPrice] = useState();
     const [orderbook, setOrderbook] = useState([]);
 
     const getOrderBookHandle = React.useCallback(async () => {
@@ -36,26 +42,49 @@ export function OrderBook(props) {
             return;
         }
 
-        const c = await getOrderBook(serverUri, figi);
+        const c = await (isBackTest ?
+            getOrderBook(serverUri, figi, date, time) :
+            getLastPriceAndOrderBook(serverUri, figi));
 
-        if (c) {
-            setOrderbook(c);
+        if (c && c.length) {
+            if (typeof step === 'undefined' && setLastPriceInChart && !isBackTest) {
+                const time = new Date(c[0]['lastPrices'][0].time);
+                const price = getPrice(c[0]['lastPrices'][0]['price']);
+
+                setLastPrice(price);
+                setLastPriceInChart(price, time);
+            }
+            setOrderbook(c[1]);
         }
-    }, [figi, interval, serverUri]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [figi, interval, serverUri, setLastPriceInChart, isBackTest, date, time]); // eslint-disable-line react-hooks/exhaustive-deps
 
     React.useEffect(() => {
         Accessibility(Highcharts);
-        getOrderBookHandle();
     }, [getOrderBookHandle]);
 
-    const i = data.length && typeof step !== 'undefined' && (data[step] ? data[step][0] : data[data.length - 1][0]);
+    React.useEffect(() => {
+        const i = !isBackTest && setInterval(() => { getOrderBookHandle() }, 1000);
 
-    const bids = orderbook[i] && orderbook[i].bids && getSortedBook(orderbook[i], 'bids') || [];
-    const asks = orderbook[i] && orderbook[i].asks && getSortedBook(orderbook[i], 'asks') || [];
+        return () => { i && clearInterval(i) };
+    }, [getOrderBookHandle, isBackTest]);
+
+    let i;
+    let bids;
+    let asks;
+
+    if (step) {
+        i = data.length && typeof step !== 'undefined' && (data[step] ? data[step][0] : data[data.length - 1][0]);
+        bids = orderbook[i] && orderbook[i].bids && getSortedBook(orderbook[i], 'bids') || [];
+        asks = orderbook[i] && orderbook[i].asks && getSortedBook(orderbook[i], 'asks') || [];
+    } else if (orderbook && orderbook.bids) {
+        bids = getSortedBook(orderbook, 'bids') || [];
+        asks = getSortedBook(orderbook, 'asks') || [];
+    }
 
     const options = {
         chart: {
             type: 'area',
+            animation: false,
         },
         navigator: {
             enabled: false,
@@ -73,12 +102,12 @@ export function OrderBook(props) {
                 rotation: -45,
                 autoRotation: false,
             },
-            plotLines: currentPrice ? [{
+            plotLines: lastPrice ? [{
                 color: '#888',
-                value: currentPrice,
+                value: lastPrice,
                 width: 1,
                 label: {
-                    text: '',
+                    text: lastPrice,
                     rotation: 90,
                 },
             }] : undefined,

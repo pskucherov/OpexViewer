@@ -34,6 +34,10 @@ export function BacktestButtons(props) {
         figi, selectedDate, interval, setStep]);
 
     const onStep = useCallback(async prevStep => {
+        if (!play) {
+            return;
+        }
+
         const nextStep = (typeof prevStep === 'number' ? prevStep : step) + 1;
 
         await stepRobot(serverUri, nextStep);
@@ -53,7 +57,7 @@ export function BacktestButtons(props) {
 
             return i;
         }));
-    }, [step, setStep, setBacktestData, setBacktestVolume, data, volume, serverUri]);
+    }, [step, play, setStep, setBacktestData, setBacktestVolume, data, volume, serverUri]);
 
     const onClear = useCallback(async () => {
         await stopRobot(serverUri, selectedRobot);
@@ -68,18 +72,26 @@ export function BacktestButtons(props) {
     }, [setStep, setIsAuto, setPlay, setBacktestData, setBacktestVolume, selectedRobot, serverUri]);
 
     const recursiveStep = useCallback(async (prevStep = 0) => {
-        if (maxStep > prevStep) {
-            await onStep(prevStep);
-            recursiveStep(prevStep + 1);
-        } else {
-            setIsLastStep(true);
+        if (play) {
+            if (maxStep > prevStep) {
+                if (!isLastStep) {
+                    await onStep(prevStep);
+                    recursiveStep(prevStep + 1);
+                }
+            } else {
+                setIsLastStep(true);
+            }
         }
-    }, [maxStep, step, onStep, onClear, setBacktestData, setBacktestVolume, isLastStep]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [maxStep, play, step, onStep, onClear, setBacktestData, // eslint-disable-line react-hooks/exhaustive-deps
+        setBacktestVolume, isLastStep, setIsLastStep]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onAuto = useCallback(() => {
         setIsAuto(true);
+        setIsLastStep(false);
         recursiveStep();
     }, [setIsAuto, recursiveStep, step, setStep, maxStep]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const onStop = useCallback(() => setIsLastStep(true), [setIsLastStep]);
 
     useEffect(() => {
         onClear();
@@ -101,13 +113,19 @@ export function BacktestButtons(props) {
             >
                 Шаг
             </Button>
-            <Button
+            {!isAuto ? (<Button
                 color="primary"
-                disabled={!play || isAuto}
+                disabled={!play}
                 onClick={onAuto}
             >
                 Авто
-            </Button>
+            </Button>) : (
+                <Button
+                    color="primary"
+                    onClick={onStop}
+                >
+                Стоп
+                </Button>)}
             <Button
                 color="primary"
                 disabled={!play}

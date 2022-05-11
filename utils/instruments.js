@@ -62,6 +62,23 @@ const getCandles = async (figi, interval, from, to) => {
     return false;
 };
 
+const getLastPriceAndOrderBook = async (url, figi) => {
+    let response;
+
+    try {
+        response = await window.fetch(`${url}/getlastpriceandorderbook/${figi}`,
+            requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getOrderBook = async (url, figi, time) => {
     let response;
 
@@ -115,4 +132,5 @@ export {
     getCandles,
 
     getOrderBook,
+    getLastPriceAndOrderBook,
 };

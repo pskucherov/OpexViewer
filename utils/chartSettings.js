@@ -1,6 +1,7 @@
 const chartOptions = {
     chart: {
         height: 400,
+        animation: false,
     },
     xAxis: {
         type: 'datetime',
@@ -79,6 +80,7 @@ const chartOptions = {
             tooltip: {
                 valueDecimals: 2,
             },
+            animation: false,
         },
 
         // {
@@ -94,6 +96,7 @@ const chartOptions = {
             tooltip: {
                 valueDecimals: 0,
             },
+            animation: false,
         },
 
         // {

@@ -11,6 +11,7 @@ import { BacktestButtons } from './BacktestButtons';
 
 import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
+import { statusRobot } from '../../utils/robots';
 
 export default function Backtest(props) {
     const {
@@ -26,6 +27,17 @@ export default function Backtest(props) {
     const [backtestVolume, setBacktestVolume] = React.useState();
     const [maxStep, setMaxStep] = useState(0);
     const [step, setStep] = useState();
+    const [selectedRobot, setSelectedRobots] = useState();
+
+    React.useEffect(() => {
+        (async () => {
+            const status = await statusRobot(serverUri);
+
+            if (status) {
+                // console.log(statusRobot);
+            }
+        })();
+    }, [serverUri]);
 
     const getCanglesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {
@@ -80,8 +92,6 @@ export default function Backtest(props) {
         ],
     };
 
-    const [selectedRobot, setSelectedRobots] = useState();
-
     return (
         <div
             className={styles.Backtest}
@@ -96,6 +106,7 @@ export default function Backtest(props) {
                 step={step}
                 interval={interval}
                 figi={figi}
+                isBackTest={true}
             />
             <Robots
                 serverUri={serverUri}

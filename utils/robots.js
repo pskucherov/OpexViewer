@@ -24,7 +24,7 @@ const startRobot = async (serverUri, name, figi, selectedDate, interval) => {
 
     try {
         response = await window.fetch(serverUri +
-            `/robots/start/${figi}?interval=${interval}&name=${name}&date=${selectedDate.getTime()}`, requestOptions);
+            `/robots/start/${figi}?interval=${interval}&backtest=1&name=${name}&date=${selectedDate.getTime()}`, requestOptions);
     } catch (error) {
         return false;
     }
@@ -70,9 +70,27 @@ const stopRobot = async (serverUri, name) => {
     return false;
 };
 
+const statusRobot = async (serverUri, name) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/status/?name=${name}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 export {
     getRobots,
     startRobot,
     stopRobot,
     stepRobot,
+    statusRobot,
 };
