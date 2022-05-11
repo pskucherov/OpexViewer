@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ButtonGroup, Button } from 'reactstrap';
+import { startRobot, stepRobot, stopRobot } from '../../utils/robots';
+
+import styles from '../../styles/Backtest.module.css';
 
 export function BacktestButtons(props) {
     const {
@@ -11,19 +14,29 @@ export function BacktestButtons(props) {
         setBacktestVolume,
         data,
         volume,
+        selectedRobot,
+        serverUri,
+        figi,
+        selectedDate,
     } = props;
 
     const [play, setPlay] = useState();
     const [isAuto, setIsAuto] = useState(false);
+    const [isLastStep, setIsLastStep] = useState(false);
 
     const onPlay = useCallback(async () => {
         setPlay(true);
         setBacktestData([]);
         setBacktestVolume([]);
-    }, [setBacktestData, setBacktestVolume]);
+        setStep(-1);
+        await startRobot(serverUri, selectedRobot, figi, selectedDate, interval + 1);
+    }, [setBacktestData, setBacktestVolume, serverUri, selectedRobot,
+        figi, selectedDate, interval, setStep]);
 
-    const onStep = useCallback(prevStep => {
+    const onStep = useCallback(async prevStep => {
         const nextStep = (typeof prevStep === 'number' ? prevStep : step) + 1;
+
+        await stepRobot(serverUri, nextStep);
 
         setStep(nextStep);
         setBacktestData(data.map((i, k) => {
@@ -40,24 +53,28 @@ export function BacktestButtons(props) {
 
             return i;
         }));
-    }, [step, setStep, setBacktestData, setBacktestVolume, data, volume]);
+    }, [step, setStep, setBacktestData, setBacktestVolume, data, volume, serverUri]);
 
-    const onClear = useCallback(() => {
-        setStep(0);
+    const onClear = useCallback(async () => {
+        await stopRobot(serverUri, selectedRobot);
+
+        setStep();
         setIsAuto(false);
         setPlay(false);
+        setIsLastStep(false);
+
         setBacktestData();
         setBacktestVolume();
-    }, [setStep, setIsAuto, setPlay, setBacktestData, setBacktestVolume]);
+    }, [setStep, setIsAuto, setPlay, setBacktestData, setBacktestVolume, selectedRobot, serverUri]);
 
-    const recursiveStep = useCallback((prevStep = 0) => {
+    const recursiveStep = useCallback(async (prevStep = 0) => {
         if (maxStep > prevStep) {
-            onStep(prevStep);
+            await onStep(prevStep);
             recursiveStep(prevStep + 1);
         } else {
-            onClear();
+            setIsLastStep(true);
         }
-    }, [maxStep, step, onStep, onClear, setBacktestData, setBacktestVolume]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [maxStep, step, onStep, onClear, setBacktestData, setBacktestVolume, isLastStep]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const onAuto = useCallback(() => {
         setIsAuto(true);
@@ -69,11 +86,11 @@ export function BacktestButtons(props) {
     }, [interval, onClear]);
 
     return (
-        <ButtonGroup className="BacktestButtons">
+        <ButtonGroup className={styles.BacktestButtons}>
             <Button
                 color="primary"
                 onClick={onPlay}
-                disabled={play}
+                disabled={!selectedRobot || play}
             >
                 Пуск
             </Button>

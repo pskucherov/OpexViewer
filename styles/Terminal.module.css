@@ -3,12 +3,26 @@
 }
 
 .TerminalColOrderBook {
-    max-width: 400px;
+    max-width: 750px;
 }
 
 .OrderBook {
     min-width: 310px;
     max-width: 1040px;
     height: 400px;
-    margin: 0 auto;
+    margin: auto;
+}
+
+.OrderBook_hidden {
+    display: none;
+}
+
+.OrderBookHide {
+    margin-bottom: 20px;
+}
+
+@media (min-width: 750px) {
+    .OrderBookHide {
+        display: none;
+    }
 }

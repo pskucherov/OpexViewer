@@ -1,0 +1,78 @@
+const requestOptions = {
+    cache: 'no-cache',
+    'Content-Type': 'application/json',
+};
+
+const getRobots = async serverUri => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/robots/getnames', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const startRobot = async (serverUri, name, figi, selectedDate, interval) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/start/${figi}?interval=${interval}&name=${name}&date=${selectedDate.getTime()}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const stepRobot = async (serverUri, step) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/backtest/step/${step}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const stopRobot = async (serverUri, name) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/stop/?name=${name}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+export {
+    getRobots,
+    startRobot,
+    stopRobot,
+    stepRobot,
+};

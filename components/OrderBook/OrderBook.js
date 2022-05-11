@@ -123,15 +123,28 @@ export function OrderBook(props) {
         }],
     };
 
+    const [showOrderbook, setShowOrderbook] = useState(true);
+    const onClick = useCallback(() => setShowOrderbook(!showOrderbook), [showOrderbook, setShowOrderbook]);
+
     return (
-        <div
-            className={styles.OrderBook}
-        >
-            <HighchartsReact
-                highcharts={Highcharts}
-                constructorType={'stockChart'}
-                options={options}
-            />
-        </div>
+        <>
+            <div
+                className={`${styles.OrderBook} ${!showOrderbook ? styles.OrderBook_hidden : ''}`}
+            >
+
+                <HighchartsReact
+                    highcharts={Highcharts}
+                    constructorType={'stockChart'}
+                    options={options}
+                />
+            </div>
+
+            <div
+                className={styles.OrderBookHide}
+                onClick={onClick}
+            >
+                { showOrderbook ? 'Скрыть стакан' : 'Показать стакан' }
+            </div>
+        </>
     );
 }

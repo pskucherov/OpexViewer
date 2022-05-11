@@ -91,6 +91,9 @@ const chartOptions = {
             name: 'Объём',
             data: [], //backtestVolume || volume,
             yAxis: 1,
+            tooltip: {
+                valueDecimals: 0,
+            },
         },
 
         // {

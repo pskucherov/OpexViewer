@@ -10,6 +10,7 @@ import { chartOptions } from '../../utils/chartSettings';
 import { BacktestButtons } from './BacktestButtons';
 
 import styles from '../../styles/Backtest.module.css';
+import { Robots } from '../Robots/Robots';
 
 export default function Backtest(props) {
     const {
@@ -24,7 +25,7 @@ export default function Backtest(props) {
     const [backtestData, setBacktestData] = React.useState();
     const [backtestVolume, setBacktestVolume] = React.useState();
     const [maxStep, setMaxStep] = useState(0);
-    const [step, setStep] = useState(0);
+    const [step, setStep] = useState();
 
     const getCanglesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {
@@ -79,6 +80,8 @@ export default function Backtest(props) {
         ],
     };
 
+    const [selectedRobot, setSelectedRobots] = useState();
+
     return (
         <div
             className={styles.Backtest}
@@ -94,8 +97,12 @@ export default function Backtest(props) {
                 interval={interval}
                 figi={figi}
             />
+            <Robots
+                serverUri={serverUri}
+                setSelectedRobots={setSelectedRobots}
+                disabled={typeof step !== 'undefined'}
+            />
             <BacktestButtons
-                className={styles.BacktestButtons}
                 interval={interval}
                 setStep={setStep}
                 step={step}
@@ -104,6 +111,10 @@ export default function Backtest(props) {
                 setBacktestVolume={setBacktestVolume}
                 data={data}
                 volume={volume}
+                selectedRobot={selectedRobot}
+                serverUri={serverUri}
+                figi={figi}
+                selectedDate={selectedDate}
             />
         </div>
     );
