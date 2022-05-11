@@ -19,12 +19,13 @@ const getRobots = async serverUri => {
     return false;
 };
 
-const startRobot = async (serverUri, name, figi, selectedDate, interval) => {
+const startRobot = async (serverUri, name, figi, selectedDate, interval, backtest, isAdviser, accountId) => { // eslint-disable-line max-params
     let response;
 
     try {
         response = await window.fetch(serverUri +
-            `/robots/start/${figi}?interval=${interval}&backtest=1&name=${name}&date=${selectedDate.getTime()}`, requestOptions);
+            `/robots/start/${figi}?accountId=${accountId}&interval=${interval}&backtest=${Number(backtest)}
+            &adviser=${Number(isAdviser)}&name=${name}&date=${selectedDate.getTime()}`, requestOptions);
     } catch (error) {
         return false;
     }

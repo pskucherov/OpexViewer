@@ -46,7 +46,7 @@ const SelectInterval = props => {
 const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
 
 export default function TerminalFigi(props) {
-    const { setTitle, serverUri } = props;
+    const { setTitle, serverUri, accountId } = props;
     const router = useRouter();
     const routerPush = router.push;
     const { isReady } = router;
@@ -132,6 +132,7 @@ export default function TerminalFigi(props) {
         setIsTradingDay={setIsTradingDay}
         isBacktest={isBacktest}
         serverUri={serverUri}
+        accountId={accountId}
     />);
 }
 
@@ -168,7 +169,7 @@ const Head = props => {
 };
 
 const Content = props => {
-    const { serverUri } = props;
+    const { serverUri, accountId } = props;
 
     return (
         <>
@@ -214,6 +215,7 @@ const Content = props => {
                     instrument={props.instrument}
                     setIsTradingDay={props.setIsTradingDay}
                     serverUri={serverUri}
+                    accountId={accountId}
                 />
             )}
         </>);

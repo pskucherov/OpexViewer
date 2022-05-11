@@ -11,124 +11,52 @@ export function RobotsButtons(props) {
         serverUri,
         figi,
         selectedDate,
+        setIsRobotStarted,
+        accountId,
     } = props;
 
     const [play, setPlay] = useState();
-    const [isAuto, setIsAuto] = useState(false);
-    const [isLastStep, setIsLastStep] = useState(false);
+    const [isAdviser, setAdviser] = useState(true);
 
-    // const onPlay = useCallback(async () => {
-    //     setPlay(true);
-    //     setBacktestData([]);
-    //     setBacktestVolume([]);
-    //     setStep(-1);
-    //     await startRobot(serverUri, selectedRobot, figi, selectedDate, interval + 1);
-    // }, [setBacktestData, setBacktestVolume, serverUri, selectedRobot,
-    //     figi, selectedDate, interval, setStep]);
+    const onPlay = useCallback(async () => {
+        setPlay(true);
+        setIsRobotStarted(true);
+        await startRobot(serverUri, selectedRobot, figi, selectedDate, 1, 0, isAdviser, accountId);
+    }, [serverUri, selectedRobot, accountId, isAdviser, setIsRobotStarted,
+        figi, selectedDate]);
 
-    // const onStep = useCallback(async prevStep => {
-    //     if (!play) {
-    //         return;
-    //     }
+    const onOk = useCallback(() => {
 
-    //     const nextStep = (typeof prevStep === 'number' ? prevStep : step) + 1;
+    }, []);
 
-    //     await stepRobot(serverUri, nextStep);
-
-    //     setStep(nextStep);
-    //     setBacktestData(data.map((i, k) => {
-    //         if (k > nextStep) {
-    //             return [i[0], undefined, undefined, undefined, undefined];
-    //         }
-
-    //         return i;
-    //     }));
-    //     setBacktestVolume(volume.map((i, k) => {
-    //         if (k > nextStep) {
-    //             return [i[0], undefined];
-    //         }
-
-    //         return i;
-    //     }));
-    // }, [step, play, setStep, setBacktestData, setBacktestVolume, data, volume, serverUri]);
-
-    // const onClear = useCallback(async () => {
-    //     await stopRobot(serverUri, selectedRobot);
-
-    //     setStep();
-    //     setIsAuto(false);
-    //     setPlay(false);
-    //     setIsLastStep(false);
-
-    //     setBacktestData();
-    //     setBacktestVolume();
-    // }, [setStep, setIsAuto, setPlay, setBacktestData, setBacktestVolume, selectedRobot, serverUri]);
-
-    // const recursiveStep = useCallback(async (prevStep = 0) => {
-    //     if (play) {
-    //         if (maxStep > prevStep) {
-    //             if (!isLastStep) {
-    //                 await onStep(prevStep);
-    //                 recursiveStep(prevStep + 1);
-    //             }
-    //         } else {
-    //             setIsLastStep(true);
-    //         }
-    //     }
-    // }, [maxStep, play, step, onStep, onClear, setBacktestData, // eslint-disable-line react-hooks/exhaustive-deps
-    //     setBacktestVolume, isLastStep, setIsLastStep]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const onAuto = useCallback(() => {
-        setIsAuto(true);
-        setIsLastStep(false);
-    }, [setIsAuto]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const onStop = useCallback(() => setIsLastStep(true), [setIsLastStep]);
-
-    // useEffect(() => {
-    //     onClear();
-    // }, [interval, onClear]);
+    const onStop = useCallback(async () => {
+        await stopRobot(serverUri, selectedRobot);
+        setPlay(false);
+        setIsRobotStarted(false);
+    }, [serverUri, selectedRobot, setIsRobotStarted]);
 
     return (
         <ButtonGroup className={styles.BacktestButtons}>
             <Button
                 color="primary"
-
-                // onClick={onPlay}
+                onClick={onPlay}
                 disabled={!selectedRobot || play}
             >
-                Торговля
+                Старт
             </Button>
             <Button
                 color="primary"
-                disabled={!play || isAuto}
-
-                // onClick={onStep}
+                disabled={!play}
+                onClick={onOk}
             >
-                Шаг
+                Ок
             </Button>
-            {!isAuto ? (<Button
+            <Button
                 color="primary"
                 disabled={!play}
-
-                // onClick={onAuto}
+                onClick={onStop}
             >
-                Авто
-            </Button>) : (
-                <Button
-                    color="primary"
-
-                    // onClick={onStop}
-                >
                 Стоп
-                </Button>)}
-            <Button
-                color="primary"
-                disabled={!play}
-
-                // onClick={onClear || isAuto}
-            >
-                Сброс
             </Button>
         </ButtonGroup>
     );

@@ -22,7 +22,6 @@ export function Terminal(props) {
         serverUri,
         interval,
         figi,
-        dl,
         setLastPriceInChart,
     } = props;
 

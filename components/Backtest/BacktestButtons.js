@@ -29,7 +29,7 @@ export function BacktestButtons(props) {
         setBacktestData([]);
         setBacktestVolume([]);
         setStep(-1);
-        await startRobot(serverUri, selectedRobot, figi, selectedDate, interval + 1);
+        await startRobot(serverUri, selectedRobot, figi, selectedDate, interval + 1, 1, 1);
     }, [setBacktestData, setBacktestVolume, serverUri, selectedRobot,
         figi, selectedDate, interval, setStep]);
 
@@ -104,7 +104,7 @@ export function BacktestButtons(props) {
                 onClick={onPlay}
                 disabled={!selectedRobot || play}
             >
-                Пуск
+                Старт
             </Button>
             <Button
                 color="primary"

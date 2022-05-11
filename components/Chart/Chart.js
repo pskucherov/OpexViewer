@@ -19,13 +19,13 @@ export default function Chart(props) {
         instrument, figi, setInprogress,
         selectedDate, interval, setIsTradingDay,
         isTradingDay, serverUri,
-        inProgress,
+        inProgress, accountId,
     } = props;
 
     const [data, setData] = React.useState([]);
     const [volume, setVolume] = React.useState([]);
-    const [step, setStep] = useState();
     const [selectedRobot, setSelectedRobots] = useState();
+    const [isRobotStarted, setIsRobotStarted] = useState(false);
 
     React.useEffect(() => {
         (async () => {
@@ -147,7 +147,6 @@ export default function Chart(props) {
             <Robots
                 serverUri={serverUri}
                 setSelectedRobots={setSelectedRobots}
-                disabled={typeof step !== 'undefined'}
             />
             <RobotsButtons
                 interval={interval}
@@ -155,6 +154,8 @@ export default function Chart(props) {
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
+                setIsRobotStarted={setIsRobotStarted}
+                accountId={accountId}
             />
         </div>
     );

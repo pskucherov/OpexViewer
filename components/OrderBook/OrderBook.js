@@ -44,6 +44,8 @@ export function OrderBook(props) {
         }
 
         const c = await (isBackTest ?
+
+            // TODO переделать в getCacheorderbook
             getOrderBook(serverUri, figi, date, time) :
             getLastPriceAndOrderBook(serverUri, figi));
 
