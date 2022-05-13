@@ -29,6 +29,22 @@ const checkServer = async url => {
     return false;
 };
 
+const getLogs = async (url, type) => {
+    let response;
+
+    try {
+        response = await window.fetch(url + `/logs/${type}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return response.text();
+    }
+
+    return false;
+};
+
 const addToken = async (url, token) => {
     let response;
 
@@ -111,6 +127,7 @@ const delToken = async (url, token) => {
 
 export {
     checkServer,
+    getLogs,
     selectToken,
     getSelectedToken,
     addToken,
