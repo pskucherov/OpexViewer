@@ -27,6 +27,8 @@ function MyApp({ Component, pageProps }) {
     const [accountId, setAccountId] = React.useState();
     const [robotStartedName, setRobotStartedName] = React.useState(false);
 
+    const [balance, setBalance] = React.useState();
+
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
 
@@ -118,7 +120,13 @@ function MyApp({ Component, pageProps }) {
                 serverStatus={serverStatus}
                 accountId={accountId}
                 pathname={pathname}
+<<<<<<< HEAD
                 serverUri={serverUri}
+=======
+                balance={balance}
+                setBalance={setBalance}
+                serverUri={defaultServerUri}
+>>>>>>> 7ea3a03 (В файле доблена функция получения баланса, в _app добавлены пропсы balance и getBalance, в аккаунт js запрос к серверу для получения данных)
             >
                 <Component
                     {...pageProps}

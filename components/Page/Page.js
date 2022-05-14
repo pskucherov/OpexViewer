@@ -1,13 +1,14 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import styles from '../../styles/Page.module.css';
 import {
     Badge, Nav, Navbar, NavbarBrand, NavbarToggler,
     Collapse, NavItem, NavLink, NavbarText,
 } from 'reactstrap';
+import { getBalance } from '../../utils/accounts';
 
 export default function Page(props) {
-    const { isSandboxToken, serverStatus, accountId, pathname } = props;
+    const { isSandboxToken, serverStatus, accountId, pathname, setBalance, serverUri, balance } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = useCallback(() => {
@@ -16,6 +17,44 @@ export default function Page(props) {
 
     // 0 нужно задать, 1 sandbox, 2 production
     const whatToken = typeof isSandboxToken === 'undefined' ? 0 : isSandboxToken ? 1 : 2;
+
+    useEffect(() => {
+        const checkRequest = async () => {
+            const f = await getBalance(serverUri, accountId);
+
+            if (f) {
+                let allUnits = 0;
+                let allNano = 0;
+                let currency = '';
+
+                //Функция получения баланса
+                for (const key in f) {
+                    for (const key1 in f[key]) {
+                        if (key1 === 'units' && key !== 'expectedYield' && key !== 'positions') {allUnits += f[key][key1]}
+                    }
+                    for (const key2 in f[key]) {
+                        if (key2 === 'nano' && key !== 'expectedYield' && key !== 'positions') {allNano += f[key][key2]}
+                    }
+                }
+
+                if (f.totalAmountShares.currency === 'rub') {
+                    currency = ' ₽';
+                }
+
+                //Очень страшная функция конвертации nano в units
+                if (allNano >= 1000000000) {
+                    setBalance(parseFloat((allUnits + Number(allNano.toString()[0])) + '.0' + (allNano - Number(allNano.toString()[0] + '000000000'))).toFixed(2) + `${currency}`);
+                } else if (allNano < 1000000000) {
+                    setBalance(parseFloat(allUnits + '.' + allNano).toFixed(2) + `${currency}`);
+                }
+            }
+        };
+        const timer = setInterval(() => {
+            checkRequest();
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [serverUri, accountId, setBalance]);
 
     return (
         <div className={styles.container} >
@@ -76,6 +115,7 @@ export default function Page(props) {
                                 whatToken={whatToken}
                                 serverStatus={serverStatus}
                                 accountId={accountId}
+                                balance={balance}
                             />
                         </Collapse>
                     </Navbar>
@@ -106,9 +146,13 @@ const HeadBadges = props => {
         whatToken,
         serverStatus,
         accountId,
+        balance,
     } = props;
 
     return (<NavbarText>
+        <BalanceBadge
+            balance={balance}
+        />
         <ServerBadge
             whatToken={whatToken}
             serverStatus={serverStatus}
@@ -159,4 +203,18 @@ const AccountBadge = props => {
         >
             {!accountId ? 'Выберите счёт' : String(accountId).substring(0, 13)}
         </Badge>) : '';
+};
+
+const BalanceBadge = props => {
+    const balance = props;
+
+    return (
+        <Badge
+            color="info"
+            href="#"
+            className={styles.PageBadge}
+            balance={balance}
+        >
+            {!balance.balance ? 'Ваш баланс' : `Ваш баланс:  ${balance.balance}`}
+        </Badge>) || '';
 };

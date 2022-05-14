@@ -35,7 +35,24 @@ const selectAccount = async (serverUri, id) => {
     return false;
 };
 
+const getBalance = async (serverUri, id) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/getbalance?id=' + id, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 export {
     getAccounts,
     selectAccount,
+    getBalance,
 };
