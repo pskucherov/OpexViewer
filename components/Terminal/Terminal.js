@@ -13,7 +13,6 @@ import styles from '../../styles/Terminal.module.css';
 export function Terminal(props) {
     const {
         data,
-        isTradingDay,
         inProgress,
         setInprogress,
         options,
@@ -32,7 +31,7 @@ export function Terminal(props) {
         Accessibility(Highcharts);
     }, []);
 
-    return (!data.length || !isTradingDay || inProgress || !setInprogress) ? '' : (
+    return (!data.length || inProgress || !setInprogress) ? '' : (
         <Container fluid>
             <Row>
                 <Col

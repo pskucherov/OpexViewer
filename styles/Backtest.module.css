@@ -7,3 +7,19 @@
     width: 300px;
     margin-bottom: 50px;
 }
+
+.Arrow {
+    width: 12px;
+    color: #fff;
+    text-align: center;
+    font-size: 8px;
+}
+
+.BuyArrow {
+    height: 35px;
+
+}
+
+.SellArrow {
+    height: 46px;
+}

@@ -31,8 +31,6 @@ export function OrderBook(props) {
         isBackTest,
 
         // TODO: определить для бэктеста
-        date,
-        time,
     } = props;
 
     const [lastPrice, setLastPrice] = useState();
@@ -44,14 +42,12 @@ export function OrderBook(props) {
         }
 
         const c = await (isBackTest ?
-
-            // TODO переделать в getCacheorderbook
-            getOrderBook(serverUri, figi, date, time) :
+            getOrderBook(serverUri, figi, data[step] && data[step][0]) :
             getLastPriceAndOrderBook(serverUri, figi));
 
         if (c && c.length) {
             if (typeof step === 'undefined' && !isBackTest) {
-                const time = new Date(c[0]['lastPrices'][0].time);
+                // const time = new Date(c[0]['lastPrices'][0].time);
                 const price = getPrice(c[0]['lastPrices'][0]['price']);
 
                 setLastPrice(price);
@@ -61,7 +57,7 @@ export function OrderBook(props) {
             }
             setOrderbook(c[1]);
         }
-    }, [figi, interval, serverUri, isBackTest, date, time]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [figi, interval, serverUri, isBackTest, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
     React.useEffect(() => {
         Accessibility(Highcharts);

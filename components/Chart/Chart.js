@@ -18,7 +18,7 @@ export default function Chart(props) {
     const {
         instrument, figi, setInprogress,
         selectedDate, interval, setIsTradingDay,
-        isTradingDay, serverUri,
+        serverUri,
         inProgress, accountId,
     } = props;
 
@@ -123,6 +123,22 @@ export default function Chart(props) {
                 ...chartOptions.series[1],
                 data: volume,
             },
+            {
+                ...chartOptions.series[2],
+                data: [{
+                    title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
+                    text: 'Цена',
+                    x: data && data[50] && data[50][0],
+                }],
+            },
+            {
+                ...chartOptions.series[3],
+                data: [{
+                    title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
+                    text: 'Цена',
+                    x: data && data[80] && data[80][0],
+                }],
+            },
         ],
     };
 
@@ -133,7 +149,6 @@ export default function Chart(props) {
             <Terminal
                 data={data}
                 dl={data.length}
-                isTradingDay={isTradingDay}
                 inProgress={inProgress}
                 setInprogress={setInprogress}
                 options={options}

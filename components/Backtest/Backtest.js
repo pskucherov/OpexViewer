@@ -17,7 +17,7 @@ export default function Backtest(props) {
     const {
         instrument, figi, setInprogress,
         selectedDate, interval, setIsTradingDay,
-        isTradingDay, serverUri,
+        serverUri,
         inProgress,
     } = props;
 
@@ -98,7 +98,6 @@ export default function Backtest(props) {
         >
             <Terminal
                 data={data}
-                isTradingDay={isTradingDay}
                 inProgress={inProgress}
                 setInprogress={setInprogress}
                 options={options}

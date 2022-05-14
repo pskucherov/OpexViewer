@@ -190,14 +190,11 @@ const Content = props => {
                 </>
             ) : ''}
 
-            {props.isTradingDay ? '' : (<><br></br><br></br><center>Торги не проводятся или нет данных.</center></>) }
-
-            {props.isBacktest ? (
+            {props.isTradingDay ? (props.isBacktest ? (
                 <Backtest
                     interval={props.interval}
                     setInprogress={props.setInprogress}
                     inProgress={props.inProgress}
-                    isTradingDay={props.isTradingDay}
                     selectedDate={props.selectedDate}
                     figi={props.figi}
                     instrument={props.instrument}
@@ -209,7 +206,6 @@ const Content = props => {
                     interval={props.interval}
                     setInprogress={props.setInprogress}
                     inProgress={props.inProgress}
-                    isTradingDay={props.isTradingDay}
                     selectedDate={props.selectedDate}
                     figi={props.figi}
                     instrument={props.instrument}
@@ -217,6 +213,6 @@ const Content = props => {
                     serverUri={serverUri}
                     accountId={accountId}
                 />
-            )}
+            )) : (<><br></br><br></br><center>Биржа закрыта.</center></>)}
         </>);
 };

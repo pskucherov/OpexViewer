@@ -40,6 +40,7 @@ export function BacktestButtons(props) {
 
         const nextStep = (typeof prevStep === 'number' ? prevStep : step) + 1;
 
+        // TODO: переделать стакан с шага на время, т.к. данные про стакан есть не все.
         await stepRobot(serverUri, nextStep);
 
         setStep(nextStep);
