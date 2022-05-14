@@ -1,63 +1,79 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getLogs } from '../utils/serverStatus';
-import { Button } from 'reactstrap';
+import { Button, Spinner } from 'reactstrap';
 import styles from '../styles/Settings.module.css';
 
 export default function Logs(props) {
     const [data, setData] = useState([]);
     const [type, setType] = useState('server');
-    const [counter, setCounter] = useState(0);
+    const [inProgress, setInProgress] = useState(true);
 
-    const { setTitle } = props;
+    const { serverUri } = props;
 
     const chengeType = useCallback(event => {
         if (type !== event.target.value) {
             setType(event.target.value);
+            setInProgress(true);
         }
     }, [type]);
 
     useEffect(function() {
         const checkRequest = async () => {
-            const Log = await getLogs(props.serverUri, type);
+            const logs = await getLogs(serverUri, type);
 
-            if (Log) {
-                setTitle(type + ' logs');
-                setData(Log.split('\r\n'));
-                setCounter(data.length);
+            if (logs) {
+                setData(logs);
             } else {
-                setCounter(data.length);
+                setData([]);
             }
+            setInProgress(false);
         };
+
+        checkRequest();
+
         const timer = setInterval(() => {
             checkRequest();
-        }, 1000);
+        }, 5000);
 
         return () => clearInterval(timer);
-    }, [type, setTitle, props.serverUri, data]);
+    }, [type, serverUri, data]);
 
     return (
-        <div>
-            <h1>Всего ошибок: {counter}</h1>
-            <div>
-                <Button
-                    className={styles.SelectButton}
-                    onClick={chengeType}
-                    value="API">
-        API Logs
-                </Button>
-                <Button
-                    className={styles.SelectButton}
-                    onClick={chengeType}
-                    value="server">
-        Server Logs
-                </Button>
-            </div>
-            <div>
-                {
-                    data.map((str, index) =>
-                        <p key={index}>{str}</p>)
-                }
-            </div>
-        </div>
+        inProgress ?
+            (
+                <center>
+                    <Spinner color="primary">
+                        Loading...
+                    </Spinner>
+                </center>
+            ) : (
+                <div>
+                    <div className={styles.LogsButton}>
+                        <Button
+                            color="primary"
+                            onClick={chengeType}
+                            active={type === 'server'}
+                            outline
+                            value="server"
+                        >
+                            Server
+                        </Button>
+
+                        <Button
+                            color="primary"
+                            onClick={chengeType}
+                            active={type === 'API'}
+                            outline
+                            value="API"
+                        >
+                            API
+                        </Button>
+                    </div>
+                    <div>
+                        <pre>{data}</pre>
+                    </div>
+                </div>
+            )
+
     );
 }

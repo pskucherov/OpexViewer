@@ -7,7 +7,7 @@ import {
 } from 'reactstrap';
 
 export default function Page(props) {
-    const { isSandboxToken, serverStatus, accountId } = props;
+    const { isSandboxToken, serverStatus, accountId, pathname } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = useCallback(() => {
@@ -44,21 +44,33 @@ export default function Page(props) {
                                 navbar
 
                             >
-                                <NavItem>
-                                    <NavLink href="/accounts">
-                                        Счета
-                                    </NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink href="/instruments">
-                                        Инструменты
-                                    </NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink href="/settings">
-                                        Настройки
-                                    </NavLink>
-                                </NavItem>
+                                {[
+                                    {
+                                        url: '/accounts',
+                                        name: 'Счета',
+                                    },
+                                    {
+                                        url: '/instruments',
+                                        name: 'Инструменты',
+                                    },
+                                    {
+                                        url: '/settings',
+                                        name: 'Настройки',
+                                    },
+                                    {
+                                        url: '/logs',
+                                        name: 'Логи',
+                                    },
+                                ].map((n, k) => (
+                                    <NavItem key={k}>
+                                        <NavLink
+                                            active={n.url === pathname}
+                                            href={n.url}
+                                        >
+                                            {n.name}
+                                        </NavLink>
+                                    </NavItem>
+                                ))}
                             </Nav>
                             <HeadBadges
                                 whatToken={whatToken}

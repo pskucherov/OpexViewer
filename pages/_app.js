@@ -79,6 +79,7 @@ function MyApp({ Component, pageProps }) {
                 isSandboxToken={isSandboxToken}
                 serverStatus={serverStatus}
                 accountId={accountId}
+                pathname={pathname}
             >
                 <Component
                     {...pageProps}

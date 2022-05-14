@@ -30,6 +30,18 @@
   padding: 0.2rem 0.6rem;
 }
 
+.LogsButton {
+  position: relative;
+  text-align: center;
+  margin: 30px auto;
+  width: 100%;
+}
+
+.LogsButton button:first-child {
+  margin-right: 40px;
+}
+
+
 .Badge {
   margin-right: .5rem;
   max-width: 100%;
