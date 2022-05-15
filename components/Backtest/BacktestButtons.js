@@ -33,17 +33,20 @@ export function BacktestButtons(props) {
     }, [setBacktestData, setBacktestVolume, serverUri, selectedRobot,
         figi, selectedDate, interval, setStep]);
 
-    const onStep = useCallback(async prevStep => {
-        if (!play) {
+    const onStep = useCallback(async () => {
+        if (!play || isLastStep) {
             return;
         }
 
-        const nextStep = (typeof prevStep === 'number' ? prevStep : step) + 1;
+        const nextStep = step + 1;
+
+        if (maxStep < nextStep) {
+            setIsLastStep(true);
+        }
 
         // TODO: переделать стакан с шага на время, т.к. данные про стакан есть не все.
         await stepRobot(serverUri, nextStep);
 
-        setStep(nextStep);
         setBacktestData(data.map((i, k) => {
             if (k > nextStep) {
                 return [i[0], undefined, undefined, undefined, undefined];
@@ -51,6 +54,7 @@ export function BacktestButtons(props) {
 
             return i;
         }));
+
         setBacktestVolume(volume.map((i, k) => {
             if (k > nextStep) {
                 return [i[0], undefined];
@@ -58,7 +62,17 @@ export function BacktestButtons(props) {
 
             return i;
         }));
-    }, [step, play, setStep, setBacktestData, setBacktestVolume, data, volume, serverUri]);
+
+        setStep(nextStep);
+    }, [step, play, setStep, setBacktestData, isLastStep, maxStep,
+        setBacktestVolume, data, volume, serverUri]);
+
+    useEffect(() => {
+        // Шаги для автоматического режима.
+        if (play && isAuto) {
+            onStep();
+        }
+    }, [step, isAuto, onStep, play]);
 
     const onClear = useCallback(async () => {
         await stopRobot(serverUri, selectedRobot);
@@ -70,33 +84,15 @@ export function BacktestButtons(props) {
 
         setBacktestData();
         setBacktestVolume();
-    }, [setStep, setIsAuto, setPlay, setBacktestData, setBacktestVolume, selectedRobot, serverUri]);
-
-    const recursiveStep = useCallback(async (prevStep = 0) => {
-        if (play) {
-            if (maxStep > prevStep) {
-                if (!isLastStep) {
-                    await onStep(prevStep);
-                    recursiveStep(prevStep + 1);
-                }
-            } else {
-                setIsLastStep(true);
-            }
-        }
-    }, [maxStep, play, step, onStep, onClear, setBacktestData, // eslint-disable-line react-hooks/exhaustive-deps
-        setBacktestVolume, isLastStep, setIsLastStep]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const onAuto = useCallback(() => {
-        setIsAuto(true);
-        setIsLastStep(false);
-        recursiveStep();
-    }, [setIsAuto, recursiveStep, step, setStep, maxStep]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [setStep, setIsAuto,
+        setPlay, setBacktestData,
+        setBacktestVolume, selectedRobot, serverUri]);
 
     const onStop = useCallback(() => setIsLastStep(true), [setIsLastStep]);
 
     useEffect(() => {
         onClear();
-    }, [interval, onClear]);
+    }, [interval, selectedDate, onClear]);
 
     return (
         <ButtonGroup className={styles.BacktestButtons}>
@@ -109,20 +105,24 @@ export function BacktestButtons(props) {
             </Button>
             <Button
                 color="primary"
-                disabled={!play || isAuto}
+                disabled={!play || isAuto || isLastStep}
                 onClick={onStep}
             >
                 Шаг
             </Button>
             {!isAuto ? (<Button
                 color="primary"
-                disabled={!play}
-                onClick={onAuto}
+                disabled={!play || isLastStep}
+                onClick={() => {
+                    setIsAuto(true);
+                    setIsLastStep(false);
+                }}
             >
                 Авто
             </Button>) : (
                 <Button
                     color="primary"
+                    disabled={isLastStep}
                     onClick={onStop}
                 >
                 Стоп
