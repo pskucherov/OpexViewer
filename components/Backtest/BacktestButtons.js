@@ -18,6 +18,7 @@ export function BacktestButtons(props) {
         serverUri,
         figi,
         selectedDate,
+        setRobotPositions,
     } = props;
 
     const [play, setPlay] = useState();
@@ -45,7 +46,9 @@ export function BacktestButtons(props) {
         }
 
         // TODO: переделать стакан с шага на время, т.к. данные про стакан есть не все.
-        await stepRobot(serverUri, nextStep);
+        const robotState = await stepRobot(serverUri, nextStep);
+
+        setRobotPositions(robotState);
 
         setBacktestData(data.map((i, k) => {
             if (k > nextStep) {
@@ -65,7 +68,7 @@ export function BacktestButtons(props) {
 
         setStep(nextStep);
     }, [step, play, setStep, setBacktestData, isLastStep, maxStep,
-        setBacktestVolume, data, volume, serverUri]);
+        setRobotPositions, setBacktestVolume, data, volume, serverUri]);
 
     useEffect(() => {
         // Шаги для автоматического режима.
@@ -84,11 +87,12 @@ export function BacktestButtons(props) {
 
         setBacktestData();
         setBacktestVolume();
-    }, [setStep, setIsAuto,
+        setRobotPositions();
+    }, [setStep, setIsAuto, setRobotPositions,
         setPlay, setBacktestData,
         setBacktestVolume, selectedRobot, serverUri]);
 
-    const onStop = useCallback(() => setIsLastStep(true), [setIsLastStep]);
+    const onStop = useCallback(() => setIsAuto(false), [setIsAuto]);
 
     useEffect(() => {
         onClear();

@@ -21,7 +21,6 @@ export function Terminal(props) {
         serverUri,
         interval,
         figi,
-        setLastPriceInChart,
     } = props;
 
     const refChart = React.useRef(null);

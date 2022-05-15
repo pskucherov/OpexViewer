@@ -42,20 +42,27 @@ export function OrderBook(props) {
         }
 
         const c = await (isBackTest ?
-            getOrderBook(serverUri, figi, data[step] && data[step][0]) :
+            data[step] && data[step][0] && getOrderBook(serverUri, figi, data[step][0]) :
             getLastPriceAndOrderBook(serverUri, figi));
 
-        if (c && c.length) {
+        if (c) {
             if (typeof step === 'undefined' && !isBackTest) {
-                // const time = new Date(c[0]['lastPrices'][0].time);
-                const price = getPrice(c[0]['lastPrices'][0]['price']);
+                if (c.length) {
+                    // const time = new Date(c[0]['lastPrices'][0].time);
+                    const price = getPrice(c[0]['lastPrices'][0]['price']);
 
-                setLastPrice(price);
+                    setLastPrice(price);
 
-                // Переделать, чтобы orderbook не обновлял цену у графика.
-                // setLastPriceInChart(price, time);
+                    // Переделать, чтобы orderbook не обновлял цену у графика.
+                    // setLastPriceInChart(price, time);
+                    setOrderbook(c[1]);
+                }
+            } else if (step) {
+                setOrderbook(c);
+                setLastPrice(getPrice(c.lastPrice));
             }
-            setOrderbook(c[1]);
+        } else {
+            setOrderbook();
         }
     }, [figi, interval, serverUri, isBackTest, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -74,13 +81,12 @@ export function OrderBook(props) {
     let bids;
     let asks;
 
-    if (step) {
-        i = data.length && typeof step !== 'undefined' && (data[step] ? data[step][0] : data[data.length - 1][0]);
-        bids = orderbook[i] && orderbook[i].bids && getSortedBook(orderbook[i], 'bids') || [];
-        asks = orderbook[i] && orderbook[i].asks && getSortedBook(orderbook[i], 'asks') || [];
-    } else if (orderbook && orderbook.bids) {
+    if (orderbook && orderbook.bids && orderbook.asks) {
         bids = getSortedBook(orderbook, 'bids') || [];
         asks = getSortedBook(orderbook, 'asks') || [];
+    } else {
+        bids = [];
+        asks = [];
     }
 
     const options = {

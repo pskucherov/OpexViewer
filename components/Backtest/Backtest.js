@@ -29,6 +29,8 @@ export default function Backtest(props) {
     const [step, setStep] = useState();
     const [selectedRobot, setSelectedRobots] = useState();
 
+    const [robotPositions, setRobotPositions] = useState();
+
     React.useEffect(() => {
         (async () => {
             const status = await statusRobot(serverUri);
@@ -92,6 +94,36 @@ export default function Backtest(props) {
         ],
     };
 
+    const buyFlags = robotPositions && robotPositions.length ? {
+        ...chartOptions.series[2],
+        data: robotPositions.filter(p => p.direction === 1).map(p => {
+            return {
+                title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
+                text: `Цена: ${getPrice(p.price)}<br>Лоты: ${p.lots}`,
+                x: data[p.step][0],
+            };
+        }),
+    } : undefined;
+
+    const sellFlags = robotPositions && robotPositions.length ? {
+        ...chartOptions.series[3],
+        data: robotPositions.filter(p => p.direction === 2).map(p => {
+            return {
+                title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
+                text: `Профит: ${getPrice(p.profit)}<br>Лоты: ${p.lots}`,
+                x: data[p.step][0],
+            };
+        }),
+    } : undefined;
+
+    if (buyFlags && buyFlags.data.length) {
+        options.series.push(buyFlags);
+    }
+
+    if (sellFlags && sellFlags.data.length) {
+        options.series.push(sellFlags);
+    }
+
     return (
         <div
             className={styles.Backtest}
@@ -106,6 +138,7 @@ export default function Backtest(props) {
                 interval={interval}
                 figi={figi}
                 isBackTest={true}
+                robotPositions={robotPositions}
             />
             <Robots
                 serverUri={serverUri}
@@ -125,6 +158,7 @@ export default function Backtest(props) {
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
+                setRobotPositions={setRobotPositions}
             />
         </div>
     );
