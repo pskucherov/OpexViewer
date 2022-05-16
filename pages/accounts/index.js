@@ -107,7 +107,13 @@ const CardAccount = props => {
                     className="mb-2 text-muted"
                     tag="h6"
                 >
-                    {STATUS_INIT[status]}
+                    <span
+                        style={status !== 2 ? {
+                            color: '#E33',
+                        } : undefined}
+                    >
+                        {STATUS_INIT[status]}
+                    </span>
                 </CardSubtitle>
                 <CardSubtitle
                     className="mb-2 text-muted"
@@ -119,7 +125,13 @@ const CardAccount = props => {
                     className="mb-2 text-muted"
                     tag="h6"
                 >
-                    {ACCESS_INIT[accessLevel]}
+                    <span
+                        style={accessLevel !== 1 ? {
+                            color: '#E33',
+                        } : undefined}
+                    >
+                        {ACCESS_INIT[accessLevel]}
+                    </span>
                 </CardSubtitle>
                 <Button
                     color="primary"
