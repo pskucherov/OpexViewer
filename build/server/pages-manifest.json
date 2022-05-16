@@ -1,0 +1,12 @@
+{
+  "/_app": "pages/_app.js",
+  "/": "pages/index.html",
+  "/instruments": "pages/instruments.html",
+  "/accounts": "pages/accounts.html",
+  "/instruments/[figi]": "pages/instruments/[figi].html",
+  "/logs": "pages/logs.html",
+  "/settings": "pages/settings.html",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
+}
