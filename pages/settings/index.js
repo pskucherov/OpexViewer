@@ -1,42 +1,59 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import styles from '../../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
 
 import { checkServer, selectToken, getTokens, addToken, delToken } from '../../utils/serverStatus';
 
-import Page from '../../components/Page/Page';
+import { setToLS } from '../../utils/storage';
 
 export default function Settings(props) {
-    const { setTitle, checkToken } = props;
+    const { setTitle, checkToken, serverUri } = props;
 
     React.useEffect(() => {
         setTitle('Настройки');
-    }, [setTitle]);
+    }, [setTitle, serverUri]);
 
     return (
         <>
-            <AddServerForm checkToken={checkToken} />
-            <SettingsForm checkToken={checkToken} />
+            <AddServerForm
+                checkToken={checkToken}
+                defaultServerUri={serverUri}
+            />
+            <SettingsForm
+                checkToken={checkToken}
+                defaultServerUri={serverUri}
+            />
         </>
     );
 }
 
 const defaultToken = 't.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg';
-const defaultServerUri = 'http://localhost:8000/';
 
 const AddServerForm = props => {
-    const { checkToken } = props;
+    const { checkToken, defaultServerUri } = props;
 
-    const [serverUri, setServerUri] = React.useState(defaultServerUri);
+    const [serverUri, setServerUri] = React.useState();
     const [inProgress, setInprogress] = React.useState(true);
+
+    useEffect(() => {
+        setServerUri(defaultServerUri);
+    }, [defaultServerUri]);
 
     // Имеет 3 значения (undefined, false, true). На false проверяется явно.
     const [serverInvalid, setServerInvalid] = React.useState();
 
     // Сохраняем в переменную значения заполняемых полей.
     const handleInputChange = React.useCallback(e => {
-        setServerUri(e.target.value);
+        let checkedUri = e.target.value;
+
+        if (checkedUri) {
+            if (checkedUri.slice(-1) === '/') {
+                checkedUri = checkedUri.slice(0, checkedUri.length - 1);
+            }
+
+            setServerUri(checkedUri);
+        }
     }, []);
 
     // Проверяем состояние сервера при открытии страницы.
@@ -62,6 +79,7 @@ const AddServerForm = props => {
             setServerInvalid(true);
         } else {
             setServerInvalid(false);
+            setToLS('serverUri', serverUri);
         }
 
         setInprogress(false);
@@ -90,7 +108,7 @@ const AddServerForm = props => {
 };
 
 const SettingsForm = props => {
-    const { checkToken } = props;
+    const { checkToken, defaultServerUri } = props;
 
     const [token, setToken] = React.useState(defaultToken);
 
@@ -119,7 +137,7 @@ const SettingsForm = props => {
 
         setInprogress(false);
         checkToken();
-    }, [tokenInvalid, checkToken]);
+    }, [tokenInvalid, checkToken, defaultServerUri]);
 
     return (
         <>
@@ -142,6 +160,7 @@ const SettingsForm = props => {
             <TokensList
                 token={token}
                 checkToken={checkToken}
+                defaultServerUri={defaultServerUri}
             />
         </>
 
@@ -149,7 +168,7 @@ const SettingsForm = props => {
 };
 
 const TokensList = props => {
-    const { token, checkToken } = props;
+    const { token, checkToken, defaultServerUri } = props;
 
     const [tokens, setTokens] = React.useState([]);
 
@@ -160,7 +179,7 @@ const TokensList = props => {
         if (force || newTokens && newTokens.length !== tokens.length) {
             setTokens(newTokens);
         }
-    }, [tokens.length]);
+    }, [tokens.length, defaultServerUri]);
 
     // Проверяем состояние сервера при открытии страницы.
     React.useEffect(() => {
@@ -172,14 +191,14 @@ const TokensList = props => {
         await delToken(defaultServerUri, token);
         await tokenRequest();
         checkToken();
-    }, [checkToken, tokenRequest]);
+    }, [checkToken, tokenRequest, defaultServerUri]);
 
     // Обработчик выбора токена
     const onSelectClick = React.useCallback(async token => {
         await selectToken(defaultServerUri, token);
         await tokenRequest(true);
         checkToken();
-    }, [checkToken, tokenRequest]);
+    }, [checkToken, tokenRequest, defaultServerUri]);
 
     return Boolean(tokens && tokens.length) && (
         <>

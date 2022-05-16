@@ -47,6 +47,7 @@ const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
 
 export default function TerminalFigi(props) {
     const { setTitle, serverUri, accountId } = props;
+
     const router = useRouter();
     const routerPush = router.push;
     const { isReady } = router;
@@ -71,7 +72,7 @@ export default function TerminalFigi(props) {
         // Проводятся ли торги можно запрашивать только для текущей и будущих дат.
         // Для прошлых считаем, что торги проводятся и смотрим на наличие исторических данных.
         if (isToday(currentDate, today) || currentDate >= today) {
-            const schedule = await getTradingSchedules(exchange, currentDate);
+            const schedule = await getTradingSchedules(serverUri, exchange, currentDate);
 
             if (schedule && schedule.exchanges) {
                 isTradingDayParam = Boolean(schedule.exchanges[0].days[0].isTradingDay);
@@ -79,7 +80,7 @@ export default function TerminalFigi(props) {
         }
 
         setIsTradingDay(isTradingDayParam);
-    }, [selectedDate]);
+    }, [selectedDate, serverUri]);
 
     const onCalendareChange = React.useCallback(async date => {
         setSelectedDate(date);
@@ -90,7 +91,7 @@ export default function TerminalFigi(props) {
     }, [instrument, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
-        const i = await getInstrument(figi);
+        const i = await getInstrument(serverUri, figi);
 
         if (!i || !i.ticker) {
             routerPush('/instruments');
@@ -99,7 +100,7 @@ export default function TerminalFigi(props) {
             await getTradingSchedulesCb(i.exchange);
             setInprogress(false);
         }
-    }, [figi, routerPush, getTradingSchedulesCb]);
+    }, [figi, routerPush, getTradingSchedulesCb, serverUri]);
 
     React.useEffect(() => {
         if (!isReady || instrument) {

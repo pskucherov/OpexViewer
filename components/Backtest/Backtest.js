@@ -48,7 +48,7 @@ export default function Backtest(props) {
 
         setInprogress(true);
 
-        const c = await getCandles(figi, interval + 1, selectedDate);
+        const c = await getCandles(serverUri, figi, interval + 1, selectedDate);
 
         if (c && c.candles) {
             const nextData = [];
@@ -73,7 +73,8 @@ export default function Backtest(props) {
             }
             setInprogress(false);
         }
-    }, [instrument, figi, interval, setInprogress, selectedDate, setIsTradingDay, setMaxStep]);
+    }, [instrument, figi, interval, setInprogress, serverUri,
+        selectedDate, setIsTradingDay, setMaxStep]);
 
     React.useEffect(() => {
         PriceIndicator(Highcharts);

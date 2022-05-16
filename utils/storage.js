@@ -1,10 +1,16 @@
 const storageName = 'opexviewer';
 
-const getFromLS = () => {
+const getFromLS = param => {
     const data = window.localStorage.getItem(storageName);
 
     if (data) {
-        return JSON.parse(data);
+        const d = JSON.parse(data);
+
+        if (param) {
+            return d[param];
+        }
+
+        return d;
     }
 
     return {};
@@ -17,11 +23,17 @@ const setToLS = (name, data) => {
     window.localStorage.setItem(storageName, JSON.stringify(lsData));
 };
 
-const getFromSS = () => {
+const getFromSS = param => {
     const data = window.sessionStorage.getItem(storageName);
 
     if (data) {
-        return JSON.parse(data);
+        const d = JSON.parse(data);
+
+        if (param) {
+            return d[param];
+        }
+
+        return d;
     }
 
     return {};

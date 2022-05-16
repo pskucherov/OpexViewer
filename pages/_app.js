@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 
 import React, { useEffect } from 'react';
 import { getSelectedToken, checkServer } from '../utils/serverStatus';
+import { getFromLS } from '../utils/storage';
 
 const defaultServerUri = 'http://localhost:8000';
 
@@ -18,18 +19,25 @@ function MyApp({ Component, pageProps }) {
 
     const [ready, setReady] = React.useState(false);
     const [title, setTitle] = React.useState('');
+    const [serverUri, setServerUri] = React.useState(defaultServerUri);
     const [serverStatus, setServerStatus] = React.useState();
 
     const [isSandboxToken, setIsSandboxToken] = React.useState();
     const [accountId, setAccountId] = React.useState();
 
     const checkToken = React.useCallback(async () => {
-        const t = await getSelectedToken(defaultServerUri);
+        const newUri = getFromLS('serverUri');
+
+        if (newUri !== serverUri) {
+            setServerUri(newUri);
+        }
+
+        const t = await getSelectedToken(serverUri);
 
         if (!t) {
             setIsSandboxToken();
 
-            if (await checkServer(defaultServerUri)) {
+            if (await checkServer(serverUri)) {
                 setServerStatus(true);
             } else {
                 setServerStatus(false);
@@ -49,7 +57,7 @@ function MyApp({ Component, pageProps }) {
         } else if (pathname !== '/settings') {
             routerPush('/settings');
         }
-    }, [routerPush, pathname, accountId]);
+    }, [routerPush, pathname, accountId, serverUri]);
 
     useEffect(() => {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
@@ -63,12 +71,18 @@ function MyApp({ Component, pageProps }) {
 
         setReady(true);
 
+        const newUri = getFromLS('serverUri');
+
+        if (newUri !== serverUri) {
+            setServerUri(newUri);
+        }
+
         return () => {
             interval && clearInterval(interval);
         };
 
     // checkToken в deps специально не добавлен, чтобы не было лишних запросов.
-    }, [ready, isReady]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [ready, isReady, setServerUri]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
         pathname === '/settings' ||
@@ -80,11 +94,12 @@ function MyApp({ Component, pageProps }) {
                 serverStatus={serverStatus}
                 accountId={accountId}
                 pathname={pathname}
+                serverUri={serverUri}
             >
                 <Component
                     {...pageProps}
                     isSandboxToken={isSandboxToken}
-                    serverUri={defaultServerUri}
+                    serverUri={serverUri}
                     setTitle={setTitle}
                     checkToken={checkToken}
                     accountId={accountId}

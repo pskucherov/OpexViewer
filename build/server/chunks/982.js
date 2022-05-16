@@ -18,12 +18,10 @@ const requestOptions = {
     cache: "no-cache",
     "Content-Type": "application/json"
 };
-// TODO: redux
-const defaultServerUri = "http://localhost:8000";
-const getInstruments = async (url)=>{
+const getInstruments = async (url, page)=>{
     let response;
     try {
-        response = await window.fetch(url, requestOptions);
+        response = await window.fetch(`${url}/${page}`, requestOptions);
     } catch (error) {
         return false;
     }
@@ -32,10 +30,10 @@ const getInstruments = async (url)=>{
     }
     return false;
 };
-const getInstrument = async (figi)=>{
+const getInstrument = async (url, figi)=>{
     let response;
     try {
-        response = await window.fetch(`${defaultServerUri}/figi/${figi}`, requestOptions);
+        response = await window.fetch(`${url}/figi/${figi}`, requestOptions);
     } catch (error) {
         return false;
     }
@@ -44,7 +42,7 @@ const getInstrument = async (figi)=>{
     }
     return false;
 };
-const getCandles = async (figi, interval, from, to)=>{
+const getCandles = async (url, figi, interval, from, to)=>{
     let response;
     // Если отсутствует to, тогда запрашиваем за текущий день из from.
     if (!to) {
@@ -53,7 +51,7 @@ const getCandles = async (figi, interval, from, to)=>{
         to.setHours(20, 59, 59, 999);
     }
     try {
-        response = await window.fetch(`${defaultServerUri}/getcandles/${figi}?interval=${interval}&from=${from.getTime()}&to=${to.getTime()}`, requestOptions);
+        response = await window.fetch(`${url}/getcandles/${figi}?interval=${interval}&from=${from.getTime()}&to=${to.getTime()}`, requestOptions);
     } catch (error) {
         return false;
     }
@@ -87,7 +85,7 @@ const getOrderBook = async (url, figi, time)=>{
     }
     return false;
 };
-const getTradingSchedules = async (exchange, from, to)=>{
+const getTradingSchedules = async (url, exchange, from, to)=>{
     let response;
     let params = `exchange=${exchange}&from=${from.getTime()}`;
     if (to) {
@@ -98,7 +96,7 @@ const getTradingSchedules = async (exchange, from, to)=>{
         params += `&to=${from.getTime() + 1}`;
     }
     try {
-        response = await window.fetch(`${defaultServerUri}/tradingschedules?${params}`, requestOptions);
+        response = await window.fetch(`${url}/tradingschedules?${params}`, requestOptions);
     } catch (error) {
         return false;
     }

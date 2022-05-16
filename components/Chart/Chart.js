@@ -38,7 +38,7 @@ export default function Chart(props) {
     }, [serverUri]);
 
     const updateCandlesHandle = React.useCallback(async () => {
-        const c = await getCandles(figi, interval + 1, selectedDate);
+        const c = await getCandles(serverUri, figi, interval + 1, selectedDate);
 
         if (c && c.candles) {
             const nextData = [];
@@ -58,7 +58,7 @@ export default function Chart(props) {
         }
 
         return c;
-    }, [figi, interval, selectedDate, setData, setVolume]);
+    }, [figi, interval, selectedDate, setData, setVolume, serverUri]);
 
     const getCandlesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {

@@ -1,9 +1,9 @@
 {
   "/_app": "pages/_app.js",
-  "/": "pages/index.html",
-  "/instruments": "pages/instruments.html",
   "/accounts": "pages/accounts.html",
+  "/": "pages/index.html",
   "/instruments/[figi]": "pages/instruments/[figi].html",
+  "/instruments": "pages/instruments.html",
   "/logs": "pages/logs.html",
   "/settings": "pages/settings.html",
   "/_error": "pages/_error.js",
