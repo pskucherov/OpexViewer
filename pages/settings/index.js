@@ -45,15 +45,7 @@ const AddServerForm = props => {
 
     // Сохраняем в переменную значения заполняемых полей.
     const handleInputChange = React.useCallback(e => {
-        let checkedUri = e.target.value;
-
-        if (checkedUri) {
-            if (checkedUri.slice(-1) === '/') {
-                checkedUri = checkedUri.slice(0, checkedUri.length - 1);
-            }
-
-            setServerUri(checkedUri);
-        }
+        setServerUri(e.target.value);
     }, []);
 
     // Проверяем состояние сервера при открытии страницы.
@@ -73,13 +65,20 @@ const AddServerForm = props => {
         e.preventDefault();
         setInprogress(true);
 
-        const serverStatus = await checkServer(serverUri);
+        let checkedUri = serverUri;
+
+        if (checkedUri.slice(-1) === '/') {
+            checkedUri = checkedUri.slice(0, checkedUri.length - 1);
+            setServerUri(checkedUri);
+        }
+
+        const serverStatus = await checkServer(checkedUri);
 
         if (!serverStatus) {
             setServerInvalid(true);
         } else {
             setServerInvalid(false);
-            setToLS('serverUri', serverUri);
+            setToLS('serverUri', checkedUri);
         }
 
         setInprogress(false);
