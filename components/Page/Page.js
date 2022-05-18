@@ -6,6 +6,8 @@ import {
     Collapse, NavItem, NavLink, NavbarText,
 } from 'reactstrap';
 import { getBalance } from '../../utils/accounts';
+import { objectEach } from 'highcharts';
+import { getPrice } from '../../utils/price';
 
 export default function Page(props) {
     const { isSandboxToken, serverStatus, accountId, pathname, setBalance, serverUri, balance } = props;
@@ -21,40 +23,34 @@ export default function Page(props) {
     useEffect(() => {
         const checkRequest = async () => {
             const f = await getBalance(serverUri, accountId);
+            let balanceValue = 0;
 
             if (f) {
-                let allUnits = 0;
-                let allNano = 0;
+                const arr = ['expectedYield', 'positions'];
                 let currency = '';
 
                 //Функция получения баланса
-                for (const key in f) {
-                    for (const key1 in f[key]) {
-                        if (key1 === 'units' && key !== 'expectedYield' && key !== 'positions') {allUnits += f[key][key1]}
-                    }
-                    for (const key2 in f[key]) {
-                        if (key2 === 'nano' && key !== 'expectedYield' && key !== 'positions') {allNano += f[key][key2]}
-                    }
-                }
-
                 if (f.totalAmountShares.currency === 'rub') {
                     currency = ' ₽';
                 }
 
-                //Очень страшная функция конвертации nano в units
-                if (allNano >= 1000000000) {
-                    setBalance(parseFloat((allUnits + Number(allNano.toString()[0])) + '.0' + (allNano - Number(allNano.toString()[0] + '000000000'))).toFixed(2) + `${currency}`);
-                } else if (allNano < 1000000000) {
-                    setBalance(parseFloat(allUnits + '.' + allNano).toFixed(2) + `${currency}`);
+                for (const [key, value] of Object.entries(f)) {
+                    if (key !== arr[0] && key !== arr[1]) {
+                        balanceValue += getPrice(value);
+                        setBalance(parseFloat(balanceValue).toFixed(2) + currency);
+                    }
                 }
             }
         };
+
+        checkRequest();
+
         const timer = setInterval(() => {
             checkRequest();
-        }, 3000);
+        }, 20000);
 
         return () => clearInterval(timer);
-    }, [serverUri, accountId, setBalance]);
+    }, [serverUri, accountId, setBalance, balance]);
 
     return (
         <div className={styles.container} >
@@ -208,13 +204,13 @@ const AccountBadge = props => {
 const BalanceBadge = props => {
     const balance = props;
 
-    return (
+    return balance.balance ? (
         <Badge
             color="info"
             href="#"
             className={styles.PageBadge}
             balance={balance}
         >
-            {!balance.balance ? 'Ваш баланс' : `Ваш баланс:  ${balance.balance}`}
-        </Badge>) || '';
+            {balance.balance}
+        </Badge>) : '';
 };

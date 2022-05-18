@@ -35,11 +35,11 @@ const selectAccount = async (serverUri, id) => {
     return false;
 };
 
-const getBalance = async (serverUri, id) => {
+const getBalance = async (serverUri, accountId) => {
     let response;
 
     try {
-        response = await window.fetch(serverUri + '/getbalance?id=' + id, requestOptions);
+        response = await window.fetch(serverUri + '/getbalance?id=' + accountId, requestOptions);
     } catch (error) {
         return false;
     }
