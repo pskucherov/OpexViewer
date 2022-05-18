@@ -71,12 +71,29 @@ const stopRobot = async (serverUri, name) => {
     return false;
 };
 
-const statusRobot = async (serverUri, name) => {
+const statusRobot = async serverUri => {
     let response;
 
     try {
         response = await window.fetch(serverUri +
-            `/robots/status/?name=${name}`, requestOptions);
+            '/robots/status', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const getRobotLogs = async (serverUri, name, accountId, figi, date) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/logs/${figi}?name=${name}&accountId=${accountId}&date=${date}`, requestOptions);
     } catch (error) {
         return false;
     }
@@ -94,4 +111,5 @@ export {
     stopRobot,
     stepRobot,
     statusRobot,
+    getRobotLogs,
 };

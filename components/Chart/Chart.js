@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Highcharts from 'highcharts/highstock';
 
 import PriceIndicator from 'highcharts/modules/price-indicator';
@@ -20,22 +20,46 @@ export default function Chart(props) {
         selectedDate, interval, setIsTradingDay,
         serverUri,
         inProgress, accountId,
+        setIsRobotStarted, isRobotStarted,
     } = props;
 
     const [data, setData] = React.useState([]);
     const [volume, setVolume] = React.useState([]);
     const [selectedRobot, setSelectedRobots] = useState();
-    const [isRobotStarted, setIsRobotStarted] = useState(false);
 
-    React.useEffect(() => {
+    // const [robotStatus, setRobotStatus] = useState();
+
+    // React.useEffect(() => {
+    //     (async () => {
+    //         const status = await statusRobot(serverUri);
+
+    //         if (status) {
+    //             setRobotStatus(robotStatus);
+    //         }
+    //     })();
+    // }, [serverUri]);
+
+    // React.useEffect(() => {
+    //     (async () => {
+    //         const robots = await getRobots(serverUri);
+
+    //         if (robots && robots.length) {
+    //             setRobots(robots);
+    //         }
+    //     })();
+    // }, [setRobotName, serverUri]);
+
+    useEffect(() => {
         (async () => {
             const status = await statusRobot(serverUri);
 
             if (status) {
-                // console.log(statusRobot);
+                setSelectedRobots(status.name);
+
+                // setRobotPositions(status.positions);
             }
         })();
-    }, [serverUri]);
+    }, [serverUri, setSelectedRobots]);
 
     const updateCandlesHandle = React.useCallback(async () => {
         const c = await getCandles(serverUri, figi, interval + 1, selectedDate);
@@ -162,7 +186,9 @@ export default function Chart(props) {
             />
             <Robots
                 serverUri={serverUri}
+                selectedRobot={selectedRobot}
                 setSelectedRobots={setSelectedRobots}
+                disabled={isRobotStarted}
             />
             <RobotsButtons
                 interval={interval}
@@ -170,6 +196,7 @@ export default function Chart(props) {
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
+                isRobotStarted={isRobotStarted}
                 setIsRobotStarted={setIsRobotStarted}
                 accountId={accountId}
             />

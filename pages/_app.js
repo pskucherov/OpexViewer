@@ -4,9 +4,10 @@ import Page from '../components/Page/Page';
 
 import { useRouter } from 'next/router';
 
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { getSelectedToken, checkServer } from '../utils/serverStatus';
 import { getFromLS } from '../utils/storage';
+import { statusRobot } from '../utils/robots';
 
 const defaultServerUri = 'http://localhost:8000';
 
@@ -15,7 +16,7 @@ function MyApp({ Component, pageProps }) {
     const router = useRouter();
 
     const routerPush = router.push;
-    const { isReady, pathname } = router;
+    const { isReady, pathname, asPath } = router;
 
     const [ready, setReady] = React.useState(false);
     const [title, setTitle] = React.useState('');
@@ -24,6 +25,7 @@ function MyApp({ Component, pageProps }) {
 
     const [isSandboxToken, setIsSandboxToken] = React.useState();
     const [accountId, setAccountId] = React.useState();
+    const [isRobotStarted, setIsRobotStarted] = React.useState(false);
 
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
@@ -59,14 +61,36 @@ function MyApp({ Component, pageProps }) {
         }
     }, [routerPush, pathname, accountId, serverUri]);
 
+    const checkRobot = useCallback(async () => {
+        const status = await statusRobot(serverUri);
+
+        if (status) {
+            // В режиме запущенного робота можно находиться только на страницах логов и инструмента.
+            if (asPath !== '/logs' && asPath !== `/instruments/${status.figi}`) {
+                routerPush(`/instruments/${status.figi}`);
+            }
+
+            if (!isRobotStarted) {
+                setIsRobotStarted(true);
+            }
+        } else if (isRobotStarted && !status) {
+            setIsRobotStarted(false);
+        }
+    }, [routerPush, serverUri, asPath, isRobotStarted]);
+
     useEffect(() => {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
 
         let interval;
 
         if (isReady && ready) {
-            interval = setInterval(checkToken, 15000);
+            interval = setInterval(() => {
+                checkToken();
+                checkRobot();
+            }, 15000);
+
             checkToken();
+            checkRobot();
         }
 
         setReady(true);
@@ -103,6 +127,8 @@ function MyApp({ Component, pageProps }) {
                     setTitle={setTitle}
                     checkToken={checkToken}
                     accountId={accountId}
+                    isRobotStarted={isRobotStarted}
+                    setIsRobotStarted={setIsRobotStarted}
                 />
             </Page>
         ) : null;

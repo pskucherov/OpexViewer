@@ -11,19 +11,26 @@ export function RobotsButtons(props) {
         serverUri,
         figi,
         selectedDate,
-        setIsRobotStarted,
         accountId,
+        isRobotStarted,
+        setIsRobotStarted,
     } = props;
 
     const [play, setPlay] = useState();
     const [isAdviser, setAdviser] = useState(true);
 
+    useEffect(() => {
+        if (isRobotStarted) {
+            setPlay(true);
+        }
+    }, [setPlay, isRobotStarted]);
+
     const onPlay = useCallback(async () => {
         setPlay(true);
         setIsRobotStarted(true);
         await startRobot(serverUri, selectedRobot, figi, selectedDate, 1, 0, isAdviser, accountId);
-    }, [serverUri, selectedRobot, accountId, isAdviser, setIsRobotStarted,
-        figi, selectedDate]);
+    }, [serverUri, selectedRobot, accountId, isAdviser,
+        figi, selectedDate, setIsRobotStarted]);
 
     const onOk = useCallback(() => {
 

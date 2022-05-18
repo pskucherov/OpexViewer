@@ -19,6 +19,7 @@ export default function Backtest(props) {
         selectedDate, interval, setIsTradingDay,
         serverUri,
         inProgress,
+        setIsRobotStarted,
     } = props;
 
     const [data, setData] = React.useState([]);
@@ -30,16 +31,6 @@ export default function Backtest(props) {
     const [selectedRobot, setSelectedRobots] = useState();
 
     const [robotPositions, setRobotPositions] = useState();
-
-    React.useEffect(() => {
-        (async () => {
-            const status = await statusRobot(serverUri);
-
-            if (status) {
-                // console.log(statusRobot);
-            }
-        })();
-    }, [serverUri]);
 
     const getCanglesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {
@@ -143,6 +134,7 @@ export default function Backtest(props) {
             />
             <Robots
                 serverUri={serverUri}
+                selectedRobot={selectedRobot}
                 setSelectedRobots={setSelectedRobots}
                 disabled={typeof step !== 'undefined'}
             />
@@ -156,10 +148,12 @@ export default function Backtest(props) {
                 data={data}
                 volume={volume}
                 selectedRobot={selectedRobot}
+                setSelectedRobots={setSelectedRobots}
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
                 setRobotPositions={setRobotPositions}
+                setIsRobotStarted={setIsRobotStarted}
             />
         </div>
     );

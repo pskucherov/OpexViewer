@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Chart from '../../components/Chart/Chart';
 import Backtest from '../../components/Backtest/Backtest';
 import { getInstrument, getTradingSchedules } from '../../utils/instruments';
-import { Spinner, FormGroup, Label, FormText, Button, ButtonGroup } from 'reactstrap';
+import { Spinner, FormGroup, Button, ButtonGroup } from 'reactstrap';
 
 import { getFromSS, setToSS } from '../../utils/storage';
 
@@ -11,11 +11,12 @@ import DatePicker from 'react-datepicker';
 const INIT_INTERVAL_TEXT = ['1 мин', '5 мин', '15 мин', '1 час'];
 
 import 'react-datepicker/dist/react-datepicker.css';
+import { getRobotLogs } from '../../utils/robots';
 
 const INIT_INTERVAL = 1;
 
 const SelectInterval = props => {
-    const { setTickerInterval, interval } = props;
+    const { setTickerInterval, interval, disabled } = props;
 
     const onButtonClick = React.useCallback(num => {
         // Задаёт интервал для всей страницы.
@@ -31,9 +32,10 @@ const SelectInterval = props => {
                     <Button
                         key={k}
                         color="primary"
-                        outline
+                        outline={interval !== k}
                         active={interval === k}
                         onClick={onButtonClick.bind(this, k)}
+                        disabled={disabled}
                     >
                         {i}
                     </Button>
@@ -46,7 +48,13 @@ const SelectInterval = props => {
 const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
 
 export default function TerminalFigi(props) {
-    const { setTitle, serverUri, accountId } = props;
+    const {
+        setTitle,
+        serverUri,
+        accountId,
+        isRobotStarted,
+        setIsRobotStarted,
+    } = props;
 
     const router = useRouter();
     const routerPush = router.push;
@@ -116,9 +124,15 @@ export default function TerminalFigi(props) {
 
     React.useEffect(() => {
         if (instrument) {
-            setTitle(instrument.name + ` (${instrument.ticker})`);
+            let title = instrument.name + ` (${instrument.ticker})`;
+
+            if (isBacktest) {
+                title += '. Backtest.';
+            }
+
+            setTitle(title);
         }
-    }, [setTitle, instrument]);
+    }, [setTitle, instrument, isBacktest]);
 
     return (<Content
         setInprogress={setInprogress}
@@ -134,12 +148,14 @@ export default function TerminalFigi(props) {
         isBacktest={isBacktest}
         serverUri={serverUri}
         accountId={accountId}
+        isRobotStarted={isRobotStarted}
+        setIsRobotStarted={setIsRobotStarted}
     />);
 }
 
 const Head = props => {
     const {
-        interval, onCalendareChange, setTickerInterval, selectedDate,
+        interval, onCalendareChange, setTickerInterval, selectedDate, isRobotStarted,
     } = props;
 
     const isWeekday = React.useCallback(date => {
@@ -159,18 +175,32 @@ const Head = props => {
                     maxDate={new Date()}
                     filterDate={isWeekday}
                     withPortal
+                    disabled={Boolean(isRobotStarted)}
                 />
             </FormGroup>
             <SelectInterval
                 interval={interval}
                 setTickerInterval={setTickerInterval}
+                disabled={Boolean(isRobotStarted)}
             />
         </center>
     );
 };
 
 const Content = props => {
-    const { serverUri, accountId } = props;
+    const { serverUri,
+        accountId,
+        isRobotStarted,
+        setIsRobotStarted,
+        figi,
+        selectedDate,
+    } = props;
+
+    useEffect(() => {
+        (async () => {
+            const logs = await getRobotLogs(serverUri, 'RandomExample', accountId, figi, selectedDate.getTime());
+        })();
+    }, [serverUri, accountId, figi, selectedDate]);
 
     return (
         <>
@@ -178,7 +208,8 @@ const Content = props => {
                 interval={props.interval}
                 setTickerInterval={props.setTickerInterval}
                 onCalendareChange={props.onCalendareChange}
-                selectedDate={props.selectedDate}
+                selectedDate={selectedDate}
+                isRobotStarted={isRobotStarted}
             />
             {props.inProgress ? (
                 <>
@@ -197,10 +228,11 @@ const Content = props => {
                     setInprogress={props.setInprogress}
                     inProgress={props.inProgress}
                     selectedDate={props.selectedDate}
-                    figi={props.figi}
+                    figi={figi}
                     instrument={props.instrument}
                     setIsTradingDay={props.setIsTradingDay}
                     serverUri={serverUri}
+                    setIsRobotStarted={setIsRobotStarted}
                 />
             ) : (
                 <Chart
@@ -208,11 +240,13 @@ const Content = props => {
                     setInprogress={props.setInprogress}
                     inProgress={props.inProgress}
                     selectedDate={props.selectedDate}
-                    figi={props.figi}
+                    figi={figi}
                     instrument={props.instrument}
                     setIsTradingDay={props.setIsTradingDay}
                     serverUri={serverUri}
                     accountId={accountId}
+                    setIsRobotStarted={setIsRobotStarted}
+                    isRobotStarted={isRobotStarted}
                 />
             )) : (<><br></br><br></br><center>Биржа закрыта.</center></>)}
         </>);

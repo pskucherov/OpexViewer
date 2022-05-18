@@ -10,11 +10,12 @@ export function Robots(props) {
         serverUri,
         disabled,
         setSelectedRobots,
+        selectedRobot,
     } = props;
 
     const [robots, setRobots] = useState([]);
 
-    const onChange = useCallback(e => {
+    const onChange = useCallback(async e => {
         setSelectedRobots(e.target.value);
     }, [setSelectedRobots]);
 
@@ -38,13 +39,17 @@ export function Robots(props) {
                 type="select"
                 disabled={disabled}
                 onChange={onChange}
+                value={selectedRobot}
             >
                 <option value="">
                     Выберите робота
                 </option>
                 {
                     robots.map((r, k) => (
-                        <option key={k} value={r}>
+                        <option
+                            key={k}
+                            value={r}
+                        >
                             {r}
                         </option>
                     ))

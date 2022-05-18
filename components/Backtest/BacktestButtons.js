@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ButtonGroup, Button } from 'reactstrap';
-import { startRobot, stepRobot, stopRobot } from '../../utils/robots';
+import { startRobot, statusRobot, stepRobot, stopRobot } from '../../utils/robots';
 
 import styles from '../../styles/Backtest.module.css';
 
@@ -19,20 +19,64 @@ export function BacktestButtons(props) {
         figi,
         selectedDate,
         setRobotPositions,
+        setSelectedRobots,
+        setIsRobotStarted,
     } = props;
 
     const [play, setPlay] = useState();
     const [isAuto, setIsAuto] = useState(false);
     const [isLastStep, setIsLastStep] = useState(false);
 
-    const onPlay = useCallback(async () => {
+    const initPlayButtons = useCallback((step = -1) => {
         setPlay(true);
-        setBacktestData([]);
-        setBacktestVolume([]);
-        setStep(-1);
+        setStep(step);
+
+        if (step >= 1) {
+            setBacktestData(data.map((i, k) => {
+                if (k > step) {
+                    return [i[0], undefined, undefined, undefined, undefined];
+                }
+
+                return i;
+            }));
+
+            setBacktestVolume(volume.map((i, k) => {
+                if (k > step) {
+                    return [i[0], undefined];
+                }
+
+                return i;
+            }));
+        } else {
+            setBacktestData([]);
+            setBacktestVolume([]);
+        }
+    }, [setPlay, setStep, setBacktestData, setBacktestVolume, data, volume]);
+
+    useEffect(() => {
+        (async () => {
+            const status = await statusRobot(serverUri);
+
+            if (status && status.step >= 1) {
+                initPlayButtons(status.step);
+                setSelectedRobots(status.name);
+                setRobotPositions(status.positions);
+            }
+        })();
+    }, [serverUri, data, volume,
+        initPlayButtons, setSelectedRobots, setRobotPositions,
+    ]);
+
+    const onPlay = useCallback(async () => {
+        initPlayButtons();
+        setIsRobotStarted(true);
+
         await startRobot(serverUri, selectedRobot, figi, selectedDate, interval + 1, 1, 1);
-    }, [setBacktestData, setBacktestVolume, serverUri, selectedRobot,
-        figi, selectedDate, interval, setStep]);
+    }, [
+        serverUri, selectedRobot,
+        figi, selectedDate, interval,
+        initPlayButtons, setIsRobotStarted,
+    ]);
 
     const onStep = useCallback(async () => {
         if (!play || isLastStep) {
@@ -88,15 +132,17 @@ export function BacktestButtons(props) {
         setBacktestData();
         setBacktestVolume();
         setRobotPositions();
+
+        setIsRobotStarted(false);
     }, [setStep, setIsAuto, setRobotPositions,
-        setPlay, setBacktestData,
+        setPlay, setBacktestData, setIsRobotStarted,
         setBacktestVolume, selectedRobot, serverUri]);
 
     const onStop = useCallback(() => setIsAuto(false), [setIsAuto]);
 
-    useEffect(() => {
-        onClear();
-    }, [interval, selectedDate, onClear]);
+    // useEffect(() => {
+    //     onClear();
+    // }, [interval, selectedDate, onClear]);
 
     return (
         <ButtonGroup className={styles.BacktestButtons}>
