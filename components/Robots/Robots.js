@@ -9,15 +9,15 @@ export function Robots(props) {
         setRobotName,
         serverUri,
         disabled,
-        setSelectedRobots,
+        setSelectedRobot,
         selectedRobot,
     } = props;
 
     const [robots, setRobots] = useState([]);
 
     const onChange = useCallback(async e => {
-        setSelectedRobots(e.target.value);
-    }, [setSelectedRobots]);
+        setSelectedRobot(e.target.value);
+    }, [setSelectedRobot]);
 
     React.useEffect(() => {
         (async () => {

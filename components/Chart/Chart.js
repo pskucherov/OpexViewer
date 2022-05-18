@@ -11,7 +11,7 @@ import { BacktestButtons } from '../Backtest/BacktestButtons';
 
 import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
-import { statusRobot } from '../../utils/robots';
+import { robotFlagsForChart, statusRobot } from '../../utils/robots';
 import { RobotsButtons } from '../Robots/RobotsButtons';
 
 export default function Chart(props) {
@@ -20,46 +20,23 @@ export default function Chart(props) {
         selectedDate, interval, setIsTradingDay,
         serverUri,
         inProgress, accountId,
-        setIsRobotStarted, isRobotStarted,
+        setRobotStartedName, robotStartedName,
+        robotState,
+        selectedRobot, setSelectedRobot,
     } = props;
 
     const [data, setData] = React.useState([]);
     const [volume, setVolume] = React.useState([]);
-    const [selectedRobot, setSelectedRobots] = useState();
-
-    // const [robotStatus, setRobotStatus] = useState();
-
-    // React.useEffect(() => {
-    //     (async () => {
-    //         const status = await statusRobot(serverUri);
-
-    //         if (status) {
-    //             setRobotStatus(robotStatus);
-    //         }
-    //     })();
-    // }, [serverUri]);
-
-    // React.useEffect(() => {
-    //     (async () => {
-    //         const robots = await getRobots(serverUri);
-
-    //         if (robots && robots.length) {
-    //             setRobots(robots);
-    //         }
-    //     })();
-    // }, [setRobotName, serverUri]);
 
     useEffect(() => {
         (async () => {
             const status = await statusRobot(serverUri);
 
             if (status) {
-                setSelectedRobots(status.name);
-
-                // setRobotPositions(status.positions);
+                setSelectedRobot(status.name);
             }
         })();
-    }, [serverUri, setSelectedRobots]);
+    }, [serverUri, setSelectedRobot]);
 
     const updateCandlesHandle = React.useCallback(async () => {
         const c = await getCandles(serverUri, figi, interval + 1, selectedDate);
@@ -102,24 +79,6 @@ export default function Chart(props) {
     }, [instrument, interval, figi, setInprogress, selectedDate, // eslint-disable-line react-hooks/exhaustive-deps
         setIsTradingDay, updateCandlesHandle, setData, setVolume]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // const setLastPriceInChart = useCallback((price, time) => {
-    //     const newLastLineData = data[data.length - 1];
-    //     const newData = [...data];
-
-    //     // Убираем последнюю цену из графика
-    //     if (
-    //         newLastLineData[1] === newLastLineData[2] &&
-    //         newLastLineData[2] === newLastLineData[3] &&
-    //         newLastLineData[3] === newLastLineData[4] &&
-    //         newLastLineData[1] === newLastLineData[4]
-    //     ) {
-    //         newData.pop();
-    //     }
-
-    //     newData.push([new Date(time).getTime() - (new Date().getTimezoneOffset() * 60000), price, price, price, price]);
-    //     setData(newData);
-    // }, [data, setData, interval]);
-
     React.useEffect(() => {
         PriceIndicator(Highcharts);
     }, []);
@@ -147,25 +106,31 @@ export default function Chart(props) {
                 ...chartOptions.series[1],
                 data: volume,
             },
-
-            // {
-            //     ...chartOptions.series[2],
-            //     data: [{
-            //         title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
-            //         text: 'Цена',
-            //         x: data && data[50] && data[50][0],
-            //     }],
-            // },
-            // {
-            //     ...chartOptions.series[3],
-            //     data: [{
-            //         title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
-            //         text: 'Цена',
-            //         x: data && data[80] && data[80][0],
-            //     }],
-            // },
         ],
     };
+
+    const {
+        buyFlags1,
+        sellFlags1,
+        buyFlags2,
+        sellFlags2,
+    } = robotFlagsForChart(chartOptions, robotState, styles);
+
+    if (buyFlags1 && buyFlags1.data.length) {
+        options.series.push(buyFlags1);
+    }
+
+    if (sellFlags1 && sellFlags1.data.length) {
+        options.series.push(sellFlags1);
+    }
+
+    if (buyFlags2 && buyFlags2.data.length) {
+        options.series.push(buyFlags2);
+    }
+
+    if (sellFlags2 && sellFlags2.data.length) {
+        options.series.push(sellFlags2);
+    }
 
     return (
         <div
@@ -187,8 +152,9 @@ export default function Chart(props) {
             <Robots
                 serverUri={serverUri}
                 selectedRobot={selectedRobot}
-                setSelectedRobots={setSelectedRobots}
-                disabled={isRobotStarted}
+                setSelectedRobot={setSelectedRobot}
+                disabled={robotStartedName}
+                setRobotStartedName={setRobotStartedName}
             />
             <RobotsButtons
                 interval={interval}
@@ -196,8 +162,8 @@ export default function Chart(props) {
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
-                isRobotStarted={isRobotStarted}
-                setIsRobotStarted={setIsRobotStarted}
+                robotStartedName={robotStartedName}
+                setRobotStartedName={setRobotStartedName}
                 accountId={accountId}
             />
         </div>

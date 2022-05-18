@@ -25,7 +25,7 @@ function MyApp({ Component, pageProps }) {
 
     const [isSandboxToken, setIsSandboxToken] = React.useState();
     const [accountId, setAccountId] = React.useState();
-    const [isRobotStarted, setIsRobotStarted] = React.useState(false);
+    const [robotStartedName, setRobotStartedName] = React.useState(false);
 
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
@@ -70,13 +70,13 @@ function MyApp({ Component, pageProps }) {
                 routerPush(`/instruments/${status.figi}`);
             }
 
-            if (!isRobotStarted) {
-                setIsRobotStarted(true);
+            if (!robotStartedName) {
+                setRobotStartedName(status.name);
             }
-        } else if (isRobotStarted && !status) {
-            setIsRobotStarted(false);
+        } else if (robotStartedName && !status) {
+            setRobotStartedName();
         }
-    }, [routerPush, serverUri, asPath, isRobotStarted]);
+    }, [routerPush, serverUri, asPath, robotStartedName]);
 
     useEffect(() => {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
@@ -127,8 +127,8 @@ function MyApp({ Component, pageProps }) {
                     setTitle={setTitle}
                     checkToken={checkToken}
                     accountId={accountId}
-                    isRobotStarted={isRobotStarted}
-                    setIsRobotStarted={setIsRobotStarted}
+                    robotStartedName={robotStartedName}
+                    setRobotStartedName={setRobotStartedName}
                 />
             </Page>
         ) : null;

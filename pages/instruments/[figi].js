@@ -52,8 +52,8 @@ export default function TerminalFigi(props) {
         setTitle,
         serverUri,
         accountId,
-        isRobotStarted,
-        setIsRobotStarted,
+        robotStartedName,
+        setRobotStartedName,
     } = props;
 
     const router = useRouter();
@@ -148,14 +148,14 @@ export default function TerminalFigi(props) {
         isBacktest={isBacktest}
         serverUri={serverUri}
         accountId={accountId}
-        isRobotStarted={isRobotStarted}
-        setIsRobotStarted={setIsRobotStarted}
+        robotStartedName={robotStartedName}
+        setRobotStartedName={setRobotStartedName}
     />);
 }
 
 const Head = props => {
     const {
-        interval, onCalendareChange, setTickerInterval, selectedDate, isRobotStarted,
+        interval, onCalendareChange, setTickerInterval, selectedDate, robotStartedName,
     } = props;
 
     const isWeekday = React.useCallback(date => {
@@ -175,13 +175,13 @@ const Head = props => {
                     maxDate={new Date()}
                     filterDate={isWeekday}
                     withPortal
-                    disabled={Boolean(isRobotStarted)}
+                    disabled={Boolean(robotStartedName)}
                 />
             </FormGroup>
             <SelectInterval
                 interval={interval}
                 setTickerInterval={setTickerInterval}
-                disabled={Boolean(isRobotStarted)}
+                disabled={Boolean(robotStartedName)}
             />
         </center>
     );
@@ -190,17 +190,26 @@ const Head = props => {
 const Content = props => {
     const { serverUri,
         accountId,
-        isRobotStarted,
-        setIsRobotStarted,
+        robotStartedName,
+        setRobotStartedName,
         figi,
         selectedDate,
     } = props;
 
+    const [robotState, setRobotState] = useState();
+    const [selectedRobot, setSelectedRobot] = useState();
+
     useEffect(() => {
         (async () => {
-            const logs = await getRobotLogs(serverUri, 'RandomExample', accountId, figi, selectedDate.getTime());
+            if (selectedRobot && accountId && figi) {
+                // selectedRobot используется для того, чтобы при выборе робота показывать сделки.
+                // когда робот запущен показывать их уже нужно по интервалу.
+                const logs = await getRobotLogs(serverUri, selectedRobot, accountId, figi, selectedDate.getTime());
+
+                setRobotState(logs);
+            }
         })();
-    }, [serverUri, accountId, figi, selectedDate]);
+    }, [setRobotState, serverUri, accountId, figi, selectedDate, selectedRobot]);
 
     return (
         <>
@@ -209,14 +218,14 @@ const Content = props => {
                 setTickerInterval={props.setTickerInterval}
                 onCalendareChange={props.onCalendareChange}
                 selectedDate={selectedDate}
-                isRobotStarted={isRobotStarted}
+                robotStartedName={robotStartedName}
             />
             {props.inProgress ? (
                 <>
                     <center>
                         <br></br>
                         <Spinner color="primary">
-                        Loading...
+                            Loading...
                         </Spinner>
                     </center>
                 </>
@@ -232,7 +241,10 @@ const Content = props => {
                     instrument={props.instrument}
                     setIsTradingDay={props.setIsTradingDay}
                     serverUri={serverUri}
-                    setIsRobotStarted={setIsRobotStarted}
+                    setRobotStartedName={setRobotStartedName}
+                    robotState={robotState}
+                    selectedRobot={selectedRobot}
+                    setSelectedRobot={setSelectedRobot}
                 />
             ) : (
                 <Chart
@@ -245,8 +257,11 @@ const Content = props => {
                     setIsTradingDay={props.setIsTradingDay}
                     serverUri={serverUri}
                     accountId={accountId}
-                    setIsRobotStarted={setIsRobotStarted}
-                    isRobotStarted={isRobotStarted}
+                    setRobotStartedName={setRobotStartedName}
+                    robotStartedName={robotStartedName}
+                    robotState={robotState}
+                    selectedRobot={selectedRobot}
+                    setSelectedRobot={setSelectedRobot}
                 />
             )) : (<><br></br><br></br><center>Биржа закрыта.</center></>)}
         </>);

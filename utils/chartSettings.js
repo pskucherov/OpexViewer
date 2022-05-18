@@ -119,6 +119,28 @@ const chartOptions = {
             y: 50,
             width: 12,
         },
+
+        {
+            type: 'flags',
+            useHTML: true,
+            onSeries: 'candles',
+            shape: 'squarepin',
+            fillColor: '#0bda51',
+            color: '#0bda51',
+            y: -50,
+            width: 12,
+        },
+        {
+            type: 'flags',
+            useHTML: true,
+            onSeries: 'candles',
+            shape: 'squarepin',
+            fillColor: '#ff4d00',
+            color: '#ff4d00',
+            y: 10,
+            width: 12,
+        },
+
     ],
     responsive: {
         rules: [{

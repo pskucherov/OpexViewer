@@ -1,3 +1,5 @@
+import { getPrice } from './price';
+
 const requestOptions = {
     cache: 'no-cache',
     'Content-Type': 'application/json',
@@ -105,6 +107,76 @@ const getRobotLogs = async (serverUri, name, accountId, figi, date) => {
     return false;
 };
 
+const robotFlagsForChart = (chartOptions, robotState, styles) => {
+    const orders = [];
+    const trades = [];
+
+    if (robotState) {
+        robotState.forEach(s => {
+            if (s.orderId) {
+                orders.push(s);
+            } else if (s.orderTrades) {
+                s.orderTrades.trades.forEach(t => trades.push({
+                    ...s.orderTrades,
+                    ...t,
+                    logOrderTime: s.logOrderTime,
+                }));
+            }
+        });
+    }
+
+    const buyFlags1 = trades && trades.length ? {
+        ...chartOptions.series[2],
+        data: trades.filter(p => p.direction === 1).map(p => {
+            return {
+                title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
+                text: `<b>Сделка</b><br>Цена: ${getPrice(p.price)}<br>Всего: ${(getPrice(p.price) * p.quantity).toFixed(2)}<br>Кол-во: ${p.quantity}`,
+                x: p.logOrderTime,
+            };
+        }),
+    } : undefined;
+
+    const sellFlags1 = trades && trades.length ? {
+        ...chartOptions.series[3],
+        data: trades.filter(p => p.direction === 2).map(p => {
+            return {
+                title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
+                text: `<b>Сделка</b><br>Цена: ${getPrice(p.price)}<br>Всего: ${(getPrice(p.price) * p.quantity).toFixed(2)}<br>Кол-во: ${p.quantity}`,
+                x: p.logOrderTime,
+            };
+        }),
+    } : undefined;
+
+    const buyFlags2 = trades && trades.length ? {
+        ...chartOptions.series[4],
+        data: orders.filter(p => p.direction === 1).map(p => {
+            return {
+                title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
+                text: `<b>Заявка</b><br>Цена: ${getPrice(p.initialSecurityPrice)}<br>Всего: ${(getPrice(p.initialOrderPrice))}`,
+                x: p.logOrderTime,
+            };
+        }),
+    } : undefined;
+
+    const sellFlags2 = trades && trades.length ? {
+        ...chartOptions.series[5],
+        data: orders.filter(p => p.direction === 2).map(p => {
+            return {
+                title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
+                text: `<b>Заявка</b><br>Цена: ${getPrice(p.initialSecurityPrice)}<br>Всего: ${(getPrice(p.initialOrderPrice))}`,
+                x: p.logOrderTime,
+            };
+        }),
+    } : undefined;
+
+    return {
+        buyFlags1,
+        sellFlags1,
+        buyFlags2,
+        sellFlags2,
+    };
+};
+
 export {
     getRobots,
     startRobot,
@@ -112,4 +184,5 @@ export {
     stepRobot,
     statusRobot,
     getRobotLogs,
+    robotFlagsForChart,
 };

@@ -11,7 +11,7 @@ import { BacktestButtons } from './BacktestButtons';
 
 import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
-import { statusRobot } from '../../utils/robots';
+import { robotFlagsForChart, statusRobot } from '../../utils/robots';
 
 export default function Backtest(props) {
     const {
@@ -19,7 +19,10 @@ export default function Backtest(props) {
         selectedDate, interval, setIsTradingDay,
         serverUri,
         inProgress,
-        setIsRobotStarted,
+        setRobotStartedName,
+        robotState,
+        selectedRobot,
+        setSelectedRobot,
     } = props;
 
     const [data, setData] = React.useState([]);
@@ -28,7 +31,6 @@ export default function Backtest(props) {
     const [backtestVolume, setBacktestVolume] = React.useState();
     const [maxStep, setMaxStep] = useState(0);
     const [step, setStep] = useState();
-    const [selectedRobot, setSelectedRobots] = useState();
 
     const [robotPositions, setRobotPositions] = useState();
 
@@ -86,34 +88,63 @@ export default function Backtest(props) {
         ],
     };
 
-    const buyFlags = robotPositions && robotPositions.length ? {
-        ...chartOptions.series[2],
-        data: robotPositions.filter(p => p.direction === 1).map(p => {
-            return {
-                title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
-                text: `Цена: ${getPrice(p.price)}<br>Лоты: ${p.lots}`,
-                x: data[p.step][0],
-            };
-        }),
-    } : undefined;
+    if (typeof step !== 'undefined') {
+        console.log(step);
 
-    const sellFlags = robotPositions && robotPositions.length ? {
-        ...chartOptions.series[3],
-        data: robotPositions.filter(p => p.direction === 2).map(p => {
-            return {
-                title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
-                text: `Профит: ${getPrice(p.profit)}<br>Лоты: ${p.lots}`,
-                x: data[p.step][0],
-            };
-        }),
-    } : undefined;
+        const buyFlags = robotPositions && robotPositions.length ? {
+            ...chartOptions.series[2],
+            data: robotPositions.filter(p => p.direction === 1).map(p => {
+                return {
+                    title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
+                    text: `Цена: ${getPrice(p.price)}<br>Лоты: ${p.lots}`,
+                    x: data[p.step][0],
+                };
+            }),
+        } : undefined;
 
-    if (buyFlags && buyFlags.data.length) {
-        options.series.push(buyFlags);
-    }
+        const sellFlags = robotPositions && robotPositions.length ? {
+            ...chartOptions.series[3],
+            data: robotPositions.filter(p => p.direction === 2).map(p => {
+                return {
+                    title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
+                    text: `Профит: ${getPrice(p.profit)}<br>Лоты: ${p.lots}`,
+                    x: data[p.step][0],
+                };
+            }),
+        } : undefined;
 
-    if (sellFlags && sellFlags.data.length) {
-        options.series.push(sellFlags);
+        if (buyFlags && buyFlags.data.length) {
+            options.series.push(buyFlags);
+        }
+
+        if (sellFlags && sellFlags.data.length) {
+            options.series.push(sellFlags);
+        }
+    } else {
+        console.log(robotState);
+        const {
+            buyFlags1,
+            sellFlags1,
+            buyFlags2,
+            sellFlags2,
+        } = robotFlagsForChart(chartOptions, robotState, styles);
+
+        console.log(buyFlags1);
+        if (buyFlags1 && buyFlags1.data.length) {
+            options.series.push(buyFlags1);
+        }
+
+        if (sellFlags1 && sellFlags1.data.length) {
+            options.series.push(sellFlags1);
+        }
+
+        if (buyFlags2 && buyFlags2.data.length) {
+            options.series.push(buyFlags2);
+        }
+
+        if (sellFlags2 && sellFlags2.data.length) {
+            options.series.push(sellFlags2);
+        }
     }
 
     return (
@@ -135,7 +166,7 @@ export default function Backtest(props) {
             <Robots
                 serverUri={serverUri}
                 selectedRobot={selectedRobot}
-                setSelectedRobots={setSelectedRobots}
+                setSelectedRobot={setSelectedRobot}
                 disabled={typeof step !== 'undefined'}
             />
             <BacktestButtons
@@ -148,12 +179,12 @@ export default function Backtest(props) {
                 data={data}
                 volume={volume}
                 selectedRobot={selectedRobot}
-                setSelectedRobots={setSelectedRobots}
+                setSelectedRobot={setSelectedRobot}
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
                 setRobotPositions={setRobotPositions}
-                setIsRobotStarted={setIsRobotStarted}
+                setRobotStartedName={setRobotStartedName}
             />
         </div>
     );
