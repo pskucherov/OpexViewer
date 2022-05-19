@@ -6,7 +6,6 @@ import {
     Collapse, NavItem, NavLink, NavbarText,
 } from 'reactstrap';
 import { getBalance } from '../../utils/accounts';
-import { objectEach } from 'highcharts';
 import { getPrice } from '../../utils/price';
 
 export default function Page(props) {
@@ -37,9 +36,9 @@ export default function Page(props) {
                 for (const [key, value] of Object.entries(f)) {
                     if (key !== arr[0] && key !== arr[1]) {
                         balanceValue += getPrice(value);
-                        setBalance(parseFloat(balanceValue).toFixed(2) + currency);
                     }
                 }
+                setBalance(parseFloat(balanceValue).toFixed(2) + currency);
             }
         };
 
@@ -50,7 +49,7 @@ export default function Page(props) {
         }, 20000);
 
         return () => clearInterval(timer);
-    }, [serverUri, accountId, setBalance, balance]);
+    }, [serverUri, accountId, setBalance]);
 
     return (
         <div className={styles.container} >
@@ -202,15 +201,14 @@ const AccountBadge = props => {
 };
 
 const BalanceBadge = props => {
-    const balance = props;
+    const balance = props.balance;
 
-    return balance.balance ? (
+    return balance ? (
         <Badge
             color="info"
             href="#"
             className={styles.PageBadge}
-            balance={balance}
         >
-            {balance.balance}
+            {balance}
         </Badge>) : '';
 };
