@@ -125,6 +125,9 @@ const delToken = async (url, token) => {
     return false;
 };
 
+const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
+const timezoneData = (time) => new Date(time).getTime() - (new Date().getTimezoneOffset() * 60000);
+
 export {
     checkServer,
     getLogs,
@@ -133,4 +136,6 @@ export {
     addToken,
     getTokens,
     delToken,
+    isToday,
+    timezoneData,
 };

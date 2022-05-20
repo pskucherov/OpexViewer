@@ -115,13 +115,17 @@ function MyApp({ Component, pageProps }) {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
 
         let interval;
+        let intervalStatus;
 
         if (isReady && ready) {
             interval = setInterval(() => {
                 checkToken();
-                checkRobot();
                 getBalanceRequest();
             }, 25000);
+
+            intervalStatus = setInterval(() => {
+                checkRobot();
+            }, 5000);
 
             checkToken();
             checkRobot();
@@ -138,6 +142,7 @@ function MyApp({ Component, pageProps }) {
 
         return () => {
             interval && clearInterval(interval);
+            intervalStatus && clearInterval(intervalStatus);
         };
 
     // checkToken в deps специально не добавлен, чтобы не было лишних запросов.

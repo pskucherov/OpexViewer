@@ -30,10 +30,6 @@ export function RobotsButtons(props) {
     }, [serverUri, selectedRobot, accountId, isAdviser,
         figi, selectedDate, setRobotStartedName]);
 
-    const onOk = useCallback(() => {
-
-    }, []);
-
     const onStop = useCallback(async () => {
         await stopRobot(serverUri, selectedRobot);
         setPlay(false);
@@ -48,13 +44,6 @@ export function RobotsButtons(props) {
                 disabled={!selectedRobot || play}
             >
                 Старт
-            </Button>
-            <Button
-                color="primary"
-                disabled={!play}
-                onClick={onOk}
-            >
-                Ок
             </Button>
             <Button
                 color="primary"

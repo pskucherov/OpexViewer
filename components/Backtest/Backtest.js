@@ -22,6 +22,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         setRobotStartedName,
         robotState,
         selectedRobot,
+        robotStartedName,
         setSelectedRobot,
     } = props;
 
@@ -159,13 +160,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 isBackTest={true}
                 robotPositions={robotPositions}
             />
-            <Robots
-                serverUri={serverUri}
-                selectedRobot={selectedRobot}
-                setSelectedRobot={setSelectedRobot}
-                disabled={typeof step !== 'undefined'}
-            />
-            <BacktestButtons
+            {selectedRobot && (<BacktestButtons
                 interval={interval}
                 setStep={setStep}
                 step={step}
@@ -181,6 +176,12 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 selectedDate={selectedDate}
                 setRobotPositions={setRobotPositions}
                 setRobotStartedName={setRobotStartedName}
+            />)}
+            <Robots
+                serverUri={serverUri}
+                selectedRobot={selectedRobot}
+                setSelectedRobot={setSelectedRobot}
+                disabled={typeof step !== 'undefined'}
             />
         </div>
     );

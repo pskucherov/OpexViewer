@@ -7,12 +7,12 @@ import { getCandles } from '../../utils/instruments';
 import { getPrice } from '../../utils/price';
 import { Terminal } from '../Terminal/Terminal';
 import { chartOptions } from '../../utils/chartSettings';
-import { BacktestButtons } from '../Backtest/BacktestButtons';
 
 import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
 import { robotFlagsForChart, statusRobot } from '../../utils/robots';
 import { RobotsButtons } from '../Robots/RobotsButtons';
+import { timezoneData } from '../../utils/serverStatus';
 
 export default function Chart(props) {
     const {
@@ -46,12 +46,10 @@ export default function Chart(props) {
             const nextVolume = [];
 
             c.candles.forEach(m => {
-                const timezoneData = new Date(m.time).getTime() - (new Date().getTimezoneOffset() * 60000);
-
-                nextData.push([timezoneData,
+                nextData.push([timezoneData(m.time),
                     getPrice(m.open), getPrice(m.high), getPrice(m.low), getPrice(m.close),
                 ]);
-                nextVolume.push([timezoneData, m.volume]);
+                nextVolume.push([timezoneData(m.time), m.volume]);
             });
 
             setData(nextData);
@@ -149,13 +147,6 @@ export default function Chart(props) {
                 // setLastPriceInChart={setLastPriceInChart}
                 isBackTest={false}
             />
-            <Robots
-                serverUri={serverUri}
-                selectedRobot={selectedRobot}
-                setSelectedRobot={setSelectedRobot}
-                disabled={robotStartedName}
-                setRobotStartedName={setRobotStartedName}
-            />
             <RobotsButtons
                 interval={interval}
                 selectedRobot={selectedRobot}
@@ -165,6 +156,13 @@ export default function Chart(props) {
                 robotStartedName={robotStartedName}
                 setRobotStartedName={setRobotStartedName}
                 accountId={accountId}
+            />
+            <Robots
+                serverUri={serverUri}
+                selectedRobot={selectedRobot}
+                setSelectedRobot={setSelectedRobot}
+                disabled={robotStartedName}
+                setRobotStartedName={setRobotStartedName}
             />
         </div>
     );

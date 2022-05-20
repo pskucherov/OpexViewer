@@ -12,6 +12,7 @@ const INIT_INTERVAL_TEXT = ['1 мин', '5 мин', '15 мин', '1 час'];
 
 import 'react-datepicker/dist/react-datepicker.css';
 import { getRobotLogs } from '../../utils/robots';
+import { isToday } from '../../utils/serverStatus';
 
 const INIT_INTERVAL = 1;
 
@@ -44,8 +45,6 @@ const SelectInterval = props => {
         </ButtonGroup>
     );
 };
-
-const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
 
 export default function TerminalFigi(props) {
     const {
@@ -200,15 +199,28 @@ const Content = props => {
     const [selectedRobot, setSelectedRobot] = useState();
 
     useEffect(() => {
+        let i;
+
         (async () => {
             if (selectedRobot && accountId && figi) {
-                // selectedRobot используется для того, чтобы при выборе робота показывать сделки.
-                // когда робот запущен показывать их уже нужно по интервалу.
-                const logs = await getRobotLogs(serverUri, selectedRobot, accountId, figi, selectedDate.getTime());
+                
+                if (isToday(selectedDate, new Date())) {
+                    // selectedRobot используется для того, чтобы при выборе робота показывать сделки.
+                    // когда робот запущен показывать их уже нужно по интервалу.
+                    i = setInterval(async () => {
+                        const logs = await getRobotLogs(serverUri, selectedRobot, accountId, figi, selectedDate.getTime());
+                        setRobotState(logs);
+                    }, 30000);
+                }
 
+                const logs = await getRobotLogs(serverUri, selectedRobot, accountId, figi, selectedDate.getTime());
                 setRobotState(logs);
             }
         })();
+
+        return () => {
+            i && clearInterval(i);
+        }
     }, [setRobotState, serverUri, accountId, figi, selectedDate, selectedRobot]);
 
     return (
@@ -241,6 +253,7 @@ const Content = props => {
                     instrument={props.instrument}
                     setIsTradingDay={props.setIsTradingDay}
                     serverUri={serverUri}
+                    robotStartedName={robotStartedName}
                     setRobotStartedName={setRobotStartedName}
                     robotState={robotState}
                     selectedRobot={selectedRobot}

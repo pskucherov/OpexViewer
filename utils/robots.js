@@ -1,4 +1,5 @@
 import { getPrice } from './price';
+import { timezoneData } from './serverStatus';
 
 const requestOptions = {
     cache: 'no-cache',
@@ -131,7 +132,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
                 text: `<b>Сделка</b><br>Цена: ${getPrice(p.price)}<br>Всего: ${(getPrice(p.price) * p.quantity).toFixed(2)}<br>Кол-во: ${p.quantity}`,
-                x: p.logOrderTime,
+                x: timezoneData(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -142,7 +143,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
                 text: `<b>Сделка</b><br>Цена: ${getPrice(p.price)}<br>Всего: ${(getPrice(p.price) * p.quantity).toFixed(2)}<br>Кол-во: ${p.quantity}`,
-                x: p.logOrderTime,
+                x: timezoneData(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -153,7 +154,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
                 text: `<b>Заявка</b><br>Цена: ${getPrice(p.initialSecurityPrice)}<br>Всего: ${(getPrice(p.initialOrderPrice))}`,
-                x: p.logOrderTime,
+                x: timezoneData(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -164,7 +165,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
                 text: `<b>Заявка</b><br>Цена: ${getPrice(p.initialSecurityPrice)}<br>Всего: ${(getPrice(p.initialOrderPrice))}`,
-                x: p.logOrderTime,
+                x: timezoneData(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -177,6 +178,46 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
     };
 };
 
+
+const getSettings = async (serverUri, name) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/robots/getsettings/' + name, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+
+const setSettings = async (serverUri, name, settings) => {
+    let response;
+
+    const params = ['isAdviser', 'takeProfit', 'stopLoss', 'lotsSize'].map((name, k) => {
+        return (!k ? '?' : '&') + `${name}=${settings[name]}`;
+    }).join('');
+
+    try {
+        response = await window.fetch(serverUri + '/robots/setsettings/' + name + params, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+
+
 export {
     getRobots,
     startRobot,
@@ -185,4 +226,7 @@ export {
     statusRobot,
     getRobotLogs,
     robotFlagsForChart,
+
+    getSettings,
+    setSettings,
 };

@@ -1,5 +1,31 @@
-.RobotsSelect {
+.RobotsForm {
     text-align: center;
     width: 300px;
     margin: 20px auto;
+}
+
+.Adviser {
+    text-align: left;
+    width: 300px;
+}
+
+.TakeProfit {
+    vertical-align: middle;
+    line-height: 38px;
+}
+
+.SettingsButton {
+    margin: 0 auto;
+}
+
+.TakeProfit,
+.Lots,
+.StopLoss {
+    text-align: left;
+}
+
+.TakeProfitBlock,
+.LotsBlock,
+.StopLossBlock {
+    width: 35%;
 }
