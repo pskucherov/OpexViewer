@@ -8,6 +8,8 @@ import React, { useCallback, useEffect } from 'react';
 import { getSelectedToken, checkServer } from '../utils/serverStatus';
 import { getFromLS } from '../utils/storage';
 import { statusRobot } from '../utils/robots';
+import { getBalance } from '../utils/accounts';
+import { getPrice } from '../utils/price';
 
 const defaultServerUri = 'http://localhost:8000';
 
@@ -80,6 +82,35 @@ function MyApp({ Component, pageProps }) {
         }
     }, [routerPush, serverUri, asPath, robotStartedName]);
 
+    /**
+     * Ходит за балансом для отрисовки на странице.
+     */
+    const getBalanceRequest = useCallback(async () => {
+        if (!accountId) {
+            return;
+        }
+
+        const f = await getBalance(serverUri, accountId);
+        let balanceValue = 0;
+
+        if (f) {
+            const arr = ['expectedYield', 'positions'];
+            let currency = '';
+
+            if (f.totalAmountShares.currency === 'rub') {
+                currency = ' ₽';
+            }
+
+            for (const [key, value] of Object.entries(f)) {
+                if (key !== arr[0] && key !== arr[1]) {
+                    balanceValue += getPrice(value);
+                }
+            }
+
+            setBalance(parseFloat(balanceValue).toFixed(2) + currency);
+        }
+    }, [setBalance, accountId, serverUri]);
+
     useEffect(() => {
         typeof document !== undefined ? require('bootstrap/dist/js/bootstrap') : null;
 
@@ -89,10 +120,12 @@ function MyApp({ Component, pageProps }) {
             interval = setInterval(() => {
                 checkToken();
                 checkRobot();
-            }, 15000);
+                getBalanceRequest();
+            }, 25000);
 
             checkToken();
             checkRobot();
+            getBalanceRequest();
         }
 
         setReady(true);
@@ -108,7 +141,7 @@ function MyApp({ Component, pageProps }) {
         };
 
     // checkToken в deps специально не добавлен, чтобы не было лишних запросов.
-    }, [ready, isReady, setServerUri]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [ready, isReady, setServerUri, getBalanceRequest]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
         pathname === '/settings' ||
@@ -121,8 +154,6 @@ function MyApp({ Component, pageProps }) {
                 accountId={accountId}
                 pathname={pathname}
                 balance={balance}
-                setBalance={setBalance}
-                serverUri={serverUri}
             >
                 <Component
                     {...pageProps}

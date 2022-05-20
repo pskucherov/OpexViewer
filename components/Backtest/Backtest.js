@@ -13,7 +13,7 @@ import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
 import { robotFlagsForChart, statusRobot } from '../../utils/robots';
 
-export default function Backtest(props) {
+export default function Backtest(props) { // eslint-disable-line sonarjs/cognitive-complexity
     const {
         instrument, figi, setInprogress,
         selectedDate, interval, setIsTradingDay,
@@ -89,8 +89,6 @@ export default function Backtest(props) {
     };
 
     if (typeof step !== 'undefined') {
-        console.log(step);
-
         const buyFlags = robotPositions && robotPositions.length ? {
             ...chartOptions.series[2],
             data: robotPositions.filter(p => p.direction === 1).map(p => {
@@ -121,7 +119,6 @@ export default function Backtest(props) {
             options.series.push(sellFlags);
         }
     } else {
-        console.log(robotState);
         const {
             buyFlags1,
             sellFlags1,
@@ -129,7 +126,6 @@ export default function Backtest(props) {
             sellFlags2,
         } = robotFlagsForChart(chartOptions, robotState, styles);
 
-        console.log(buyFlags1);
         if (buyFlags1 && buyFlags1.data.length) {
             options.series.push(buyFlags1);
         }
