@@ -35,6 +35,54 @@ const selectAccount = async (serverUri, id) => {
     return false;
 };
 
+const getMarginAttr = async (serverUri, accountId) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/getmarginattr?id=' + accountId, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const getAccountTarrif = async serverUri => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/getaccounttarrif', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const getAccountInfo = async serverUri => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/getaccountinfo', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getBalance = async (serverUri, accountId) => {
     let response;
 
@@ -51,8 +99,28 @@ const getBalance = async (serverUri, accountId) => {
     return false;
 };
 
+const getWithdrawLimits = async (serverUri, accountId) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/getwithdrawlimits?id=' + accountId, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 export {
     getAccounts,
     selectAccount,
+    getMarginAttr,
+    getAccountTarrif,
+    getAccountInfo,
     getBalance,
+    getWithdrawLimits,
 };
