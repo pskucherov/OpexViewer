@@ -1,13 +1,15 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import styles from '../../styles/Page.module.css';
 import {
     Badge, Nav, Navbar, NavbarBrand, NavbarToggler,
     Collapse, NavItem, NavLink, NavbarText,
 } from 'reactstrap';
+import { getBalance } from '../../utils/accounts';
+import { getPrice } from '../../utils/price';
 
 export default function Page(props) {
-    const { isSandboxToken, serverStatus, accountId, pathname } = props;
+    const { isSandboxToken, serverStatus, accountId, pathname, setBalance, serverUri, balance } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = useCallback(() => {
@@ -16,6 +18,38 @@ export default function Page(props) {
 
     // 0 нужно задать, 1 sandbox, 2 production
     const whatToken = typeof isSandboxToken === 'undefined' ? 0 : isSandboxToken ? 1 : 2;
+
+    useEffect(() => {
+        const checkRequest = async () => {
+            const f = await getBalance(serverUri, accountId);
+            let balanceValue = 0;
+
+            if (f) {
+                const arr = ['expectedYield', 'positions'];
+                let currency = '';
+
+                //Функция получения баланса
+                if (f.totalAmountShares.currency === 'rub') {
+                    currency = ' ₽';
+                }
+
+                for (const [key, value] of Object.entries(f)) {
+                    if (key !== arr[0] && key !== arr[1]) {
+                        balanceValue += getPrice(value);
+                    }
+                }
+                setBalance(parseFloat(balanceValue).toFixed(2) + currency);
+            }
+        };
+
+        checkRequest();
+
+        const timer = setInterval(() => {
+            checkRequest();
+        }, 20000);
+
+        return () => clearInterval(timer);
+    }, [serverUri, accountId, setBalance]);
 
     return (
         <div className={styles.container} >
@@ -76,6 +110,7 @@ export default function Page(props) {
                                 whatToken={whatToken}
                                 serverStatus={serverStatus}
                                 accountId={accountId}
+                                balance={balance}
                             />
                         </Collapse>
                     </Navbar>
@@ -106,9 +141,13 @@ const HeadBadges = props => {
         whatToken,
         serverStatus,
         accountId,
+        balance,
     } = props;
 
     return (<NavbarText>
+        <BalanceBadge
+            balance={balance}
+        />
         <ServerBadge
             whatToken={whatToken}
             serverStatus={serverStatus}
@@ -158,5 +197,18 @@ const AccountBadge = props => {
             className={styles.PageBadge}
         >
             {!accountId ? 'Выберите счёт' : String(accountId).substring(0, 13)}
+        </Badge>) : '';
+};
+
+const BalanceBadge = props => {
+    const balance = props.balance;
+
+    return balance ? (
+        <Badge
+            color="info"
+            href="#"
+            className={styles.PageBadge}
+        >
+            {balance}
         </Badge>) : '';
 };

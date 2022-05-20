@@ -27,6 +27,8 @@ function MyApp({ Component, pageProps }) {
     const [accountId, setAccountId] = React.useState();
     const [robotStartedName, setRobotStartedName] = React.useState(false);
 
+    const [balance, setBalance] = React.useState();
+
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
 
@@ -118,6 +120,8 @@ function MyApp({ Component, pageProps }) {
                 serverStatus={serverStatus}
                 accountId={accountId}
                 pathname={pathname}
+                balance={balance}
+                setBalance={setBalance}
                 serverUri={serverUri}
             >
                 <Component
