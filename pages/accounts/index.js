@@ -3,13 +3,18 @@ import React, { useEffect, useCallback, useState } from 'react';
 import styles from '../../styles/Settings.module.css';
 import { ButtonGroup, Button, CardGroup, Card, CardImg, CardBody, CardTitle, CardSubtitle, CardText, Spinner } from 'reactstrap';
 
-import { getAccounts, selectAccount } from '../../utils/accounts';
+import { getAccountInfo, getAccounts, selectAccount } from '../../utils/accounts';
+import { objectEach } from 'highcharts';
 
 export default function Accounts(props) {
     const { setTitle, checkToken, serverUri, accountId } = props;
 
     const [accounts, setAccounts] = useState();
     const [isReady, setIsReady] = useState();
+    const [type, setType] = useState('info');
+    const [inProgress, setInProgress] = useState(true);
+    const [data, setData] = useState({});
+    const [info, setInfo] = useState({});
 
     const accountsCb = useCallback(async () => {
         const { accounts } = await getAccounts(serverUri);
@@ -19,6 +24,13 @@ export default function Accounts(props) {
         }
     }, [serverUri]);
 
+    const chengeType = useCallback(event => {
+        if (type !== event.target.value) {
+            setType(event.target.value);
+            setInProgress(true);
+        }
+    }, [type]);
+
     useEffect(() => {
         setTitle('Счета');
         setIsReady(true);
@@ -26,15 +38,107 @@ export default function Accounts(props) {
         if (isReady) {
             accountsCb();
         }
-    }, [isReady, accountsCb, accountId, setTitle]);
 
+        const checkRequest = async () => {
+            const AccountInfo = await getAccountInfo(serverUri, accountId, type);
+
+            if (AccountInfo) {
+                setData(AccountInfo);
+            } else {
+                setData([]);
+            }
+            setInProgress(false);
+        };
+
+        checkRequest();
+
+        const timer = setInterval(() => {
+            checkRequest();
+        }, 5000);
+
+        if (data) {
+            for (const [key, value] of Object.entries(data)) {
+                setInfo(value);
+            }
+        }
+
+        return () => clearInterval(timer);
+    }, [isReady, accountsCb, accountId, setTitle, setData, serverUri, type, setInfo, data]);
+
+    /* if (data) {Object.entries(data).forEach(entry => {
+        const [key, value] = entry;
+
+        console.log(key
+    })}
+ */
     return (
-        <GroupAccounts
-            accounts={accounts}
-            serverUri={serverUri}
-            accountId={accountId}
-            checkToken={checkToken}
-        />
+        <>
+            <div className={styles.AccountsButton}>
+                <Button
+                    color="primary"
+                    onClick={chengeType}
+                    active={type === 'server'}
+                    outline
+                    value="info"
+                >
+                Info
+                </Button>
+                <Button
+                    color="primary"
+                    onClick={chengeType}
+                    active={type === 'API'}
+                    outline
+                    value="tarrif"
+                >
+                Tarrif
+                </Button>
+                <Button
+                    color="primary"
+                    onClick={chengeType}
+                    active={type === 'API'}
+                    outline
+                    value="portfolio"
+                >
+                Portfolio
+                </Button>
+                <Button
+                    color="primary"
+                    onClick={chengeType}
+                    active={type === 'API'}
+                    outline
+                    value="withdrawlimits"
+                >
+                WithdrawLimits
+                </Button>
+                <Button
+                    color="primary"
+                    onClick={chengeType}
+                    active={type === 'API'}
+                    outline
+                    value="marginattr"
+                >
+                MarginAttr
+                </Button>
+            </div>
+            <GroupAccounts
+                accounts={accounts}
+                serverUri={serverUri}
+                accountId={accountId}
+                checkToken={checkToken} />
+
+            {data.length !== 0 &&
+            <Card>
+                <CardTitle tag="h2" className="text-center">{type}</CardTitle>
+                <CardSubtitle
+                    className="mb-2 text-muted"
+                    tag="h6"
+                >
+                    {'Ваш тариф: ' + info}
+                </CardSubtitle>
+                {JSON.stringify(data)}
+            </Card>
+            }
+        </>
     );
 }
 

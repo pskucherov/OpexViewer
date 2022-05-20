@@ -206,7 +206,7 @@ const BalanceBadge = props => {
     return balance ? (
         <Badge
             color="info"
-            href="#"
+            href="/accounts"
             className={styles.PageBadge}
         >
             {balance}
