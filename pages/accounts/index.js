@@ -5,6 +5,7 @@ import { ButtonGroup, Button, CardGroup, Card, CardImg, CardBody, CardTitle, Car
 
 import { getAccountInfo, getAccounts, selectAccount } from '../../utils/accounts';
 import { objectEach } from 'highcharts';
+import { getPrice } from '../../utils/price';
 
 export default function Accounts(props) {
     const { setTitle, checkToken, serverUri, accountId } = props;
@@ -15,6 +16,11 @@ export default function Accounts(props) {
     const [inProgress, setInProgress] = useState(true);
     const [data, setData] = useState({});
     const [info, setInfo] = useState({});
+    const [tarrif, setTarrif] = useState({});
+    const [portfolio, setPortfolio] = useState({});
+    const [withdrawLimits, setWithdrawLimits] = useState({});
+    const [marginAttr, setMarginAttr] = useState({});
+    const [currency, setCurrency] = useState();
 
     const accountsCb = useCallback(async () => {
         const { accounts } = await getAccounts(serverUri);
@@ -40,13 +46,31 @@ export default function Accounts(props) {
         }
 
         const checkRequest = async () => {
-            const AccountInfo = await getAccountInfo(serverUri, accountId, type);
+            const AccountInfo = await getAccountInfo(serverUri, accountId, 'info');
+            const tarrifRequest = await getAccountInfo(serverUri, accountId, 'tarrif');
+            const portfolioRequest = await getAccountInfo(serverUri, accountId, 'portfolio');
+            const withdrawLimitsRequest = await getAccountInfo(serverUri, accountId, 'withdrawlimits');
+            const marginAttrRequest = await getAccountInfo(serverUri, accountId, 'marginattr');
 
             if (AccountInfo) {
-                setData(AccountInfo);
-            } else {
-                setData([]);
+                setInfo(JSON.parse(JSON.stringify(AccountInfo)));
             }
+            if (tarrifRequest) {
+                setTarrif(JSON.parse(JSON.stringify(tarrifRequest)));
+            }
+            if (portfolioRequest) {
+                setPortfolio(JSON.parse(JSON.stringify(portfolioRequest)));
+                if (portfolioRequest.totalAmountShares.currency === 'rub') {
+                    setCurrency(' ₽');
+                }
+            }
+            if (withdrawLimitsRequest) {
+                setWithdrawLimits(JSON.parse(JSON.stringify(withdrawLimitsRequest)));
+            }
+            if (marginAttrRequest) {
+                setMarginAttr(JSON.parse(JSON.stringify(marginAttrRequest)));
+            }
+
             setInProgress(false);
         };
 
@@ -54,90 +78,64 @@ export default function Accounts(props) {
 
         const timer = setInterval(() => {
             checkRequest();
-        }, 5000);
-
-        if (data) {
-            for (const [key, value] of Object.entries(data)) {
-                setInfo(value);
-            }
-        }
+        }, 15000);
 
         return () => clearInterval(timer);
-    }, [isReady, accountsCb, accountId, setTitle, setData, serverUri, type, setInfo, data]);
+    }, [isReady, accountsCb, accountId, setTitle, setData, serverUri, type, setInfo, data, setCurrency]);
 
-    /* if (data) {Object.entries(data).forEach(entry => {
-        const [key, value] = entry;
-
-        console.log(key
-    })}
- */
     return (
         <>
-            <div className={styles.AccountsButton}>
-                <Button
-                    color="primary"
-                    onClick={chengeType}
-                    active={type === 'server'}
-                    outline
-                    value="info"
-                >
-                Info
-                </Button>
-                <Button
-                    color="primary"
-                    onClick={chengeType}
-                    active={type === 'API'}
-                    outline
-                    value="tarrif"
-                >
-                Tarrif
-                </Button>
-                <Button
-                    color="primary"
-                    onClick={chengeType}
-                    active={type === 'API'}
-                    outline
-                    value="portfolio"
-                >
-                Portfolio
-                </Button>
-                <Button
-                    color="primary"
-                    onClick={chengeType}
-                    active={type === 'API'}
-                    outline
-                    value="withdrawlimits"
-                >
-                WithdrawLimits
-                </Button>
-                <Button
-                    color="primary"
-                    onClick={chengeType}
-                    active={type === 'API'}
-                    outline
-                    value="marginattr"
-                >
-                MarginAttr
-                </Button>
-            </div>
             <GroupAccounts
                 accounts={accounts}
                 serverUri={serverUri}
                 accountId={accountId}
                 checkToken={checkToken} />
-
-            {data.length !== 0 &&
-            <Card>
-                <CardTitle tag="h2" className="text-center">{type}</CardTitle>
+            <Card
+                body
+                color="info"
+                outline>
+                <CardTitle tag="h2" className="text-center" style={{ margin: '20px 0px 20px 0px' }}>Информация аккаунта</CardTitle>
                 <CardSubtitle
                     className="mb-2 text-muted"
                     tag="h6"
                 >
-                    {'Ваш тариф: ' + info}
+                    {'Ваш тариф: ' + info.tariff} <br/>
+                    {'Премиум : '}{info.premStatus ? 'да' : 'нет'}
                 </CardSubtitle>
-                {JSON.stringify(data)}
+                <CardTitle tag="h6" className="text-start">Портфель аккаунта</CardTitle>
+                {portfolio.totalAmountShares &&
+                    <CardSubtitle
+                        className="mb-2 text-muted"
+                        tag="h6"
+                    >
+                        {'Общая стоимость акций: ' + getPrice(portfolio.totalAmountShares) + currency} <br/>
+                        {'Общая стоимость валют: ' + getPrice(portfolio.totalAmountCurrencies) + currency} <br/>
+                        {'Общая стоимость облигаций: ' + getPrice(portfolio.totalAmountBonds) + currency} <br/>
+                        {'Общая стоимость фьючерсов: ' + getPrice(portfolio.totalAmountFutures) + currency} <br/>
+                        {'Общая стоимость фондов: ' + getPrice(portfolio.totalAmountEtf) + currency} <br/>
+                        {'Текущая доходность портфеля: ' + getPrice(portfolio.expectedYield) + '%'}
+                    </CardSubtitle>}
+                <CardTitle tag="h6" className="text-start">Маржинальные показатели по счёту</CardTitle>
+                {marginAttr.liquidPortfolio &&
+                <CardSubtitle
+                    className="mb-2 text-muted"
+                    tag="h6"
+                >
+                    {'Ликвидная стоимость портфеля: ' + getPrice(marginAttr.liquidPortfolio) + currency} <br/>
+                    {'Начальная маржа: ' + getPrice(marginAttr.startingMargin) + currency} <br/>
+                    {'Минимальная маржа: ' + getPrice(marginAttr.minimalMargin) + currency} <br/>
+                    {'Уровень достаточности средств: ' + getPrice(marginAttr.fundsSufficiencyLevel).toFixed(2) + currency} <br/>
+                    {'Объем недостающих средств: ' + getPrice(marginAttr.amountOfMissingFunds) + currency}
+                </CardSubtitle>}
+
+                {withdrawLimits.money &&
+                <CardSubtitle
+                    className="mb-2 text-muted"
+                    tag="h6"
+                >
+                    {'Доступные для вывода средства: ' + getPrice(withdrawLimits.money[0]) + currency} <br/>
+                </CardSubtitle>}
             </Card>
-            }
         </>
     );
 }
