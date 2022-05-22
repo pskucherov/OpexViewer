@@ -12,6 +12,7 @@ import { BacktestButtons } from './BacktestButtons';
 import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
 import { robotFlagsForChart, statusRobot } from '../../utils/robots';
+import { Positions } from '../Robots/Positions';
 
 export default function Backtest(props) { // eslint-disable-line sonarjs/cognitive-complexity
     const {
@@ -106,23 +107,23 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         const buyFlags = robotPositions && robotPositions.length ? {
             ...chartOptions.series[2],
             data: robotPositions.filter(p => p.direction === 1).map(p => {
-                return {
+                return data[p.step] && {
                     title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
                     text: `Цена: ${getPrice(p.price)}<br>Лоты: ${p.lots}`,
                     x: data[p.step][0],
                 };
-            }),
+            }).filter(p => p),
         } : undefined;
 
         const sellFlags = robotPositions && robotPositions.length ? {
             ...chartOptions.series[3],
             data: robotPositions.filter(p => p.direction === 2).map(p => {
-                return {
+                return data[p.step] && {
                     title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
-                    text: `Профит: ${getPrice(p.profit)}<br>Лоты: ${p.lots}`,
+                    text: `Профит: ${getPrice(p.expectedYield)}<br>Лоты: ${p.lots}`,
                     x: data[p.step][0],
                 };
-            }),
+            }).filter(p => p),
         } : undefined;
 
         if (buyFlags && buyFlags.data.length) {
@@ -156,6 +157,8 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
             options.series.push(sellFlags2);
         }
     }
+
+    const positions = robotPositions;
 
     return (
         <div
@@ -196,6 +199,17 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 setSelectedRobot={setSelectedRobot}
                 disabled={typeof step !== 'undefined'}
             />
+            <br></br><br></br>
+            <Positions
+                positions={positions}
+                robotState={robotState}
+                figi={figi}
+                isBacktest
+            />
+            <br></br><br></br>
+            <br></br><br></br>
+            <br></br><br></br>
+            <br></br><br></br>
         </div>
     );
 }
