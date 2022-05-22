@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }) {
 
     const [isSandboxToken, setIsSandboxToken] = React.useState();
     const [accountId, setAccountId] = React.useState();
-    const [robotStartedName, setRobotStartedName] = React.useState(false);
+    const [robotStartedStatus, setRobotStartedStatus] = React.useState(false);
 
     const [balance, setBalance] = React.useState();
 
@@ -74,13 +74,13 @@ function MyApp({ Component, pageProps }) {
                 routerPush(`/instruments/${status.figi}`);
             }
 
-            if (!robotStartedName) {
-                setRobotStartedName(status.name);
+            if (!robotStartedStatus) {
+                setRobotStartedStatus(status);
             }
-        } else if (robotStartedName && !status) {
-            setRobotStartedName();
+        } else if (robotStartedStatus && !status) {
+            setRobotStartedStatus();
         }
-    }, [routerPush, serverUri, asPath, robotStartedName]);
+    }, [routerPush, serverUri, asPath, robotStartedStatus, setRobotStartedStatus]);
 
     /**
      * Ходит за балансом для отрисовки на странице.
@@ -167,8 +167,8 @@ function MyApp({ Component, pageProps }) {
                     setTitle={setTitle}
                     checkToken={checkToken}
                     accountId={accountId}
-                    robotStartedName={robotStartedName}
-                    setRobotStartedName={setRobotStartedName}
+                    robotStartedStatus={robotStartedStatus}
+                    setRobotStartedStatus={setRobotStartedStatus}
                 />
             </Page>
         ) : null;

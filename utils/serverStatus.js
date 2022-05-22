@@ -126,7 +126,8 @@ const delToken = async (url, token) => {
 };
 
 const isToday = (date1, date2) => date1.toDateString() === date2.toDateString();
-const timezoneData = (time) => new Date(time).getTime() - (new Date().getTimezoneOffset() * 60000);
+const timezoneDate = time => new Date(time).getTime() - (new Date().getTimezoneOffset() * 60000);
+const withoutTimezoneDate = time => new Date(time).getTime() + (new Date().getTimezoneOffset() * 60000);
 
 export {
     checkServer,
@@ -137,5 +138,6 @@ export {
     getTokens,
     delToken,
     isToday,
-    timezoneData,
+    timezoneDate,
+    withoutTimezoneDate,
 };

@@ -55,9 +55,8 @@ export function Robots(props) {
             stopLoss: parseFloat(robotSetting.stopLoss) / 100,
         });
         onShowSettings();
-
         setActiveSave(false);
-    }, [setActiveSave, selectedRobot, onShowSettings, robotSetting]);
+    }, [serverUri, setActiveSave, selectedRobot, onShowSettings, robotSetting]);
 
     const handleSize = useCallback(e => {
         const lotsSize = Math.abs(parseInt(e.target.value, 10)) || robotSetting.lotsSize;
@@ -126,7 +125,7 @@ export function Robots(props) {
                 </Input>
             </FormGroup>
         </Form>
-        
+
         {selectedRobot && (<>
             <Button
                 color="primary"
@@ -141,7 +140,7 @@ export function Robots(props) {
                     onSubmit={handleSubmit}
                     className={styles.RobotsForm}
                 >
-                    <FormGroup
+                    {/* <FormGroup
                         check
                         inline
                         className={styles.Adviser}
@@ -159,7 +158,7 @@ export function Robots(props) {
                         >
                             Советник
                         </Label>
-                    </FormGroup>
+                    </FormGroup> */}
                     <FormGroup
                         row
                         className={styles.TakeProfit}
@@ -217,7 +216,7 @@ export function Robots(props) {
                             Лоты
                         </Label>
                         <Col
-                            sm={4} 
+                            sm={4}
                             className={styles.LotsBlock}
                         >
                             <Input

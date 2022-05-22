@@ -1,5 +1,5 @@
 import { getPrice } from './price';
-import { timezoneData } from './serverStatus';
+import { timezoneDate } from './serverStatus';
 
 const requestOptions = {
     cache: 'no-cache',
@@ -132,7 +132,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
                 text: `<b>Сделка</b><br>Цена: ${getPrice(p.price)}<br>Всего: ${(getPrice(p.price) * p.quantity).toFixed(2)}<br>Кол-во: ${p.quantity}`,
-                x: timezoneData(p.logOrderTime),
+                x: timezoneDate(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -143,7 +143,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
                 text: `<b>Сделка</b><br>Цена: ${getPrice(p.price)}<br>Всего: ${(getPrice(p.price) * p.quantity).toFixed(2)}<br>Кол-во: ${p.quantity}`,
-                x: timezoneData(p.logOrderTime),
+                x: timezoneDate(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -154,7 +154,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
                 text: `<b>Заявка</b><br>Цена: ${getPrice(p.initialSecurityPrice)}<br>Всего: ${(getPrice(p.initialOrderPrice))}`,
-                x: timezoneData(p.logOrderTime),
+                x: timezoneDate(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -165,7 +165,7 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
             return {
                 title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
                 text: `<b>Заявка</b><br>Цена: ${getPrice(p.initialSecurityPrice)}<br>Всего: ${(getPrice(p.initialOrderPrice))}`,
-                x: timezoneData(p.logOrderTime),
+                x: timezoneDate(p.logOrderTime),
             };
         }),
     } : undefined;
@@ -177,7 +177,6 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
         sellFlags2,
     };
 };
-
 
 const getSettings = async (serverUri, name) => {
     let response;
@@ -194,7 +193,6 @@ const getSettings = async (serverUri, name) => {
 
     return false;
 };
-
 
 const setSettings = async (serverUri, name, settings) => {
     let response;
@@ -215,8 +213,6 @@ const setSettings = async (serverUri, name, settings) => {
 
     return false;
 };
-
-
 
 export {
     getRobots,

@@ -19,10 +19,9 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         selectedDate, interval, setIsTradingDay,
         serverUri,
         inProgress,
-        setRobotStartedName,
+        setRobotStartedStatus,
         robotState,
         selectedRobot,
-        robotStartedName,
         setSelectedRobot,
     } = props;
 
@@ -49,12 +48,12 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
             const nextVolume = [];
 
             c.candles.forEach(m => {
-                const timezoneData = new Date(m.time).getTime() - (new Date().getTimezoneOffset() * 60000);
+                const timezoneDate = new Date(m.time).getTime() - (new Date().getTimezoneOffset() * 60000);
 
-                nextData.push([timezoneData,
+                nextData.push([timezoneDate,
                     getPrice(m.open), getPrice(m.high), getPrice(m.low), getPrice(m.close),
                 ]);
-                nextVolume.push([timezoneData, m.volume]);
+                nextVolume.push([timezoneDate, m.volume]);
             });
 
             setData(nextData);
@@ -77,6 +76,20 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
 
     const options = {
         ...chartOptions,
+
+        chart: {
+            ...chartOptions.chart,
+
+            // events: {
+            //     click: function(e) {
+            //         console.log(
+            //             e.xAxis[0].value,
+            //             e.yAxis[0].value,
+            //         );
+            //     },
+            // },
+        },
+
         series: [
             {
                 ...chartOptions.series[0],
@@ -175,7 +188,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 figi={figi}
                 selectedDate={selectedDate}
                 setRobotPositions={setRobotPositions}
-                setRobotStartedName={setRobotStartedName}
+                setRobotStartedStatus={setRobotStartedStatus}
             />)}
             <Robots
                 serverUri={serverUri}

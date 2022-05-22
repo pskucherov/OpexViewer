@@ -12,29 +12,31 @@ export function RobotsButtons(props) {
         figi,
         selectedDate,
         accountId,
-        robotStartedName,
-        setRobotStartedName,
+        robotStartedStatus,
+        setRobotStartedStatus,
     } = props;
 
     const [play, setPlay] = useState();
     const [isAdviser, setAdviser] = useState(true);
 
     useEffect(() => {
-        setPlay(Boolean(robotStartedName));
-    }, [setPlay, robotStartedName]);
+        setPlay(Boolean(robotStartedStatus));
+    }, [setPlay, robotStartedStatus]);
 
     const onPlay = useCallback(async () => {
         setPlay(true);
-        setRobotStartedName(selectedRobot);
+        setRobotStartedStatus({
+            name: selectedRobot,
+        });
         await startRobot(serverUri, selectedRobot, figi, selectedDate, 1, 0, isAdviser, accountId);
     }, [serverUri, selectedRobot, accountId, isAdviser,
-        figi, selectedDate, setRobotStartedName]);
+        figi, selectedDate, setRobotStartedStatus]);
 
     const onStop = useCallback(async () => {
         await stopRobot(serverUri, selectedRobot);
         setPlay(false);
-        setRobotStartedName();
-    }, [serverUri, selectedRobot, setRobotStartedName]);
+        setRobotStartedStatus();
+    }, [serverUri, selectedRobot, setRobotStartedStatus]);
 
     return (
         <ButtonGroup className={styles.BacktestButtons}>

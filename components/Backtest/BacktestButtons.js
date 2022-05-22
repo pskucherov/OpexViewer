@@ -20,7 +20,7 @@ export function BacktestButtons(props) {
         selectedDate,
         setRobotPositions,
         setSelectedRobot,
-        setRobotStartedName,
+        setRobotStartedStatus,
     } = props;
 
     const [play, setPlay] = useState();
@@ -69,13 +69,13 @@ export function BacktestButtons(props) {
 
     const onPlay = useCallback(async () => {
         initPlayButtons();
-        setRobotStartedName(selectedRobot);
+        setRobotStartedStatus(selectedRobot);
 
         await startRobot(serverUri, selectedRobot, figi, selectedDate, interval + 1, 1, 1);
     }, [
         serverUri, selectedRobot,
         figi, selectedDate, interval,
-        initPlayButtons, setRobotStartedName,
+        initPlayButtons, setRobotStartedStatus,
     ]);
 
     const onStep = useCallback(async () => {
@@ -133,9 +133,9 @@ export function BacktestButtons(props) {
         setBacktestVolume();
         setRobotPositions();
 
-        setRobotStartedName();
+        setRobotStartedStatus();
     }, [setStep, setIsAuto, setRobotPositions,
-        setPlay, setBacktestData, setRobotStartedName,
+        setPlay, setBacktestData, setRobotStartedStatus,
         setBacktestVolume, selectedRobot, serverUri]);
 
     const onStop = useCallback(() => setIsAuto(false), [setIsAuto]);

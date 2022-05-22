@@ -7,6 +7,7 @@ import { getPrice } from '../../utils/price';
 import { getLastPriceAndOrderBook, getOrderBook } from '../../utils/instruments';
 
 import styles from '../../styles/Terminal.module.css';
+import { withoutTimezoneDate } from '../../utils/serverStatus';
 
 const getData = m => {
     return [
@@ -42,7 +43,7 @@ export function OrderBook(props) {
         }
 
         const c = await (isBackTest ?
-            data[step] && data[step][0] && getOrderBook(serverUri, figi, data[step][0]) :
+            data[step] && data[step][0] && getOrderBook(serverUri, figi, withoutTimezoneDate(data[step][0])) :
             getLastPriceAndOrderBook(serverUri, figi));
 
         if (c) {
@@ -93,6 +94,15 @@ export function OrderBook(props) {
         chart: {
             type: 'area',
             animation: false,
+
+            // events: {
+            //     click: function(e) {
+            //         console.log(
+            //             e.xAxis[0].value,
+            //             e.yAxis[0].value,
+            //         );
+            //     },
+            // },
         },
         navigator: {
             enabled: false,

@@ -12,7 +12,8 @@ import styles from '../../styles/Backtest.module.css';
 import { Robots } from '../Robots/Robots';
 import { robotFlagsForChart, statusRobot } from '../../utils/robots';
 import { RobotsButtons } from '../Robots/RobotsButtons';
-import { timezoneData } from '../../utils/serverStatus';
+import { timezoneDate } from '../../utils/serverStatus';
+import { Badge, ListGroup, ListGroupItem } from 'reactstrap';
 
 export default function Chart(props) {
     const {
@@ -20,7 +21,7 @@ export default function Chart(props) {
         selectedDate, interval, setIsTradingDay,
         serverUri,
         inProgress, accountId,
-        setRobotStartedName, robotStartedName,
+        setRobotStartedStatus, robotStartedStatus,
         robotState,
         selectedRobot, setSelectedRobot,
     } = props;
@@ -46,10 +47,10 @@ export default function Chart(props) {
             const nextVolume = [];
 
             c.candles.forEach(m => {
-                nextData.push([timezoneData(m.time),
+                nextData.push([timezoneDate(m.time),
                     getPrice(m.open), getPrice(m.high), getPrice(m.low), getPrice(m.close),
                 ]);
-                nextVolume.push([timezoneData(m.time), m.volume]);
+                nextVolume.push([timezoneDate(m.time), m.volume]);
             });
 
             setData(nextData);
@@ -95,6 +96,16 @@ export default function Chart(props) {
 
     const options = {
         ...chartOptions,
+        chart: {
+            ...chartOptions.chart,
+
+            // click: function(e) {
+            //     console.log(
+            //         e.xAxis[0].value,
+            //         e.yAxis[0].value,
+            //     );
+            // },
+        },
         series: [
             {
                 ...chartOptions.series[0],
@@ -130,6 +141,12 @@ export default function Chart(props) {
         options.series.push(sellFlags2);
     }
 
+    const positions = robotStartedStatus &&
+        robotStartedStatus.positions;
+
+    const orders = robotStartedStatus &&
+        robotStartedStatus.orders;
+
     return (
         <div
             className={styles.Backtest}
@@ -153,17 +170,66 @@ export default function Chart(props) {
                 serverUri={serverUri}
                 figi={figi}
                 selectedDate={selectedDate}
-                robotStartedName={robotStartedName}
-                setRobotStartedName={setRobotStartedName}
+                robotStartedStatus={robotStartedStatus}
+                setRobotStartedStatus={setRobotStartedStatus}
                 accountId={accountId}
             />
             <Robots
                 serverUri={serverUri}
                 selectedRobot={selectedRobot}
                 setSelectedRobot={setSelectedRobot}
-                disabled={robotStartedName}
-                setRobotStartedName={setRobotStartedName}
+                disabled={robotStartedStatus}
+                setRobotStartedStatus={setRobotStartedStatus}
             />
+            <br></br>
+            <br></br>
+            <div style={{ width: '300px', margin: '0 auto' }}>
+                {positions && positions.length ? (
+                    <ListGroup>
+                        <center><h3>Позиции</h3></center>
+                        {positions.map((p, k) => {
+                            return (
+
+                            // <div key={k}>{JSON.stringify(p)}</div>
+
+                                <ListGroupItem className="justify-content-between" key={k}>
+                                Лоты: <b>{p.quantityLots.units}</b>,{'\u00a0'}
+                                Цена: <b>{getPrice(p.averagePositionPrice)}</b>x{p.quantity.units}
+                                    {'\u00a0\u00a0\u00a0'}
+                                    <Badge
+                                        pill
+                                        color={getPrice(p.expectedYield) >= 0 ? 'success' : 'danger'}
+                                    >
+                                        {getPrice(p.expectedYield)}
+                                    </Badge>
+                                </ListGroupItem>
+                            );
+                        })}
+                    </ListGroup>
+                ) : ''}
+                {orders && orders.length ? (
+                    <>
+                        <br></br>
+                        <center><h3>Заявки</h3></center>
+                        {orders.map((o, k) => {
+                            return (
+                                <ListGroupItem className="justify-content-between" key={k}>
+                                Лоты: <b>{o.lotsRequested}</b>, Цена: <b>{getPrice(o.initialOrderPrice)}</b>
+                                    {'\u00a0\u00a0\u00a0'}
+                                    <Badge
+                                        pill
+                                        color={o.direction >= 0 ? 'success' : 'danger'}
+                                    >
+                                        {o.direction === 1 ? 'Покупка' : 'Продажа'}
+                                    </Badge>
+                                </ListGroupItem>
+
+                            );
+                        })}
+                    </>
+                ) : ''}
+            </div>
+            <br></br><br></br><br></br><br></br><br></br><br></br>
         </div>
     );
 }
