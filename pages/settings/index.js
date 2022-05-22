@@ -31,7 +31,7 @@ export default function Settings(props) {
             />
             {qrcode &&
             <div className={styles.qrcode}>
-                <h1>QR сервера</h1>
+                <FormText color="dark"><h4>Открыть интерфейс на телефоне</h4></FormText>
                 <QRCode value={window.location.href}/>
             </div>}
         </>
