@@ -7,12 +7,17 @@ import { checkServer, selectToken, getTokens, addToken, delToken } from '../../u
 
 import { setToLS } from '../../utils/storage';
 
+import { QRCode } from 'react-qrcode-logo';
+
 export default function Settings(props) {
     const { setTitle, checkToken, serverUri } = props;
+    const [host, setHost] = React.useState('');
+    const defaultHost = ['localhost', '127.0.0.1'];
 
     React.useEffect(() => {
+        setHost(new URL(serverUri));
         setTitle('Настройки');
-    }, [setTitle, serverUri]);
+    }, [setTitle, serverUri, setHost]);
 
     return (
         <>
@@ -24,6 +29,11 @@ export default function Settings(props) {
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
             />
+            {host.hostname !== defaultHost[0] && host.hostname !== defaultHost [1] &&
+            <div className={styles.qrcode}>
+                <h1>QR сервера</h1>
+                <QRCode value={host.href}/>
+            </div>}
         </>
     );
 }

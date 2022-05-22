@@ -59,6 +59,12 @@
   pointer-events: none;
 }
 
+.qrcode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 @media screen and (max-width: 480px) { 
   .AccountsButton {
     grid-template-columns: repeat(3, auto);
