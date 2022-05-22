@@ -11,13 +11,13 @@ import { QRCode } from 'react-qrcode-logo';
 
 export default function Settings(props) {
     const { setTitle, checkToken, serverUri } = props;
-    const [host, setHost] = React.useState('');
-    const defaultHost = ['localhost', '127.0.0.1'];
+    const [qrcode, setQrcode] = React.useState(false);
 
     React.useEffect(() => {
-        setHost(new URL(serverUri));
         setTitle('Настройки');
-    }, [setTitle, serverUri, setHost]);
+
+        setQrcode(!['localhost', '127.0.0.1'].includes(location.hostname));
+    }, [setTitle, serverUri, setQrcode]);
 
     return (
         <>
@@ -29,10 +29,10 @@ export default function Settings(props) {
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
             />
-            {host.hostname !== defaultHost[0] && host.hostname !== defaultHost [1] &&
+            {qrcode &&
             <div className={styles.qrcode}>
                 <h1>QR сервера</h1>
-                <QRCode value={host.href}/>
+                <QRCode value={window.location.href}/>
             </div>}
         </>
     );
