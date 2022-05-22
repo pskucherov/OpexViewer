@@ -41,10 +41,26 @@
   margin-right: 40px;
 }
 
+.AccountsButton {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  gap: 10px;
+  width: 100%;
+}
+
 
 .Badge {
   margin-right: .5rem;
   max-width: 100%;
   overflow: initial;
   pointer-events: none;
+}
+
+@media screen and (max-width: 480px) { 
+  .AccountsButton {
+    grid-template-columns: repeat(3, auto);
+  }
 }
