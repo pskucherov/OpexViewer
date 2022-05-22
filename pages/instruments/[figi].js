@@ -225,6 +225,11 @@ const Content = props => {
         };
     }, [setRobotState, serverUri, accountId, figi, selectedDate, selectedRobot]);
 
+    const [robotSetting, setRobotSetting] = useState({
+        support: {},
+        resistance: {},
+    });
+
     return (
         <>
             <Head
@@ -245,6 +250,7 @@ const Content = props => {
                 </>
             ) : ''}
 
+            {/* TODO: Переделать эту жесть на redux / context :facepalm: */}
             {props.isTradingDay ? (props.isBacktest ? (
                 <Backtest
                     interval={props.interval}
@@ -260,24 +266,33 @@ const Content = props => {
                     robotState={robotState}
                     selectedRobot={selectedRobot}
                     setSelectedRobot={setSelectedRobot}
+                    accountId={accountId}
+
+                    robotSetting={robotSetting}
+                    setRobotSetting={setRobotSetting}
                 />
             ) : (
-                <Chart
-                    interval={props.interval}
-                    setInprogress={props.setInprogress}
-                    inProgress={props.inProgress}
-                    selectedDate={props.selectedDate}
-                    figi={figi}
-                    instrument={props.instrument}
-                    setIsTradingDay={props.setIsTradingDay}
-                    serverUri={serverUri}
-                    accountId={accountId}
-                    setRobotStartedStatus={setRobotStartedStatus}
-                    robotStartedStatus={robotStartedStatus}
-                    robotState={robotState}
-                    selectedRobot={selectedRobot}
-                    setSelectedRobot={setSelectedRobot}
-                />
+                <>
+                    {/* TODO: Переделать эту жесть на redux / context :facepalm: */}
+                    <Chart
+                        interval={props.interval}
+                        setInprogress={props.setInprogress}
+                        inProgress={props.inProgress}
+                        selectedDate={props.selectedDate}
+                        figi={figi}
+                        instrument={props.instrument}
+                        setIsTradingDay={props.setIsTradingDay}
+                        serverUri={serverUri}
+                        accountId={accountId}
+                        setRobotStartedStatus={setRobotStartedStatus}
+                        robotStartedStatus={robotStartedStatus}
+                        robotState={robotState}
+                        selectedRobot={selectedRobot}
+                        setSelectedRobot={setSelectedRobot}
+
+                        robotSetting={robotSetting}
+                        setRobotSetting={setRobotSetting}
+                    /></>
             )) : (<><br></br><br></br><center>Биржа закрыта.</center></>)}
         </>);
 };

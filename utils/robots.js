@@ -178,11 +178,12 @@ const robotFlagsForChart = (chartOptions, robotState, styles) => {
     };
 };
 
-const getSettings = async (serverUri, name) => {
+const getSettings = async (serverUri, name, accountId, figi) => {
     let response;
+    const q = `?accountId=${accountId}&figi=${figi}`;
 
     try {
-        response = await window.fetch(serverUri + '/robots/getsettings/' + name, requestOptions);
+        response = await window.fetch(serverUri + '/robots/getsettings/' + name + q, requestOptions);
     } catch (error) {
         return false;
     }
@@ -194,12 +195,14 @@ const getSettings = async (serverUri, name) => {
     return false;
 };
 
-const setSettings = async (serverUri, name, settings) => {
+const setSettings = async (serverUri, name, settings, accountId, figi) => {
     let response;
 
-    const params = ['isAdviser', 'takeProfit', 'stopLoss', 'lotsSize'].map((name, k) => {
+    let params = ['isAdviser', 'takeProfit', 'stopLoss', 'lotsSize', 'su', 'sn', 'ru', 'rn'].map((name, k) => {
         return (!k ? '?' : '&') + `${name}=${settings[name]}`;
     }).join('');
+
+    params += `&accountId=${accountId}&figi=${figi}`;
 
     try {
         response = await window.fetch(serverUri + '/robots/setsettings/' + name + params, requestOptions);

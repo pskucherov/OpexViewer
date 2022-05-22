@@ -24,6 +24,9 @@ export default function Chart(props) {
         setRobotStartedStatus, robotStartedStatus,
         robotState,
         selectedRobot, setSelectedRobot,
+
+        robotSetting,
+        setRobotSetting,
     } = props;
 
     const [data, setData] = React.useState([]);
@@ -94,10 +97,14 @@ export default function Chart(props) {
         };
     }, [interval, getCandlesHandle, updateCandlesHandle]);
 
+    const support = robotSetting && robotSetting.support;
+    const resistance = robotSetting && robotSetting.resistance;
+    const chartOpts = chartOptions(support, resistance);
+
     const options = {
-        ...chartOptions,
+        ...chartOpts,
         chart: {
-            ...chartOptions.chart,
+            ...chartOpts.chart,
 
             // click: function(e) {
             //     console.log(
@@ -108,11 +115,11 @@ export default function Chart(props) {
         },
         series: [
             {
-                ...chartOptions.series[0],
+                ...chartOpts.series[0],
                 data: data,
             },
             {
-                ...chartOptions.series[1],
+                ...chartOpts.series[1],
                 data: volume,
             },
         ],
@@ -123,7 +130,7 @@ export default function Chart(props) {
         sellFlags1,
         buyFlags2,
         sellFlags2,
-    } = robotFlagsForChart(chartOptions, robotState, styles);
+    } = robotFlagsForChart(chartOpts, robotState, styles);
 
     if (buyFlags1 && buyFlags1.data.length) {
         options.series.push(buyFlags1);
@@ -163,6 +170,7 @@ export default function Chart(props) {
 
                 // setLastPriceInChart={setLastPriceInChart}
                 isBackTest={false}
+                robotSetting={robotSetting}
             />
             <RobotsButtons
                 interval={interval}
@@ -180,6 +188,11 @@ export default function Chart(props) {
                 setSelectedRobot={setSelectedRobot}
                 disabled={robotStartedStatus}
                 setRobotStartedStatus={setRobotStartedStatus}
+                figi={figi}
+                accountId={accountId}
+
+                robotSetting={robotSetting}
+                setRobotSetting={setRobotSetting}
             />
             <br></br>
             <br></br>

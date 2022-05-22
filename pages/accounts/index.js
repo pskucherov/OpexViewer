@@ -79,7 +79,6 @@ export default function Accounts(props) {
                 outline
             >
                 {info && info.tariff && <>
-                    <CardTitle tag="h2" className="text-center" style={{ margin: '20px 0px 20px 0px' }}>Информация аккаунта</CardTitle>
                     <CardSubtitle
                         className="mb-2 text-muted"
                         tag="h6"

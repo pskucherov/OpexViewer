@@ -31,7 +31,7 @@ export function OrderBook(props) {
         interval,
         isBackTest,
 
-        // TODO: определить для бэктеста
+        robotSetting,
     } = props;
 
     const [lastPrice, setLastPrice] = useState();
@@ -90,6 +90,9 @@ export function OrderBook(props) {
         asks = [];
     }
 
+    const support = robotSetting && robotSetting.support;
+    const resistance = robotSetting && robotSetting.resistance;
+
     const options = {
         chart: {
             type: 'area',
@@ -120,15 +123,36 @@ export function OrderBook(props) {
                 rotation: -45,
                 autoRotation: false,
             },
-            plotLines: lastPrice ? [{
-                color: '#888',
-                value: lastPrice,
-                width: 1,
-                label: {
-                    text: lastPrice,
-                    rotation: 90,
-                },
-            }] : undefined,
+            plotLines: [
+                lastPrice ? {
+                    color: '#888',
+                    value: lastPrice,
+                    width: 1,
+                    label: {
+                        text: lastPrice,
+                        rotation: 90,
+                    },
+                } : undefined,
+
+                support ? {
+                    color: '#8f0',
+                    value: getPrice(support),
+                    width: 2,
+                    label: {
+                        text: getPrice(support),
+                        rotation: 90,
+                    },
+                } : undefined,
+                resistance ? {
+                    color: '#f80',
+                    value: getPrice(resistance),
+                    width: 2,
+                    label: {
+                        text: getPrice(resistance),
+                        rotation: 90,
+                    },
+                } : undefined,
+            ].filter(p => p),
         },
         yAxis: [{
             lineWidth: 1,

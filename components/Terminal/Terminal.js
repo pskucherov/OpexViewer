@@ -21,6 +21,7 @@ export function Terminal(props) {
         serverUri,
         interval,
         figi,
+        robotSetting,
     } = props;
 
     const refChart = React.useRef(null);
@@ -52,6 +53,7 @@ export function Terminal(props) {
                         serverUri={serverUri}
                         interval={interval}
                         figi={figi}
+                        robotSetting={robotSetting}
 
                         // setLastPriceInChart={setLastPriceInChart}
                         isBackTest={isBackTest}

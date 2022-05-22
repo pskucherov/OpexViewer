@@ -24,6 +24,10 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         robotState,
         selectedRobot,
         setSelectedRobot,
+        accountId,
+
+        robotSetting,
+        setRobotSetting,
     } = props;
 
     const [data, setData] = React.useState([]);
@@ -75,11 +79,15 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         getCanglesHandle();
     }, [getCanglesHandle]);
 
+    const support = robotSetting && robotSetting.support;
+    const resistance = robotSetting && robotSetting.resistance;
+    const chartOpts = chartOptions(support, resistance);
+
     const options = {
-        ...chartOptions,
+        ...chartOpts,
 
         chart: {
-            ...chartOptions.chart,
+            ...chartOpts.chart,
 
             // events: {
             //     click: function(e) {
@@ -93,11 +101,11 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
 
         series: [
             {
-                ...chartOptions.series[0],
+                ...chartOpts.series[0],
                 data: backtestData || data,
             },
             {
-                ...chartOptions.series[1],
+                ...chartOpts.series[1],
                 data: backtestVolume || volume,
             },
         ],
@@ -105,7 +113,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
 
     if (typeof step !== 'undefined') {
         const buyFlags = robotPositions && robotPositions.length ? {
-            ...chartOptions.series[2],
+            ...chartOpts.series[2],
             data: robotPositions.filter(p => p.direction === 1).map(p => {
                 return data[p.step] && {
                     title: `<div class="${styles.Arrow} ${styles.BuyArrow}">B<br>U<br>Y</div>`,
@@ -116,7 +124,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         } : undefined;
 
         const sellFlags = robotPositions && robotPositions.length ? {
-            ...chartOptions.series[3],
+            ...chartOpts.series[3],
             data: robotPositions.filter(p => p.direction === 2).map(p => {
                 return data[p.step] && {
                     title: `<div class="${styles.Arrow} ${styles.SellArrow}">S<br>E<br>L<br>L</div>`,
@@ -139,7 +147,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
             sellFlags1,
             buyFlags2,
             sellFlags2,
-        } = robotFlagsForChart(chartOptions, robotState, styles);
+        } = robotFlagsForChart(chartOpts, robotState, styles);
 
         if (buyFlags1 && buyFlags1.data.length) {
             options.series.push(buyFlags1);
@@ -175,6 +183,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 figi={figi}
                 isBackTest={true}
                 robotPositions={robotPositions}
+                robotSetting={robotSetting}
             />
             {selectedRobot && (<BacktestButtons
                 interval={interval}
@@ -192,12 +201,18 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 selectedDate={selectedDate}
                 setRobotPositions={setRobotPositions}
                 setRobotStartedStatus={setRobotStartedStatus}
+                accountId={accountId}
             />)}
             <Robots
                 serverUri={serverUri}
                 selectedRobot={selectedRobot}
                 setSelectedRobot={setSelectedRobot}
                 disabled={typeof step !== 'undefined'}
+                figi={figi}
+                accountId={accountId}
+
+                robotSetting={robotSetting}
+                setRobotSetting={setRobotSetting}
             />
             <br></br><br></br>
             <Positions

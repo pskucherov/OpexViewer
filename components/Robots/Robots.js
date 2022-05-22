@@ -6,21 +6,38 @@ import styles from '../../styles/Robots.module.css';
 
 export function Robots(props) {
     const {
-        setRobotName,
         serverUri,
         disabled,
         setSelectedRobot,
         selectedRobot,
+        figi,
+        accountId,
+
+        robotSetting,
+        setRobotSetting,
     } = props;
 
     const [robots, setRobots] = useState([]);
-    const [isFormChanged, setIsFormChanged] = useState(false);
-    const [robotSetting, setRobotSetting] = useState({});
     const [activeSave, setActiveSave] = useState(false);
 
+    const onShowSettings = useCallback(async name => {
+        const settings = await getSettings(serverUri, typeof name === 'string' ? name : selectedRobot, accountId, figi);
+
+        if (settings) {
+            setRobotSetting({
+                ...settings,
+                takeProfit: settings.takeProfit * 100,
+                stopLoss: settings.stopLoss * 100,
+            });
+        }
+    }, [selectedRobot, serverUri, setRobotSetting, accountId, figi]);
+
     const onChange = useCallback(async e => {
-        setSelectedRobot(e.target.value);
-    }, [setSelectedRobot]);
+        const name = e.target.value;
+
+        setSelectedRobot(name);
+        onShowSettings(name);
+    }, [setSelectedRobot, onShowSettings]);
 
     React.useEffect(() => {
         (async () => {
@@ -30,19 +47,7 @@ export function Robots(props) {
                 setRobots(robots);
             }
         })();
-    }, [setRobotName, serverUri]);
-
-    const onShowSettings = useCallback(async () => {
-        const settings = await getSettings(serverUri, selectedRobot);
-
-        if (settings) {
-            setRobotSetting({
-                ...settings,
-                takeProfit: settings.takeProfit * 100,
-                stopLoss: settings.stopLoss * 100,
-            });
-        }
-    }, [selectedRobot, serverUri, setRobotSetting]);
+    }, [serverUri, onShowSettings]);
 
     // Обработчик сохранения формы.
     const handleSubmit = React.useCallback(async e => {
@@ -53,10 +58,17 @@ export function Robots(props) {
             isAdviser: Number(robotSetting.isAdviser),
             takeProfit: parseFloat(robotSetting.takeProfit) / 100,
             stopLoss: parseFloat(robotSetting.stopLoss) / 100,
-        });
+
+            su: robotSetting.su || robotSetting.support.units,
+            sn: robotSetting.sn || robotSetting.support.nano,
+            ru: robotSetting.ru || robotSetting.resistance.units,
+            rn: robotSetting.rn || robotSetting.resistance.nano,
+        }, accountId, figi);
+
+        // Делаем запрос повторно, т.к. значения могли быть отфильтрованы.
         onShowSettings();
         setActiveSave(false);
-    }, [serverUri, setActiveSave, selectedRobot, onShowSettings, robotSetting]);
+    }, [serverUri, setActiveSave, selectedRobot, onShowSettings, robotSetting, accountId, figi]);
 
     const handleSize = useCallback(e => {
         const lotsSize = Math.abs(parseInt(e.target.value, 10)) || robotSetting.lotsSize;
@@ -95,6 +107,19 @@ export function Robots(props) {
         });
         setActiveSave(true);
     }, [setRobotSetting, robotSetting, setActiveSave]);
+
+    const sr = useCallback((name, e) => {
+        const s = {
+            ...robotSetting,
+        };
+
+        s[name] = parseInt(e.target.value, 10);
+
+        setRobotSetting(s);
+        setActiveSave(true);
+    }, [setRobotSetting, robotSetting, setActiveSave]);
+
+    const supportResistance = ['su', 'sn', 'ru', 'rn'].map(name => sr.bind(this, name));
 
     return (<>
         <Form
@@ -159,6 +184,30 @@ export function Robots(props) {
                             Советник
                         </Label>
                     </FormGroup> */}
+
+                    <FormGroup
+                        row
+                        className={styles.Lots}
+                    >
+                        <Label
+                            sm={4}
+                            className={styles.LotsBlock}
+                        >
+                            Лоты
+                        </Label>
+                        <Col
+                            sm={4}
+                            className={styles.LotsBlock}
+                        >
+                            <Input
+                                name="lots"
+                                placeholder="1"
+                                onChange={handleSize}
+                                value={robotSetting.lotsSize || undefined}
+                            />
+                        </Col>
+                    </FormGroup>
+
                     <FormGroup
                         row
                         className={styles.TakeProfit}
@@ -205,28 +254,79 @@ export function Robots(props) {
                         </Col>
                         %
                     </FormGroup>
+
                     <FormGroup
                         row
-                        className={styles.Lots}
+                        className={styles.Support}
                     >
                         <Label
-                            sm={4}
-                            className={styles.LotsBlock}
+                            sm={2}
+                            className={styles.SupportBlock}
                         >
-                            Лоты
+                            Поддержка
                         </Label>
                         <Col
-                            sm={4}
-                            className={styles.LotsBlock}
+                            sm={2}
+                            className={styles.SupportBlock}
                         >
                             <Input
-                                name="lots"
-                                placeholder="1"
-                                onChange={handleSize}
-                                value={robotSetting.lotsSize || undefined}
+                                name="su"
+                                placeholder="units"
+                                onChange={supportResistance[0]}
+                                value={robotSetting.su || robotSetting.support.units || undefined}
+                                maxLength="9"
+                            />
+                        </Col>
+                        <Col
+                            sm={2}
+                            className={styles.SupportBlock}
+                        >
+                            <Input
+                                name="sn"
+                                placeholder="nano"
+                                onChange={supportResistance[1]}
+                                value={robotSetting.sn || robotSetting.support.nano || undefined}
+                                maxLength="9"
                             />
                         </Col>
                     </FormGroup>
+
+                    <FormGroup
+                        row
+                        className={styles.Resistance}
+                    >
+                        <Label
+                            sm={2}
+                            className={styles.ResistanceBlock}
+                        >
+                            Сопротивление
+                        </Label>
+                        <Col
+                            sm={2}
+                            className={styles.ResistanceBlock}
+                        >
+                            <Input
+                                name="ru"
+                                placeholder="units"
+                                onChange={supportResistance[2]}
+                                value={robotSetting.ru || robotSetting.resistance.units || undefined}
+                                maxLength="9"
+                            />
+                        </Col>
+                        <Col
+                            sm={2}
+                            className={styles.ResistanceBlock}
+                        >
+                            <Input
+                                name="rn"
+                                placeholder="nano"
+                                onChange={supportResistance[3]}
+                                value={robotSetting.rn || robotSetting.resistance.nano || undefined}
+                                maxLength="9"
+                            />
+                        </Col>
+                    </FormGroup>
+
                     <Button
                         color="primary"
                         disabled={!activeSave}
