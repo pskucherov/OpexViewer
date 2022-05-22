@@ -1,4 +1,8 @@
 const getPrice = quotation => {
+    if (!quotation || typeof quotation !== 'object') {
+        return quotation;
+    }
+
     if (quotation.nano) {
         return quotation.units + quotation.nano / 1e9;
     }

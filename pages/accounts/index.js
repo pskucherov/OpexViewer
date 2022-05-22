@@ -46,32 +46,33 @@ export default function Accounts(props) {
         }
 
         const checkRequest = async () => {
-            const AccountInfo = await getAccountInfo(serverUri, accountId, 'info');
-            const tarrifRequest = await getAccountInfo(serverUri, accountId, 'tarrif');
-            const portfolioRequest = await getAccountInfo(serverUri, accountId, 'portfolio');
-            const withdrawLimitsRequest = await getAccountInfo(serverUri, accountId, 'withdrawlimits');
-            const marginAttrRequest = await getAccountInfo(serverUri, accountId, 'marginattr');
-
-            if (AccountInfo) {
-                setInfo(JSON.parse(JSON.stringify(AccountInfo)));
-            }
-            if (tarrifRequest) {
-                setTarrif(JSON.parse(JSON.stringify(tarrifRequest)));
-            }
-            if (portfolioRequest) {
-                setPortfolio(JSON.parse(JSON.stringify(portfolioRequest)));
-                if (portfolioRequest.totalAmountShares.currency === 'rub') {
-                    setCurrency(' ₽');
-                }
-            }
-            if (withdrawLimitsRequest) {
-                setWithdrawLimits(JSON.parse(JSON.stringify(withdrawLimitsRequest)));
-            }
-            if (marginAttrRequest) {
-                setMarginAttr(JSON.parse(JSON.stringify(marginAttrRequest)));
+            if (!accountId) {
+                return;
             }
 
-            setInProgress(false);
+            const answer = await getAccountInfo(serverUri, accountId);
+
+            if (!answer) {
+                return;
+            }
+
+            const {
+                info,
+                tarrif,
+                portfolio,
+                withdrawlimits,
+                marginattr,
+            } = answer;
+
+            setInfo(info);
+            setTarrif(tarrif);
+            setPortfolio(portfolio);
+            setWithdrawLimits(withdrawlimits);
+            setMarginAttr(marginattr);
+
+            if (portfolio && portfolio.totalAmountShares.currency === 'rub') {
+                setCurrency(' ₽');
+            }
         };
 
         checkRequest();
