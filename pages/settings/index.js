@@ -88,7 +88,7 @@ const AddServerForm = props => {
     return (
         <>
             <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
-                <FormText><h4>Сервер торгового робота</h4></FormText>
+                <FormText color="dark"><h4>Сервер торгового робота</h4></FormText>
                 <FormGroup className={styles.label}>
                     <Label>Server <a href="https://github.com/pskucherov/TinkoffTradingBot" target="_blank" rel="noreferrer" >(?)</a></Label>
                     <Input name="serveruri" placeholder={serverUri} onChange={handleInputChange} value={serverUri}
@@ -99,7 +99,7 @@ const AddServerForm = props => {
                 </FormGroup>
                 {inProgress ?
                     <Spinner size="sm" color="primary" /> :
-                    <Button className={styles.Submit} >Сохранить</Button>
+                    <Button color="primary" className={styles.Submit} >Сохранить</Button>
                 }
             </Form>
         </>
@@ -141,7 +141,7 @@ const SettingsForm = props => {
     return (
         <>
             <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
-                <FormText><h4>Добавить Token</h4></FormText>
+                <FormText color="dark"><h4>Добавить Token</h4></FormText>
                 <FormGroup className={styles.label}>
                     <Label>Token <a href="https://tinkoff.github.io/investAPI/token/" target="_blank" rel="noreferrer" >(?)</a></Label>
                     <Input
@@ -153,7 +153,7 @@ const SettingsForm = props => {
                 </FormGroup>
                 {inProgress ?
                     <Spinner size="sm" color="primary" /> :
-                    <Button className={styles.Submit} >Добавить</Button>
+                    <Button color="primary" className={styles.Submit} >Добавить</Button>
                 }
             </Form>
             <TokensList
@@ -202,14 +202,14 @@ const TokensList = props => {
     return Boolean(tokens && tokens.length) && (
         <>
             <Form className={styles.SettingsForm}>
-                <FormText><h4>Сохранённые токены</h4></FormText>
+                <FormText color="dark"><h4>Сохранённые токены</h4></FormText>
 
                 {tokens && tokens.map((t, i) => (
                     <FormGroup key={i} className={styles.Tokens}>
                         <Label className={styles.TokenLable}>
                             {t.token.substr(0, 5)}
                         </Label>
-                        {t.isSandbox && (<Badge pill className={styles.Badge}>
+                        {t.isSandbox && (<Badge pill color="warning" className={styles.Badge}>
                             Sandbox
                         </Badge>)}
                         <Button
@@ -221,6 +221,8 @@ const TokensList = props => {
                             className={styles.SelectButton}
                             onClick={onSelectClick.bind(this, t.token)}
                             disabled={t.selected}
+                            color="primary"
+                            outline={!t.selected}
                         >
                             {t.selected ? 'Выбран\u00a0' : 'Выбрать'}
                         </Button>

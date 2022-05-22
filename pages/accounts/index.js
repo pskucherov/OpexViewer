@@ -1,10 +1,8 @@
 import React, { useEffect, useCallback, useState } from 'react';
 
-import styles from '../../styles/Settings.module.css';
-import { ButtonGroup, Button, CardGroup, Card, CardImg, CardBody, CardTitle, CardSubtitle, CardText, Spinner } from 'reactstrap';
+import { Button, CardGroup, Card, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
 
 import { getAccountInfo, getAccounts, selectAccount } from '../../utils/accounts';
-import { objectEach } from 'highcharts';
 import { getPrice } from '../../utils/price';
 
 export default function Accounts(props) {
@@ -12,14 +10,11 @@ export default function Accounts(props) {
 
     const [accounts, setAccounts] = useState();
     const [isReady, setIsReady] = useState();
-    const [type, setType] = useState('info');
-    const [inProgress, setInProgress] = useState(true);
-    const [data, setData] = useState({});
-    const [info, setInfo] = useState({});
-    const [tarrif, setTarrif] = useState({});
-    const [portfolio, setPortfolio] = useState({});
-    const [withdrawLimits, setWithdrawLimits] = useState({});
-    const [marginAttr, setMarginAttr] = useState({});
+    const [info, setInfo] = useState();
+    const [tarrif, setTarrif] = useState();
+    const [portfolio, setPortfolio] = useState();
+    const [withdrawLimits, setWithdrawLimits] = useState();
+    const [marginAttr, setMarginAttr] = useState();
     const [currency, setCurrency] = useState();
 
     const accountsCb = useCallback(async () => {
@@ -30,12 +25,35 @@ export default function Accounts(props) {
         }
     }, [serverUri]);
 
-    const chengeType = useCallback(event => {
-        if (type !== event.target.value) {
-            setType(event.target.value);
-            setInProgress(true);
+    const accountInfoCb = useCallback(async () => {
+        if (!accountId) {
+            return;
         }
-    }, [type]);
+
+        const answer = await getAccountInfo(serverUri);
+
+        if (!answer) {
+            return;
+        }
+
+        const {
+            info,
+            tarrif,
+            portfolio,
+            withdrawlimits,
+            marginattr,
+        } = answer;
+
+        setInfo(info);
+        setTarrif(tarrif);
+        setPortfolio(portfolio);
+        setWithdrawLimits(withdrawlimits);
+        setMarginAttr(marginattr);
+
+        if (portfolio && portfolio.totalAmountShares.currency === 'rub') {
+            setCurrency(' ₽');
+        }
+    }, [setCurrency, accountId, serverUri]);
 
     useEffect(() => {
         setTitle('Счета');
@@ -43,46 +61,9 @@ export default function Accounts(props) {
 
         if (isReady) {
             accountsCb();
+            accountInfoCb();
         }
-
-        const checkRequest = async () => {
-            if (!accountId) {
-                return;
-            }
-
-            const answer = await getAccountInfo(serverUri, accountId);
-
-            if (!answer) {
-                return;
-            }
-
-            const {
-                info,
-                tarrif,
-                portfolio,
-                withdrawlimits,
-                marginattr,
-            } = answer;
-
-            setInfo(info);
-            setTarrif(tarrif);
-            setPortfolio(portfolio);
-            setWithdrawLimits(withdrawlimits);
-            setMarginAttr(marginattr);
-
-            if (portfolio && portfolio.totalAmountShares.currency === 'rub') {
-                setCurrency(' ₽');
-            }
-        };
-
-        checkRequest();
-
-        const timer = setInterval(() => {
-            checkRequest();
-        }, 15000);
-
-        return () => clearInterval(timer);
-    }, [isReady, accountsCb, accountId, setTitle, setData, serverUri, type, setInfo, data, setCurrency]);
+    }, [isReady, accountsCb, accountId, setTitle, serverUri, accountInfoCb]);
 
     return (
         <>
@@ -91,20 +72,26 @@ export default function Accounts(props) {
                 serverUri={serverUri}
                 accountId={accountId}
                 checkToken={checkToken} />
+
             <Card
                 body
                 color="info"
-                outline>
-                <CardTitle tag="h2" className="text-center" style={{ margin: '20px 0px 20px 0px' }}>Информация аккаунта</CardTitle>
-                <CardSubtitle
-                    className="mb-2 text-muted"
-                    tag="h6"
-                >
-                    {'Ваш тариф: ' + info.tariff} <br/>
-                    {'Премиум : '}{info.premStatus ? 'да' : 'нет'}
-                </CardSubtitle>
-                <CardTitle tag="h6" className="text-start">Портфель аккаунта</CardTitle>
-                {portfolio.totalAmountShares &&
+                outline
+            >
+                {info && info.tariff && <>
+                    <CardTitle tag="h2" className="text-center" style={{ margin: '20px 0px 20px 0px' }}>Информация аккаунта</CardTitle>
+                    <CardSubtitle
+                        className="mb-2 text-muted"
+                        tag="h6"
+                    >
+                        {'Ваш тариф: ' + info.tariff} <br/>
+                        {'Премиум : '}{info.premStatus ? 'да' : 'нет'}
+                    </CardSubtitle>
+                </>}
+
+                {portfolio && typeof portfolio.totalAmountCurrencies !== 'undefined' &&
+                <>
+                    <CardTitle tag="h6" className="text-start">Портфель</CardTitle>
                     <CardSubtitle
                         className="mb-2 text-muted"
                         tag="h6"
@@ -114,10 +101,13 @@ export default function Accounts(props) {
                         {'Общая стоимость облигаций: ' + getPrice(portfolio.totalAmountBonds) + currency} <br/>
                         {'Общая стоимость фьючерсов: ' + getPrice(portfolio.totalAmountFutures) + currency} <br/>
                         {'Общая стоимость фондов: ' + getPrice(portfolio.totalAmountEtf) + currency} <br/>
-                        {'Текущая доходность портфеля: ' + getPrice(portfolio.expectedYield) + '%'}
-                    </CardSubtitle>}
+                        {portfolio.expectedYield && 'Текущая доходность портфеля: ' + getPrice(portfolio.expectedYield) + '%'}
+                    </CardSubtitle>
+                </>
+                }
+                {marginAttr && typeof marginAttr.liquidPortfolio !== 'undefined' &&
+            <>
                 <CardTitle tag="h6" className="text-start">Маржинальные показатели по счёту</CardTitle>
-                {marginAttr.liquidPortfolio &&
                 <CardSubtitle
                     className="mb-2 text-muted"
                     tag="h6"
@@ -127,15 +117,18 @@ export default function Accounts(props) {
                     {'Минимальная маржа: ' + getPrice(marginAttr.minimalMargin) + currency} <br/>
                     {'Уровень достаточности средств: ' + getPrice(marginAttr.fundsSufficiencyLevel).toFixed(2) + currency} <br/>
                     {'Объем недостающих средств: ' + getPrice(marginAttr.amountOfMissingFunds) + currency}
-                </CardSubtitle>}
+                </CardSubtitle>
+            </>
+                }
 
-                {withdrawLimits.money &&
+                {withdrawLimits && withdrawLimits.money && Boolean(withdrawLimits.money.length) &&
                 <CardSubtitle
                     className="mb-2 text-muted"
                     tag="h6"
                 >
                     {'Доступные для вывода средства: ' + getPrice(withdrawLimits.money[0]) + currency} <br/>
-                </CardSubtitle>}
+                </CardSubtitle>
+                }
             </Card>
         </>
     );

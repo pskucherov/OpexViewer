@@ -35,11 +35,11 @@ const selectAccount = async (serverUri, id) => {
     return false;
 };
 
-const getAccountInfo = async (serverUri, accountId, type) => {
+const getAccountInfo = async serverUri => {
     let response;
 
     try {
-        response = await window.fetch(serverUri + `/getaccountinfo/${type}/${accountId}`, requestOptions);
+        response = await window.fetch(serverUri + '/getaccountinfo', requestOptions);
     } catch (error) {
         return false;
     }
