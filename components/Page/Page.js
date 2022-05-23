@@ -9,7 +9,7 @@ import {
 export default function Page(props) {
     const { isSandboxToken, serverStatus,
         accountId, pathname, balance,
-        robotStartedStatus,
+        robotStartedStatus, serverUri
     } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -76,7 +76,7 @@ export default function Page(props) {
                                 ))}
                                 <NavItem>
                                     <NavLink
-                                        href="/robots/debug"
+                                        href={`${serverUri}/robots/debug`}
                                         disabled={!serverStatus || !robotStartedStatus}
                                         target="_blank"
                                         title="Содержимое переменных запущенного робота (JSON)"
