@@ -44,7 +44,7 @@ http://localhost:3000/settings
 * QR код для быстрого доступа с телефона (если вьювер запущен не на localhost).
 
 Пример:
-<center><img src="https://user-images.githubusercontent.com/3197868/169752115-09a47fef-afd8-4dd1-9370-2f96ef538535.png" height="300"></center>
+<img src="https://user-images.githubusercontent.com/3197868/169752115-09a47fef-afd8-4dd1-9370-2f96ef538535.png" height="300">
 
 
 ### Выбор счёта
@@ -55,6 +55,31 @@ http://localhost:3000/accounts
 * После выбора счёта в шапке всегда отображается баланс и номер счёта.
 
 Пример:
-<center><img src="https://user-images.githubusercontent.com/3197868/169753145-291f2db2-efea-43de-8843-dd441fe95a70.png" height="300"></center>
+<img src="https://user-images.githubusercontent.com/3197868/169753145-291f2db2-efea-43de-8843-dd441fe95a70.png" height="300">
+
+
+### Инструменты
+http://localhost:3000/instruments
+
+* На выбор предоставлены голубые фишки и их фьючерсы
+
+Пример:
+<img src="https://user-images.githubusercontent.com/3197868/169770721-4ba1dac6-01bf-4052-9c7e-c5ea0aa3a21b.png" height="300">
+
+
+### Страница инструмента
+http://localhost:3000/instruments/BBG004730N88
+
+## Торговля в реальном времени
+* Содержит график с выбором таймфреймов (1, 5, 15 мин и 1 час), объём, стакан.
+* Селект для выбора робота, кнопки старт стоп для запуска и остановки робота
+* Настройки робота: лоты, TS / SL, уровни поддержки и сопротивления. Уровни так же дублируются на графике и в стакане.
+* Робота можно запускать только на одном инструменте. Когда робот запущен перейти на другой инструмент нельзя.
+* На график наносятся заявки и сделки. Оранжевым и салатовым цветом заявки, зелёным и красным сделки. Они же дублируются внизу страницы в текстовом виде.
+
+Примеры:
+<img src="https://user-images.githubusercontent.com/3197868/169771755-566f5b31-ff8f-4c29-ab80-0dd079e7d554.png" height="300">
+<img src="https://user-images.githubusercontent.com/3197868/169774076-135fceb7-1168-4642-8628-5fdb52a3dd8e.png" height="300">
+
 
 
