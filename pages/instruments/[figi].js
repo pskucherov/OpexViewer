@@ -63,11 +63,11 @@ export default function TerminalFigi(props) {
 
     const lsData = getFromSS();
 
-    const [interval, setTickerInterval] = React.useState(lsData['interval'] || INIT_INTERVAL);
+    const [interval, setTickerInterval] = React.useState(lsData && lsData['interval'] || INIT_INTERVAL);
     const [inProgress, setInprogress] = React.useState(true);
     const [isTradingDay, setIsTradingDay] = React.useState();
     const [instrument, setInstrument] = React.useState();
-    const [selectedDate, setSelectedDate] = React.useState(lsData['selectedDate'] && new Date(lsData['selectedDate']) || new Date());
+    const [selectedDate, setSelectedDate] = React.useState(lsData && lsData['selectedDate'] && new Date(lsData['selectedDate']) || new Date());
     const [isBacktest, setIsBackTest] = useState(!isToday(new Date(), selectedDate));
 
     const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {

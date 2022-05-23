@@ -12,8 +12,6 @@ const getFromLS = param => {
 
         return d;
     }
-
-    return {};
 };
 
 const setToLS = (name, data) => {
@@ -35,8 +33,6 @@ const getFromSS = param => {
 
         return d;
     }
-
-    return {};
 };
 
 const setToSS = (name, data) => {

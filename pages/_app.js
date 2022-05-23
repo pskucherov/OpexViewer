@@ -34,7 +34,7 @@ function MyApp({ Component, pageProps }) {
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
 
-        if (newUri !== serverUri) {
+        if (newUri && newUri !== serverUri) {
             setServerUri(newUri);
         }
 
@@ -136,7 +136,7 @@ function MyApp({ Component, pageProps }) {
 
         const newUri = getFromLS('serverUri');
 
-        if (newUri !== serverUri) {
+        if (newUri && newUri !== serverUri) {
             setServerUri(newUri);
         }
 
