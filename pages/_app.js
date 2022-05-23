@@ -18,7 +18,7 @@ function MyApp({ Component, pageProps }) {
     const router = useRouter();
 
     const routerPush = router.push;
-    const { isReady, pathname, asPath } = router;
+    const { isReady, pathname, asPath, query } = router;
 
     const [ready, setReady] = React.useState(false);
     const [title, setTitle] = React.useState('');
@@ -135,9 +135,12 @@ function MyApp({ Component, pageProps }) {
         setReady(true);
 
         const newUri = getFromLS('serverUri');
+        const serverUriFromParam = query && query.serveruri;
 
         if (newUri && newUri !== serverUri) {
             setServerUri(newUri);
+        } else if (serverUriFromParam && serverUriFromParam !== serverUri) {
+            setServerUri(serverUriFromParam);
         }
 
         return () => {
