@@ -29,7 +29,7 @@ export function Positions(props) {
                                     pill
                                     color={getPrice(p.expectedYield) >= 0 ? 'success' : 'danger'}
                                 >
-                                    {(getPrice(p.expectedYield) > 0 ? '+' : '-') + getPrice(p.expectedYield)}
+                                    {(getPrice(p.expectedYield) > 0 ? '+' : '') + getPrice(p.expectedYield).toFixed(2)}
                                 </Badge></>}
                             </ListGroupItem>
                         );
@@ -43,7 +43,7 @@ export function Positions(props) {
                     {orders.map((o, k) => {
                         return (
                             <ListGroupItem className="justify-content-between" key={k}>
-                            Лоты: <b>{o.lotsRequested}</b>, Цена: <b>{getPrice(o.initialOrderPrice)}</b>
+                            Лоты: <b>{o.lotsRequested}</b>, Цена: <b>{getPrice(o.initialOrderPrice).toFixed(2)}</b>
                                 {'\u00a0\u00a0\u00a0'}
                                 <Badge
                                     pill

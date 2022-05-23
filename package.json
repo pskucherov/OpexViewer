@@ -2,7 +2,7 @@
   "name": "opexviewer",
   "author": "pskucherov",
   "license": "Apache-2.0",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "engines": {
     "node": ">=17.0.0"
   },

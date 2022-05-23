@@ -81,7 +81,7 @@ export function Robots(props) {
     }, [setRobotSetting, robotSetting, setActiveSave]);
 
     const handleProfit = useCallback(e => {
-        const takeProfit = parseFloat(e.target.value);
+        const takeProfit = e.target.value;
 
         setRobotSetting({
             ...robotSetting,
@@ -91,7 +91,7 @@ export function Robots(props) {
     }, [setRobotSetting, robotSetting, setActiveSave]);
 
     const handleLoss = useCallback(e => {
-        const stopLoss = parseFloat(e.target.value);
+        const stopLoss = e.target.value;
 
         setRobotSetting({
             ...robotSetting,

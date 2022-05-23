@@ -9,7 +9,7 @@ import {
 export default function Page(props) {
     const { isSandboxToken, serverStatus,
         accountId, pathname, balance,
-        robotStartedStatus, serverUri
+        robotStartedStatus, serverUri,
     } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
