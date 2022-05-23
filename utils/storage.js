@@ -15,7 +15,7 @@ const getFromLS = param => {
 };
 
 const setToLS = (name, data) => {
-    const lsData = getFromLS();
+    const lsData = getFromLS() || {};
 
     lsData[name] = data;
     window.localStorage.setItem(storageName, JSON.stringify(lsData));
@@ -36,7 +36,7 @@ const getFromSS = param => {
 };
 
 const setToSS = (name, data) => {
-    const lsData = getFromSS();
+    const lsData = getFromSS() || {};
 
     lsData[name] = data;
     window.sessionStorage.setItem(storageName, JSON.stringify(lsData));
