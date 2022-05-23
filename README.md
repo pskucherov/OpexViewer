@@ -70,7 +70,7 @@ http://localhost:3000/instruments/BBG004730N88
 
 
 Во время торговли можно посмотреть страницы логов и информацию для дебага.
-В логах содержится информация про сервер и api. На дебаг страницы все переменные робота на текущий момент.
+В логах содержится информация про сервер и api. На [дебаг странице](http://localhost:8000/robots/debug) все переменные робота на текущий момент.
 
 <img src="https://user-images.githubusercontent.com/3197868/169775548-311085fe-678e-4346-af88-6cab5d5ea8f0.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169775924-1a9b1c64-e793-402a-b5a3-fd8219e02da2.png" width="300">
 
