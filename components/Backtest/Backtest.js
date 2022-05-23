@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Highcharts from 'highcharts/highstock';
 
 import PriceIndicator from 'highcharts/modules/price-indicator';
@@ -38,6 +38,16 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
     const [step, setStep] = useState();
 
     const [robotPositions, setRobotPositions] = useState();
+
+    useEffect(() => {
+        (async () => {
+            const status = await statusRobot(serverUri);
+
+            if (status) {
+                setSelectedRobot(status.name);
+            }
+        })();
+    }, [serverUri, setSelectedRobot]);
 
     const getCanglesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {

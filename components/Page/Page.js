@@ -7,7 +7,10 @@ import {
 } from 'reactstrap';
 
 export default function Page(props) {
-    const { isSandboxToken, serverStatus, accountId, pathname, balance } = props;
+    const { isSandboxToken, serverStatus,
+        accountId, pathname, balance,
+        robotStartedStatus,
+    } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const toggleMenu = useCallback(() => {
@@ -71,6 +74,16 @@ export default function Page(props) {
                                         </NavLink>
                                     </NavItem>
                                 ))}
+                                <NavItem>
+                                    <NavLink
+                                        href="/robots/debug"
+                                        disabled={!serverStatus || !robotStartedStatus}
+                                        target="_blank"
+                                        title="Содержимое переменных запущенного робота (JSON)"
+                                    >
+                                            DebugInfo
+                                    </NavLink>
+                                </NavItem>
                             </Nav>
                             <HeadBadges
                                 whatToken={whatToken}

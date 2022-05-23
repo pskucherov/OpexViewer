@@ -54,14 +54,14 @@ function MyApp({ Component, pageProps }) {
             if (t.accountId && t.accountId !== accountId) {
                 setAccountId(t.accountId);
             } else if (!t.accountId && pathname !== '/settings') {
-                routerPush('/accounts');
+                routerPush('/accounts', undefined, { shallow: true });
             }
         }
 
         if (t && typeof t.isSandbox === 'boolean') {
             setIsSandboxToken(t.isSandbox);
         } else if (pathname !== '/settings') {
-            routerPush('/settings');
+            routerPush('/settings', undefined, { shallow: true });
         }
     }, [routerPush, pathname, accountId, serverUri]);
 
@@ -71,7 +71,7 @@ function MyApp({ Component, pageProps }) {
         if (status) {
             // В режиме запущенного робота можно находиться только на страницах логов и инструмента.
             if (asPath !== '/logs' && asPath !== `/instruments/${status.figi}`) {
-                routerPush(`/instruments/${status.figi}`);
+                routerPush(`/instruments/${status.figi}`, undefined, { shallow: true });
             }
 
             if (!robotStartedStatus) {
@@ -162,6 +162,8 @@ function MyApp({ Component, pageProps }) {
                 accountId={accountId}
                 pathname={pathname}
                 balance={balance}
+                serverUri={serverUri}
+                robotStartedStatus={robotStartedStatus}
             >
                 <Component
                     {...pageProps}

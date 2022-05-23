@@ -8,6 +8,6 @@ export default function Home(props) {
 
     React.useEffect(() => {
         setTitle('');
-        router.push('/instruments');
+        router.push('/instruments', undefined, { shallow: true });
     }, [setTitle, router]);
 }

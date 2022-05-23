@@ -10,6 +10,10 @@ const requestOptions = {
  * @returns
  */
 const checkServer = async url => {
+    if (!url) {
+        return;
+    }
+
     let response;
 
     try {
