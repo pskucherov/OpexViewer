@@ -28,6 +28,11 @@ npm i --legacy-peer-deps
 npm run dev
 ```
 
+## NPM
+
+https://www.npmjs.com/package/opexviewer
+
+
 ## Описание
 
 OpexViewer является составной частью [торговой системы](https://github.com/pskucherov/OpexBot).
