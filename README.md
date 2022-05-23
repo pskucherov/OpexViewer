@@ -89,6 +89,26 @@ http://localhost:3000/instruments/BBG004730N88
 Чтобы попасть в режим бектестирования нужно в календаре выбрать прошедшую дату, на которой нужно провести бектест.
 Панель бектестирования ничем не отличается от реальной торговли, кроме того что есть контролы для пошаговой работы, чтобы отлаживать работу робота.
 
-<img src="https://user-images.githubusercontent.com/3197868/169777663-3f4f1c24-ba0f-4377-82d9-fc6fc5143505.png" height="400">
+<img src="https://user-images.githubusercontent.com/3197868/169777663-3f4f1c24-ba0f-4377-82d9-fc6fc5143505.png" height="300">
+
+<img src="https://user-images.githubusercontent.com/3197868/169780431-d669cdbb-958c-46f7-9688-024706eae13d.png" height="300">
+
+Обратите внимание, что там где робот уже торговал, он автоматически закешировал стакан и теперь в бектестировании стакан доступен тоже.
+
+
+## Мобильная версия
+
+Вся описанная выше функциональность адаптирована для мобильных устройств. Для быстрого перехода добавлен QR код, который содержит в себе адрес сервера, чтобы повтоно не указывать с телефона. Под стаканом добавлена кнопка скрыть, чтобы график и кнопки поместились на экран.
+
+<img src="https://user-images.githubusercontent.com/3197868/169783296-c7869335-c1c3-4723-85cf-56b61bc6e609.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783391-a1d3f4b8-ea97-4f0d-9e76-b5b186a1493e.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783438-540a054f-2c50-4f83-8aa8-613b7ab3520d.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783473-53477359-653c-43f7-a9cd-533cd0bc1e6d.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783503-0c12d1e0-bdc0-46ca-b2cb-52a18881f61f.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783538-8da01a92-a85f-43dc-a27a-a1a27e96d612.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783562-d5cc8998-61bd-43ee-86b7-0fff3b94665d.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783592-68b74d11-df0d-4939-881a-21045b1f1377.png" height="300"><img src="https://user-images.githubusercontent.com/3197868/169783639-85e1d9f7-3a81-4be5-8d18-80c28117fef1.png" height="300">
+
+
+
+
+
+
+
+
+
 
 
