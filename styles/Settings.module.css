@@ -51,6 +51,16 @@
   width: 100%;
 }
 
+.BrokerButton {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  align-items: center;
+  justify-content: center;
+  margin: 20px auto;
+  gap: 10px;
+  width: 100%;
+}
+
 
 .Badge {
   margin-right: .5rem;
