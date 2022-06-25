@@ -71,7 +71,7 @@ const getBrokerReport = async (serverUri, time) => {
     let response;
 
     try {
-        response = await window.fetch(serverUri + '/getbrokerreport:' + time, requestOptions);
+        response = await window.fetch(serverUri + '/getbrokerreport/' + time, requestOptions);
     } catch (error) {
         return false;
     }
