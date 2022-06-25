@@ -67,11 +67,11 @@ const getBalance = async (serverUri, accountId) => {
     return false;
 };
 
-const getBrokerReport = async (serverUri, time) => {
+const getBrokerReport = async serverUri => {
     let response;
 
     try {
-        response = await window.fetch(serverUri + '/getbrokerreport/' + time, requestOptions);
+        response = await window.fetch(serverUri + '/getbrokerreport', requestOptions);
     } catch (error) {
         return false;
     }
