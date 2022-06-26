@@ -8,6 +8,26 @@
   border: 1px;
 }
 
+.BrokerSelect,
+.BrokerSelected {
+  width: 100px;
+  height: 100px;
+
+  margin: 10px 30px;
+
+  cursor: pointer;
+
+  display: inline-block;
+
+  filter: grayscale(70%);
+}
+
+.BrokerSelected,
+.BrokerSelect:hover {
+  filter: none;
+  outline: 1px blue solid;
+}
+
 .label {
   text-align: left;
 }

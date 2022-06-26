@@ -10,6 +10,7 @@ import { getFromLS } from '../utils/storage';
 import { statusRobot } from '../utils/robots';
 import { getBalance } from '../utils/accounts';
 import { getPrice } from '../utils/price';
+import { BROKERS } from './constants';
 
 const defaultServerUri = 'http://localhost:8000';
 
@@ -30,6 +31,7 @@ function MyApp({ Component, pageProps }) {
     const [robotStartedStatus, setRobotStartedStatus] = React.useState(false);
 
     const [balance, setBalance] = React.useState();
+    const [brokerId, setBrokerId] = React.useState();
 
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
@@ -143,6 +145,12 @@ function MyApp({ Component, pageProps }) {
             setServerUri(serverUriFromParam);
         }
 
+        const lsBrokerId = getFromLS('brokerId');
+
+        if (lsBrokerId) {
+            setBrokerId(lsBrokerId);
+        }
+
         return () => {
             interval && clearInterval(interval);
             intervalStatus && clearInterval(intervalStatus);
@@ -164,6 +172,7 @@ function MyApp({ Component, pageProps }) {
                 balance={balance}
                 serverUri={serverUri}
                 robotStartedStatus={robotStartedStatus}
+                brokerName={BROKERS[brokerId] && BROKERS[brokerId].name}
             >
                 <Component
                     {...pageProps}
@@ -174,6 +183,8 @@ function MyApp({ Component, pageProps }) {
                     accountId={accountId}
                     robotStartedStatus={robotStartedStatus}
                     setRobotStartedStatus={setRobotStartedStatus}
+                    brokerId={brokerId}
+                    setBrokerId={setBrokerId}
                 />
             </Page>
         ) : null;
