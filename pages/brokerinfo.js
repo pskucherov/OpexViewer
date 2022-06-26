@@ -7,6 +7,7 @@ import { getPrice } from '../utils/price';
 export default function Brokerinfo(props) {
     const [data, setData] = useState([]);
     const [inProgress, setInProgress] = useState(true);
+    const { setTitle } = props;
 
     const { serverUri } = props;
 
@@ -20,12 +21,16 @@ export default function Brokerinfo(props) {
             setInProgress(false);
         };
 
+        checkRequest();
+
         const timer = setInterval(() => {
             checkRequest();
         }, 5000);
 
+        setTitle('Информация брокера');
+
         return () => clearInterval(timer);
-    }, [serverUri, data]);
+    }, [serverUri, data, setTitle]);
 
     return (
         inProgress ?
@@ -58,6 +63,11 @@ export default function Brokerinfo(props) {
                                     </div>
                                 </Card>
                             ))
+                    } :
+                    {
+                        <Card>
+                            <CardTitle tag="h3" className="text-center">Нет данных брокера. <br/> Пожалуйста, попробуйте позже </CardTitle>
+                        </Card>
                     }
                 </div>
             )
