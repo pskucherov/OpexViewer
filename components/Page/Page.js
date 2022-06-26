@@ -10,6 +10,7 @@ export default function Page(props) {
     const { isSandboxToken, serverStatus,
         accountId, pathname, balance,
         robotStartedStatus, serverUri,
+        brokerName,
     } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -90,6 +91,7 @@ export default function Page(props) {
                                 serverStatus={serverStatus}
                                 accountId={accountId}
                                 balance={balance}
+                                brokerName={brokerName}
                             />
                         </Collapse>
                     </Navbar>
@@ -121,6 +123,7 @@ const HeadBadges = props => {
         serverStatus,
         accountId,
         balance,
+        brokerName,
     } = props;
 
     return (<NavbarText>
@@ -136,12 +139,23 @@ const HeadBadges = props => {
             accountId={accountId}
             serverStatus={serverStatus}
         />
-        {serverStatus ? (<Badge
-            color={whatToken === 2 ? 'success' : whatToken ? 'warning' : 'danger'}
-            href="/settings"
-        >
-        Токен: {whatToken === 2 ? 'боевой' : whatToken ? 'песочница' : 'не задан'}
-        </Badge>) : ''}
+        {(
+            <Badge
+                color={brokerName ? 'success' : 'danger'}
+                href="/settings"
+                className={styles.PageBadge}
+            >
+                {brokerName || 'Брокер?'}
+            </Badge>
+        )}
+        {serverStatus && brokerName === 'Tinkoff' ? (
+            <Badge
+                color={whatToken === 2 ? 'success' : whatToken ? 'warning' : 'danger'}
+                href="/settings"
+            >
+                Токен: {whatToken === 2 ? 'боевой' : whatToken ? 'песочница' : 'не задан'}
+            </Badge>
+        ) : ''}
 
     </NavbarText>);
 };

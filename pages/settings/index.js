@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import Image from 'next/image';
 
 import styles from '../../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
@@ -8,9 +9,16 @@ import { checkServer, selectToken, getTokens, addToken, delToken } from '../../u
 import { setToLS } from '../../utils/storage';
 
 import { QRCode } from 'react-qrcode-logo';
+import { BROKERS } from '../constants';
 
 export default function Settings(props) {
-    const { setTitle, checkToken, serverUri } = props;
+    const {
+        setTitle,
+        checkToken,
+        serverUri,
+        brokerId,
+        setBrokerId,
+    } = props;
     const [qrcode, setQrcode] = React.useState(false);
 
     React.useEffect(() => {
@@ -25,10 +33,20 @@ export default function Settings(props) {
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
             />
-            <SettingsForm
+            <SelectBroker
+                brokerId={brokerId}
+                setBrokerId={setBrokerId}
+            />
+            {brokerId === 'TINKOFF' && <SettingsFormTinkoff
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
-            />
+            />}
+            {brokerId === 'FINAM' && <SettingsFormFinam
+                defaultServerUri={serverUri}
+            />}
+            {brokerId === 'BINANCE' && <SettingsFormBinance
+                defaultServerUri={serverUri}
+            />}
             {qrcode &&
             <div className={styles.qrcode}>
                 <FormText color="dark"><h4>Открыть интерфейс на телефоне</h4></FormText>
@@ -39,6 +57,41 @@ export default function Settings(props) {
 }
 
 const defaultToken = 't.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg';
+
+const SelectBroker = props => {
+    const {
+        brokerId,
+        setBrokerId,
+    } = props;
+
+    return (
+        <div className={styles.SettingsForm}>
+            <h4>Выберите брокера</h4>
+            {
+                Object.keys(BROKERS).map(b => {
+                    const bObj = BROKERS[b];
+
+                    return (
+                        <div
+                            className={
+                                b !== brokerId ?
+                                    styles.BrokerSelect :
+                                    styles.BrokerSelected
+                            }
+                            onClick={() => {
+                                setBrokerId(b);
+                                setToLS('brokerId', b);
+                            }}
+                            key={b}
+                        >
+                            <Image src={bObj.logo} width={bObj.w} height={bObj.h} alt={bObj.name} /><br/>
+                        </div>
+                    );
+                })
+            }
+        </div>
+    );
+};
 
 const AddServerForm = props => {
     const { checkToken, defaultServerUri } = props;
@@ -116,7 +169,49 @@ const AddServerForm = props => {
     );
 };
 
-const SettingsForm = props => {
+const SettingsFormFinam = props => {
+    const { defaultServerUri } = props;
+
+    // Обработчик сохранения формы.
+    // const handleSubmit = React.useCallback(async e => {
+    //     e.preventDefault();
+    // });
+
+    return (
+        <>
+            <Form
+                className={styles.SettingsForm}
+
+                // onSubmit={handleSubmit}
+            >
+                <FormText color="dark"><h4>Finam в процессе подключения.</h4></FormText>
+            </Form>
+        </>
+    );
+};
+
+const SettingsFormBinance = props => {
+    const { defaultServerUri } = props;
+
+    // Обработчик сохранения формы.
+    // const handleSubmit = React.useCallback(async e => {
+    //     e.preventDefault();
+    // });
+
+    return (
+        <>
+            <Form
+                className={styles.SettingsForm}
+
+                // onSubmit={handleSubmit}
+            >
+                <FormText color="dark"><h4>Binance в процессе подключения.</h4></FormText>
+            </Form>
+        </>
+    );
+};
+
+const SettingsFormTinkoff = props => {
     const { checkToken, defaultServerUri } = props;
 
     const [token, setToken] = React.useState(defaultToken);
