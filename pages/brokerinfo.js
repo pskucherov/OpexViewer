@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getBrokerReport } from '../utils/accounts';
-import { Button, Spinner, Card, CardTitle, CardSubtitle } from 'reactstrap';
+import { Spinner, Card, CardTitle } from 'reactstrap';
 import styles from '../styles/Settings.module.css';
 import { getPrice } from '../utils/price';
 
@@ -20,8 +20,6 @@ export default function Brokerinfo(props) {
             }
             setInProgress(false);
         };
-
-        checkRequest();
 
         const timer = setInterval(() => {
             checkRequest();
@@ -63,8 +61,8 @@ export default function Brokerinfo(props) {
                                     </div>
                                 </Card>
                             ))
-                    } :
-                    {
+                    }
+                    { data.length <= 0 &&
                         <Card>
                             <CardTitle tag="h3" className="text-center">Нет данных брокера. <br/> Пожалуйста, попробуйте позже </CardTitle>
                         </Card>
