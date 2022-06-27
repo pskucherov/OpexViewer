@@ -30,6 +30,10 @@ const instrumentsButtons = [
         page: 'bluechipsfutures',
         name: 'Фьючерсы',
     },
+    {
+        page: 'etfs',
+        name: 'ETF',
+    },
 
     // {
     //     page: 'bluechipsshares',
