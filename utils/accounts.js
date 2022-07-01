@@ -67,9 +67,26 @@ const getBalance = async (serverUri, accountId) => {
     return false;
 };
 
+const getBrokerReport = async (serverUri) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri + '/getbrokerreport', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 export {
     getAccounts,
     selectAccount,
     getAccountInfo,
     getBalance,
+    getBrokerReport,
 };
