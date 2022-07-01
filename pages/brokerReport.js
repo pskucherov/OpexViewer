@@ -4,7 +4,7 @@ import { Spinner, Card, CardTitle } from 'reactstrap';
 import styles from '../styles/Settings.module.css';
 import { getPrice } from '../utils/price';
 
-export default function Brokerinfo(props) {
+export default function BrokerReport(props) {
     const [data, setData] = useState([]);
     const [inProgress, setInProgress] = useState(true);
     const { setTitle } = props;
@@ -13,21 +13,17 @@ export default function Brokerinfo(props) {
 
     useEffect(function() {
         const checkRequest = async () => {
-            const brokerinfo = await getBrokerReport(serverUri);
+            const brokerReport = await getBrokerReport(serverUri);
 
-            if (brokerinfo !== data && brokerinfo) {
-                setData(brokerinfo.getBrokerReportResponse.brokerReport);
+            if (brokerReport !== data && brokerReport) {
+                setData(brokerReport.getBrokerReportResponse.brokerReport);
             }
             setInProgress(false);
         };
 
-        const timer = setInterval(() => {
-            checkRequest();
-        }, 5000);
+        checkRequest();
 
-        setTitle('Информация брокера');
-
-        return () => clearInterval(timer);
+        setTitle('Отчет Брокера');
     }, [serverUri, data, setTitle]);
 
     return (

@@ -67,7 +67,7 @@ const getBalance = async (serverUri, accountId) => {
     return false;
 };
 
-const getBrokerReport = async serverUri => {
+const getBrokerReport = async (serverUri) => {
     let response;
 
     try {
