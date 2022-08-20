@@ -10,6 +10,7 @@ export default function Accounts(props) {
 
     const [accounts, setAccounts] = useState();
     const [isReady, setIsReady] = useState();
+    const [inProgress, setInProgress] = useState(!accountId);
     const [info, setInfo] = useState();
     const [tarrif, setTarrif] = useState();
     const [portfolio, setPortfolio] = useState();

@@ -8,11 +8,12 @@ export default function Logs(props) {
     const [type, setType] = useState('server');
     const [inProgress, setInProgress] = useState(true);
 
-    const { serverUri } = props;
+    const { serverUri, brokerId } = props;
 
     const chengeType = useCallback(event => {
         if (type !== event.target.value) {
             setType(event.target.value);
+            setData([]);
             setInProgress(true);
         }
     }, [type]);
@@ -23,8 +24,6 @@ export default function Logs(props) {
 
             if (logs) {
                 setData(logs);
-            } else {
-                setData([]);
             }
             setInProgress(false);
         };
@@ -50,6 +49,7 @@ export default function Logs(props) {
                 <div>
                     <div className={styles.LogsButton}>
                         <Button
+                            key={0}
                             color="primary"
                             onClick={chengeType}
                             active={type === 'server'}
@@ -60,6 +60,7 @@ export default function Logs(props) {
                         </Button>
 
                         <Button
+                            key={1}
                             color="primary"
                             onClick={chengeType}
                             active={type === 'API'}
@@ -68,6 +69,21 @@ export default function Logs(props) {
                         >
                             API
                         </Button>
+
+                        {
+                            brokerId === 'FINAM' && ['dsp', 'ts', 'xdf'].map((name, k) => (
+                                <Button
+                                    key={k+2}
+                                    color="primary"
+                                    onClick={chengeType}
+                                    active={type === name}
+                                    outline
+                                    value={name}
+                                >
+                                    {name.toUpperCase()}
+                                </Button>
+                            ))
+                        }
                     </div>
                     <div>
                         <pre>{data}</pre>

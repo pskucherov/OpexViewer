@@ -72,17 +72,24 @@ function MyApp({ Component, pageProps }) {
                 const f = await getFinamAuthStatus(serverUri);
 
                 setFinamStatus(f);
+                setIsSandboxToken(false);
 
-                if ((!f || !f.connected) && pathname !== '/settings') {
-                    routerPush('/settings', undefined, { shallow: true });
+                if (f.accountId && f.accountId !== accountId) {
+                    setAccountId(f.accountId);
                 }
+
+                if ((!f || !f.connected) && pathname !== '/settings' && pathname !== '/logs') {
+                    routerPush('/settings', undefined, { shallow: true });
+                }  else if (!f.accountId && pathname !== '/settings' && pathname !== '/logs') {
+                    routerPush('/accounts', undefined, { shallow: true });
+                } 
             }
         }
 
-        if ((!t || !brokerId) && pathname !== '/settings') {
+        if ((!t || !t.brokerId) && pathname !== '/settings') {
             routerPush('/settings', undefined, { shallow: true });
         }
-    }, [routerPush, pathname, accountId, serverUri, setBrokerId, brokerId, setFinamStatus]);
+    }, [routerPush, pathname, setAccountId, accountId, serverUri, setBrokerId, setFinamStatus]);
 
     const checkRobot = useCallback(async () => {
         const status = await statusRobot(serverUri);
@@ -172,7 +179,8 @@ function MyApp({ Component, pageProps }) {
 
     return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
         pathname === '/settings' ||
-        pathname === '/accounts'
+        pathname === '/accounts' ||
+        pathname === '/logs'
     ) ? (
             <Page
                 title={title}
