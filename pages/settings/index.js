@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Image from 'next/image';
 
 import styles from '../../styles/Settings.module.css';
@@ -11,6 +11,8 @@ import { setToLS } from '../../utils/storage';
 import { QRCode } from 'react-qrcode-logo';
 import { BROKERS } from '../constants';
 
+const isWin32 = process && process.platform === 'win32' || navigator?.platform === 'Win32' || navigator?.userAgentData?.platform === 'Windows';
+
 export default function Settings(props) {
     const {
         setTitle,
@@ -18,6 +20,7 @@ export default function Settings(props) {
         serverUri,
         brokerId,
         setBrokerId,
+        finamStatus,
     } = props;
     const [qrcode, setQrcode] = React.useState(false);
 
@@ -40,12 +43,17 @@ export default function Settings(props) {
             {brokerId === 'TINKOFF' && <SettingsFormTinkoff
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
+                brokerId={brokerId}
             />}
             {brokerId === 'FINAM' && <SettingsFormFinam
+                checkToken={checkToken}
                 defaultServerUri={serverUri}
+                brokerId={brokerId}
+                finamStatus={finamStatus}
             />}
             {brokerId === 'BINANCE' && <SettingsFormBinance
                 defaultServerUri={serverUri}
+                brokerId={brokerId}
             />}
             {qrcode &&
             <div className={styles.qrcode}>
@@ -57,12 +65,17 @@ export default function Settings(props) {
 }
 
 const defaultToken = 't.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg';
+const defaultFinamLogin = 'FZTC123456';
 
 const SelectBroker = props => {
     const {
         brokerId,
         setBrokerId,
     } = props;
+
+    const onBrokerClick = useCallback(async b => {
+        setBrokerId(b);
+    }, [setBrokerId]);
 
     return (
         <div className={styles.SettingsForm}>
@@ -78,10 +91,7 @@ const SelectBroker = props => {
                                     styles.BrokerSelect :
                                     styles.BrokerSelected
                             }
-                            onClick={() => {
-                                setBrokerId(b);
-                                setToLS('brokerId', b);
-                            }}
+                            onClick={onBrokerClick.bind(this, b)}
                             key={b}
                         >
                             <Image src={bObj.logo} width={bObj.w} height={bObj.h} alt={bObj.name} /><br/>
@@ -170,22 +180,95 @@ const AddServerForm = props => {
 };
 
 const SettingsFormFinam = props => {
-    const { defaultServerUri } = props;
+    const { checkToken, defaultServerUri, brokerId, finamStatus } = props;
+
+    const [token, setToken] = React.useState(defaultFinamLogin);
+
+    const [tokenInvalid, setTokenInvalid] = React.useState(false);
+    const [passwordInvalid, setPasswordInvalid] = React.useState(false);
+    const [inProgress, setInprogress] = React.useState(false);
 
     // Обработчик сохранения формы.
-    // const handleSubmit = React.useCallback(async e => {
-    //     e.preventDefault();
-    // });
+    const handleSubmit = React.useCallback(async e => {
+        e.preventDefault();
+        const newToken = e.target[0].value;
+        const newPassword = e.target[1].value;
+
+        setTokenInvalid(!newToken || newToken === defaultToken);
+        setTokenInvalid(!newPassword);
+
+        if (!tokenInvalid) {
+            setInprogress(true);
+        }
+
+        const tokenStatus = await addToken(defaultServerUri, newToken, brokerId, newPassword);
+        const isInvalid = !tokenStatus || tokenStatus.error;
+
+        setTokenInvalid(isInvalid);
+
+        if (!isInvalid) {
+            setToken(newToken);
+        }
+
+        setInprogress(false);
+        checkToken();
+    }, [tokenInvalid, checkToken, defaultServerUri, brokerId]);
 
     return (
         <>
-            <Form
-                className={styles.SettingsForm}
+            {!isWin32 ?
+                <Form className={styles.SettingsForm} ><FormText color="dark"><h4>Finam доступен только на Windows.</h4></FormText></Form> :
+                <>
+                    <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
+                        <FormText color="dark"><h4>Добавить пользователя</h4></FormText>
+                        <FormGroup className={styles.label}>
+                            <Label>
+                                    Логин
+                                <a href="https://articles.opexflow.com/broker" target="_blank" rel="noreferrer" >(?)</a>
+                            </Label>
+                            <Input
+                                name="token"
+                                placeholder={token}
+                                invalid={tokenInvalid}
+                            />
+                            <FormFeedback>Не удалось авторизоваться. Проверьте логин.</FormFeedback>
+                        </FormGroup>
+                        <FormGroup className={styles.label}>
+                            <Label>
+                                    Пароль
+                            </Label>
+                            <Input
+                                name="password"
+                                type="password"
+                                invalid={passwordInvalid}
+                            />
+                            <FormFeedback>Не удалось авторизоваться. Проверьте пароль.</FormFeedback>
+                        </FormGroup>
 
-                // onSubmit={handleSubmit}
-            >
-                <FormText color="dark"><h4>Finam в процессе подключения.</h4></FormText>
-            </Form>
+                        {inProgress ?
+                            <Spinner size="sm" color="primary" /> :
+                            <Button color="primary" className={styles.Submit} >Добавить</Button>
+                        }
+                    </Form>
+
+                    <center>
+                        <h4>
+                            {finamStatus ? (finamStatus.connected ? (
+                                <><br/><br/>Соединение установлено<br/><br/></>
+                            ) : (!finamStatus.errorMessage) ?
+                                <Spinner size="l" color="primary" /> : (<><br/><br/>{finamStatus.errorMessage}<br/><br/></>
+                                )) : <Spinner size="l" color="primary" />}
+                        </h4>
+                    </center>
+
+                    <TokensList
+                        token={token}
+                        brokerId={brokerId}
+                        checkToken={checkToken}
+                        defaultServerUri={defaultServerUri}
+                    />
+                </>
+            }
         </>
     );
 };
@@ -212,7 +295,7 @@ const SettingsFormBinance = props => {
 };
 
 const SettingsFormTinkoff = props => {
-    const { checkToken, defaultServerUri } = props;
+    const { checkToken, defaultServerUri, brokerId } = props;
 
     const [token, setToken] = React.useState(defaultToken);
 
@@ -230,7 +313,7 @@ const SettingsFormTinkoff = props => {
             setInprogress(true);
         }
 
-        const tokenStatus = await addToken(defaultServerUri, newToken);
+        const tokenStatus = await addToken(defaultServerUri, newToken, brokerId);
         const isInvalid = !tokenStatus || tokenStatus.error;
 
         setTokenInvalid(isInvalid);
@@ -241,14 +324,14 @@ const SettingsFormTinkoff = props => {
 
         setInprogress(false);
         checkToken();
-    }, [tokenInvalid, checkToken, defaultServerUri]);
+    }, [tokenInvalid, checkToken, defaultServerUri, brokerId]);
 
     return (
         <>
             <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
                 <FormText color="dark"><h4>Добавить Token</h4></FormText>
                 <FormGroup className={styles.label}>
-                    <Label>Token <a href="https://tinkoff.github.io/investAPI/token/" target="_blank" rel="noreferrer" >(?)</a></Label>
+                    <Label>Token <a href="https://articles.opexflow.com/t" target="_blank" rel="noreferrer" >(?)</a></Label>
                     <Input
                         name="token"
                         placeholder={token}
@@ -263,6 +346,7 @@ const SettingsFormTinkoff = props => {
             </Form>
             <TokensList
                 token={token}
+                brokerId={brokerId}
                 checkToken={checkToken}
                 defaultServerUri={defaultServerUri}
             />
@@ -272,7 +356,7 @@ const SettingsFormTinkoff = props => {
 };
 
 const TokensList = props => {
-    const { token, checkToken, defaultServerUri } = props;
+    const { token, checkToken, defaultServerUri, brokerId } = props;
 
     const [tokens, setTokens] = React.useState([]);
 
@@ -309,7 +393,7 @@ const TokensList = props => {
             <Form className={styles.SettingsForm}>
                 <FormText color="dark"><h4>Сохранённые токены</h4></FormText>
 
-                {tokens && tokens.map((t, i) => (
+                {tokens && tokens.filter(t => t.brokerId === brokerId).map((t, i) => (
                     <FormGroup key={i} className={styles.Tokens}>
                         <Label className={styles.TokenLable}>
                             {t.token.substr(0, 5)}

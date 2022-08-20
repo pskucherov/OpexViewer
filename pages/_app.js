@@ -5,7 +5,7 @@ import Page from '../components/Page/Page';
 import { useRouter } from 'next/router';
 
 import React, { useCallback, useEffect } from 'react';
-import { getSelectedToken, checkServer } from '../utils/serverStatus';
+import { getSelectedToken, checkServer, getFinamAuthStatus } from '../utils/serverStatus';
 import { getFromLS } from '../utils/storage';
 import { statusRobot } from '../utils/robots';
 import { getBalance } from '../utils/accounts';
@@ -22,6 +22,7 @@ function MyApp({ Component, pageProps }) {
     const { isReady, pathname, asPath, query } = router;
 
     const [ready, setReady] = React.useState(false);
+    const [finamStatus, setFinamStatus] = React.useState();
     const [title, setTitle] = React.useState('');
     const [serverUri, setServerUri] = React.useState(defaultServerUri);
     const [serverStatus, setServerStatus] = React.useState();
@@ -42,6 +43,10 @@ function MyApp({ Component, pageProps }) {
 
         const t = await getSelectedToken(serverUri);
 
+        if (t && t.brokerId && brokerId !== t.brokerId) {
+            setBrokerId(t.brokerId);
+        }
+
         if (!t) {
             setIsSandboxToken();
 
@@ -53,19 +58,31 @@ function MyApp({ Component, pageProps }) {
         } else {
             setServerStatus(true);
 
-            if (t.accountId && t.accountId !== accountId) {
-                setAccountId(t.accountId);
-            } else if (!t.accountId && pathname !== '/settings') {
-                routerPush('/accounts', undefined, { shallow: true });
+            if (t.brokerId === 'TINKOFF') {
+                if (t.accountId && t.accountId !== accountId) {
+                    setAccountId(t.accountId);
+                } else if (!t.accountId && pathname !== '/settings') {
+                    routerPush('/accounts', undefined, { shallow: true });
+                }
+
+                if (typeof t.isSandbox === 'boolean') {
+                    setIsSandboxToken(t.isSandbox);
+                }
+            } else if (t.brokerId === 'FINAM') {
+                const f = await getFinamAuthStatus(serverUri);
+
+                setFinamStatus(f);
+
+                if ((!f || !f.connected) && pathname !== '/settings') {
+                    routerPush('/settings', undefined, { shallow: true });
+                }
             }
         }
 
-        if (t && typeof t.isSandbox === 'boolean') {
-            setIsSandboxToken(t.isSandbox);
-        } else if (pathname !== '/settings') {
+        if ((!t || !brokerId) && pathname !== '/settings') {
             routerPush('/settings', undefined, { shallow: true });
         }
-    }, [routerPush, pathname, accountId, serverUri]);
+    }, [routerPush, pathname, accountId, serverUri, setBrokerId, brokerId, setFinamStatus]);
 
     const checkRobot = useCallback(async () => {
         const status = await statusRobot(serverUri);
@@ -123,7 +140,7 @@ function MyApp({ Component, pageProps }) {
             interval = setInterval(() => {
                 checkToken();
                 getBalanceRequest();
-            }, 25000);
+            }, brokerId === 'FINAM' ? 10000 : 25000);
 
             intervalStatus = setInterval(() => {
                 checkRobot();
@@ -143,12 +160,6 @@ function MyApp({ Component, pageProps }) {
             setServerUri(newUri);
         } else if (serverUriFromParam && serverUriFromParam !== serverUri) {
             setServerUri(serverUriFromParam);
-        }
-
-        const lsBrokerId = getFromLS('brokerId');
-
-        if (lsBrokerId) {
-            setBrokerId(lsBrokerId);
         }
 
         return () => {
@@ -173,6 +184,7 @@ function MyApp({ Component, pageProps }) {
                 serverUri={serverUri}
                 robotStartedStatus={robotStartedStatus}
                 brokerName={BROKERS[brokerId] && BROKERS[brokerId].name}
+                finamStatus={finamStatus}
             >
                 <Component
                     {...pageProps}
@@ -185,6 +197,7 @@ function MyApp({ Component, pageProps }) {
                     setRobotStartedStatus={setRobotStartedStatus}
                     brokerId={brokerId}
                     setBrokerId={setBrokerId}
+                    finamStatus={finamStatus}
                 />
             </Page>
         ) : null;
