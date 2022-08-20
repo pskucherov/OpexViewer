@@ -73,7 +73,7 @@ export default function Logs(props) {
                         {
                             brokerId === 'FINAM' && ['dsp', 'ts', 'xdf'].map((name, k) => (
                                 <Button
-                                    key={k+2}
+                                    key={k + 2}
                                     color="primary"
                                     onClick={chengeType}
                                     active={type === name}

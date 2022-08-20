@@ -80,16 +80,16 @@ function MyApp({ Component, pageProps }) {
 
                 if ((!f || !f.connected) && pathname !== '/settings' && pathname !== '/logs') {
                     routerPush('/settings', undefined, { shallow: true });
-                }  else if (!f.accountId && pathname !== '/settings' && pathname !== '/logs') {
+                } else if (!f.accountId && pathname !== '/settings' && pathname !== '/logs') {
                     routerPush('/accounts', undefined, { shallow: true });
-                } 
+                }
             }
         }
 
         if ((!t || !t.brokerId) && pathname !== '/settings') {
             routerPush('/settings', undefined, { shallow: true });
         }
-    }, [routerPush, pathname, setAccountId, accountId, serverUri, setBrokerId, setFinamStatus]);
+    }, [routerPush, pathname, setAccountId, accountId, serverUri, setBrokerId, setFinamStatus, brokerId]);
 
     const checkRobot = useCallback(async () => {
         const status = await statusRobot(serverUri);
