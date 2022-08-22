@@ -58,13 +58,13 @@ function MyApp({ Component, pageProps }) {
         } else {
             setServerStatus(true);
 
-            if (t.brokerId === 'TINKOFF') {
-                if (t.accountId && t.accountId !== accountId) {
-                    setAccountId(t.accountId);
-                } else if (!t.accountId && pathname !== '/settings') {
-                    routerPush('/accounts', undefined, { shallow: true });
-                }
+            if (t.accountId && t.accountId !== accountId) {
+                setAccountId(t.accountId);
+            } else if (!t.accountId && pathname !== '/settings') {
+                // routerPush('/accounts', undefined, { shallow: true });
+            }
 
+            if (t.brokerId === 'TINKOFF') {
                 if (typeof t.isSandbox === 'boolean') {
                     setIsSandboxToken(t.isSandbox);
                 }
@@ -74,14 +74,10 @@ function MyApp({ Component, pageProps }) {
                 setFinamStatus(f);
                 setIsSandboxToken(false);
 
-                if (f.accountId && f.accountId !== accountId) {
-                    setAccountId(f.accountId);
-                }
-
                 if ((!f || !f.connected) && pathname !== '/settings' && pathname !== '/logs') {
                     routerPush('/settings', undefined, { shallow: true });
                 } else if (!f.accountId && pathname !== '/settings' && pathname !== '/logs') {
-                    routerPush('/accounts', undefined, { shallow: true });
+                    // routerPush('/accounts', undefined, { shallow: true });
                 }
             }
         }
@@ -180,6 +176,7 @@ function MyApp({ Component, pageProps }) {
     return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
         pathname === '/settings' ||
         pathname === '/accounts' ||
+        pathname === '/instruments' ||
         pathname === '/logs'
     ) ? (
             <Page

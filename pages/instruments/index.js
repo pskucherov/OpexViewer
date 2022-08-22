@@ -13,7 +13,7 @@ import styles from '../../styles/Instruments.module.css';
 // Фьючерсы
 
 export default function Instruments(props) {
-    const { setTitle, serverUri } = props;
+    const { setTitle, serverUri, brokerId } = props;
 
     React.useEffect(() => {
         setTitle('Инструменты');
@@ -21,6 +21,7 @@ export default function Instruments(props) {
 
     return (<SelectInstrument
         serverUri={serverUri}
+        brokerId={brokerId}
     />);
 }
 
@@ -53,7 +54,7 @@ const instrumentsButtons = [
 ];
 
 const SelectInstrument = props => {
-    const { serverUri } = props;
+    const { serverUri, brokerId } = props;
 
     const [buttonActive, setButtonActive] = useState();
     const [inProgress, setInprogress] = useState(false);
@@ -116,6 +117,7 @@ const SelectInstrument = props => {
                         <GroupInstruments
                             instrumenst={instrumenst.instruments}
                             serverUri={serverUri}
+                            brokerId={brokerId}
                         />
                     </>
                 ) : ''
@@ -141,6 +143,7 @@ const GroupInstruments = props => {
             <CardInstrument
                 name={i.name + ` (${i.ticker})`}
                 figi={i.figi}
+                brokerId={props.brokerId}
                 key={k}
                 serverUri={props.serverUri}
             />
@@ -166,6 +169,7 @@ const GroupInstruments = props => {
 };
 
 const CardInstrument = props => {
+    const { brokerId } = props;
     const router = useRouter();
     const {
         serverUri,
@@ -201,7 +205,7 @@ const CardInstrument = props => {
                     className="mb-2 text-muted"
                     tag="h6"
                 >
-                    {figi}
+                    {brokerId === 'FINAM' ? '' : figi}
                 </CardSubtitle>
                 {/* <CardText>История (5 мин):</CardText> */}
                 <FigiBlock

@@ -257,7 +257,8 @@ const SettingsFormFinam = props => {
                                 <><br/><br/>Соединение установлено<br/><br/></>
                             ) : (!finamStatus.errorMessage) ?
                                 <Spinner size="l" color="primary" /> : (<><br/><br/>{finamStatus.errorMessage}<br/><br/></>
-                                )) : <Spinner size="l" color="primary" />}
+                                )) : null
+                            }
                         </h4>
                     </center>
 
@@ -396,7 +397,7 @@ const TokensList = props => {
                 {tokens && tokens.filter(t => t.brokerId === brokerId).map((t, i) => (
                     <FormGroup key={i} className={styles.Tokens}>
                         <Label className={styles.TokenLable}>
-                            {t.token.substr(0, 5)}
+                            {brokerId === 'FINAM' ? t.token : t.token.substr(0, 5)}
                         </Label>
                         {t.isSandbox && (<Badge pill color="warning" className={styles.Badge}>
                             Sandbox

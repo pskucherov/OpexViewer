@@ -125,7 +125,7 @@ const badgeBrokerColor = (brokerName, finamStatus) => {
                 'success';
 };
 
-const HeadBadges = props => {
+const HeadBadges = props => { // eslint-disable-line sonarjs/cognitive-complexity
     const {
         whatToken,
         serverStatus,
@@ -143,11 +143,12 @@ const HeadBadges = props => {
             whatToken={whatToken}
             serverStatus={serverStatus}
         />
-        <AccountBadge
+        {brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.connected) ? null : <AccountBadge
             whatToken={whatToken}
             accountId={accountId}
             serverStatus={serverStatus}
-        />
+            brokerName={brokerName}
+        />}
         <Badge
             color={badgeBrokerColor(brokerName, finamStatus)}
             href="/settings"
@@ -188,7 +189,11 @@ const AccountBadge = props => {
         whatToken,
         accountId,
         serverStatus,
+
+        // brokerName,
     } = props;
+
+    // brokerName && brokerName.toUpperCase() === 'FINAM' ? 'Ожидаем счёт' :
 
     return whatToken && serverStatus ? (
         <Badge
