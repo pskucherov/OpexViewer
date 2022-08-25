@@ -22,6 +22,7 @@ export function Terminal(props) {
         interval,
         figi,
         robotSetting,
+        brokerId,
     } = props;
 
     const refChart = React.useRef(null);
@@ -48,6 +49,7 @@ export function Terminal(props) {
                     className={`bg-light border ${styles.TerminalColOrderBook}`}
                 >
                     <OrderBook
+                        brokerId={brokerId}
                         data={data}
                         step={step}
                         serverUri={serverUri}

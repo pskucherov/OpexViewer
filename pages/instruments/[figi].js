@@ -2,7 +2,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import Chart from '../../components/Chart/Chart';
 import Backtest from '../../components/Backtest/Backtest';
-import { getInstrument, getTradingSchedules } from '../../utils/instruments';
+import { getInstrument, getTradingSchedules, getFinamInstrument } from '../../utils/instruments';
 import { Spinner, FormGroup, Button, ButtonGroup } from 'reactstrap';
 
 import { getFromSS, setToSS } from '../../utils/storage';
@@ -17,7 +17,7 @@ import { isToday } from '../../utils/serverStatus';
 const INIT_INTERVAL = 1;
 
 const SelectInterval = props => {
-    const { setTickerInterval, interval, disabled } = props;
+    const { setTickerInterval, interval, disabled, brokerId } = props;
 
     const onButtonClick = React.useCallback(num => {
         // Задаёт интервал для всей страницы.
@@ -53,6 +53,7 @@ export default function TerminalFigi(props) {
         accountId,
         robotStartedStatus,
         setRobotStartedStatus,
+        brokerId,
     } = props;
 
     const router = useRouter();
@@ -71,6 +72,12 @@ export default function TerminalFigi(props) {
     const [isBacktest, setIsBackTest] = useState(!isToday(new Date(), selectedDate));
 
     const getTradingSchedulesCb = React.useCallback(async (exchange, date) => {
+        if (brokerId === 'FINAM') {
+            setIsTradingDay(true);
+
+            return;
+        }
+
         const currentDate = date || selectedDate;
 
         let isTradingDayParam = true;
@@ -87,7 +94,7 @@ export default function TerminalFigi(props) {
         }
 
         setIsTradingDay(isTradingDayParam);
-    }, [selectedDate, serverUri]);
+    }, [selectedDate, serverUri, brokerId]);
 
     const onCalendareChange = React.useCallback(async date => {
         setSelectedDate(date);
@@ -98,7 +105,7 @@ export default function TerminalFigi(props) {
     }, [instrument, getTradingSchedulesCb]);
 
     const getInstrumentCb = React.useCallback(async () => {
-        const i = await getInstrument(serverUri, figi);
+        const i = brokerId === 'FINAM' ? await getFinamInstrument(serverUri, figi) : await getInstrument(serverUri, figi);
 
         if (!i || !i.ticker) {
             routerPush('/instruments');
@@ -107,7 +114,7 @@ export default function TerminalFigi(props) {
             await getTradingSchedulesCb(i.exchange);
             setInprogress(false);
         }
-    }, [figi, routerPush, getTradingSchedulesCb, serverUri]);
+    }, [figi, routerPush, getTradingSchedulesCb, serverUri, brokerId]);
 
     React.useEffect(() => {
         if (!isReady || instrument) {
@@ -137,6 +144,7 @@ export default function TerminalFigi(props) {
         setInprogress={setInprogress}
         inProgress={inProgress}
         figi={figi}
+        brokerId={brokerId}
         instrument={instrument}
         isTradingDay={isTradingDay}
         onCalendareChange={onCalendareChange}
@@ -193,6 +201,7 @@ const Content = props => {
         setRobotStartedStatus,
         figi,
         selectedDate,
+        brokerId,
     } = props;
 
     const [robotState, setRobotState] = useState();
@@ -270,6 +279,7 @@ const Content = props => {
 
                     robotSetting={robotSetting}
                     setRobotSetting={setRobotSetting}
+                    brokerId={brokerId}
                 />
             ) : (
                 <>
@@ -292,6 +302,7 @@ const Content = props => {
 
                         robotSetting={robotSetting}
                         setRobotSetting={setRobotSetting}
+                        brokerId={brokerId}
                     /></>
             )) : (<><br></br><br></br><center>Биржа закрыта.</center></>)}
         </>);

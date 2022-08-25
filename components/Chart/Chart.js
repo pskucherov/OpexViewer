@@ -27,6 +27,8 @@ export default function Chart(props) {
 
         robotSetting,
         setRobotSetting,
+
+        brokerId,
     } = props;
 
     const [data, setData] = React.useState([]);
@@ -43,9 +45,11 @@ export default function Chart(props) {
     }, [serverUri, setSelectedRobot]);
 
     const updateCandlesHandle = React.useCallback(async () => {
-        const c = await getCandles(serverUri, figi, interval + 1, selectedDate);
+        const c = await getCandles(serverUri, figi, interval + 1, selectedDate, 0, brokerId);
 
-        if (c && c.candles) {
+        if (c && c.candles && c.candles.length) {
+            setInprogress(false);
+
             const nextData = [];
             const nextVolume = [];
 
@@ -53,7 +57,7 @@ export default function Chart(props) {
                 nextData.push([timezoneDate(m.time),
                     getPrice(m.open), getPrice(m.high), getPrice(m.low), getPrice(m.close),
                 ]);
-                nextVolume.push([timezoneDate(m.time), m.volume]);
+                nextVolume.push([timezoneDate(m.time), parseInt(m.volume, 10)]);
             });
 
             setData(nextData);
@@ -61,7 +65,7 @@ export default function Chart(props) {
         }
 
         return c;
-    }, [figi, interval, selectedDate, setData, setVolume, serverUri]);
+    }, [figi, interval, selectedDate, setData, setVolume, serverUri, brokerId, setInprogress]);
 
     const getCandlesHandle = React.useCallback(async () => {
         if (!instrument || !setInprogress || !figi || !selectedDate) {
@@ -69,14 +73,10 @@ export default function Chart(props) {
         }
 
         setInprogress(true);
-
         const c = await updateCandlesHandle();
 
-        if (c && c.candles) {
-            if (!c.candles.length) {
-                setIsTradingDay(false);
-            }
-            setInprogress(false);
+        if (c && c.candles && !c.candles.length && brokerId !== 'FINAM') {
+            setIsTradingDay(false);
         }
     }, [instrument, interval, figi, setInprogress, selectedDate, // eslint-disable-line react-hooks/exhaustive-deps
         setIsTradingDay, updateCandlesHandle, setData, setVolume]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -171,6 +171,7 @@ export default function Chart(props) {
                 // setLastPriceInChart={setLastPriceInChart}
                 isBackTest={false}
                 robotSetting={robotSetting}
+                brokerId={brokerId}
             />
             <RobotsButtons
                 interval={interval}
@@ -181,6 +182,7 @@ export default function Chart(props) {
                 robotStartedStatus={robotStartedStatus}
                 setRobotStartedStatus={setRobotStartedStatus}
                 accountId={accountId}
+                brokerId={brokerId}
             />
             <Robots
                 serverUri={serverUri}

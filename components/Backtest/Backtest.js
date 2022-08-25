@@ -28,6 +28,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
 
         robotSetting,
         setRobotSetting,
+        brokerId,
     } = props;
 
     const [data, setData] = React.useState([]);
@@ -49,16 +50,16 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
         })();
     }, [serverUri, setSelectedRobot]);
 
-    const getCanglesHandle = React.useCallback(async () => {
-        if (!instrument || !setInprogress || !figi || !selectedDate) {
+    const getCandlesHandle = React.useCallback(async () => {
+        if (!instrument || !setInprogress || !figi || !selectedDate || data.length) {
             return;
         }
 
         setInprogress(true);
 
-        const c = await getCandles(serverUri, figi, interval + 1, selectedDate);
+        const c = await getCandles(serverUri, figi, interval + 1, selectedDate, 0, brokerId);
 
-        if (c && c.candles) {
+        if (c && c.candles && c.candles.length) {
             const nextData = [];
             const nextVolume = [];
 
@@ -68,7 +69,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 nextData.push([timezoneDate,
                     getPrice(m.open), getPrice(m.high), getPrice(m.low), getPrice(m.close),
                 ]);
-                nextVolume.push([timezoneDate, m.volume]);
+                nextVolume.push([timezoneDate, parseInt(m.volume, 10)]);
             });
 
             setData(nextData);
@@ -76,18 +77,34 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
 
             setMaxStep(nextData.length - 1);
 
-            if (!c.candles.length) {
+            if (!c.candles.length && brokerId !== 'FINAM') {
                 setIsTradingDay(false);
             }
             setInprogress(false);
         }
+
+        return c;
     }, [instrument, figi, interval, setInprogress, serverUri,
-        selectedDate, setIsTradingDay, setMaxStep]);
+        selectedDate, setIsTradingDay, setMaxStep, brokerId, data.length]);
 
     React.useEffect(() => {
         PriceIndicator(Highcharts);
-        getCanglesHandle();
-    }, [getCanglesHandle]);
+        let c = getCandlesHandle();
+        let i;
+
+        if (inProgress && (!c || !c.candles || !c.candles.length)) {
+            i = setInterval(() => {
+                c = getCandlesHandle();
+                if (c && c.candles && c.candles.length) {
+                    i && clearInterval(i);
+                }
+            }, 1000);
+        }
+
+        return () => {
+            i && clearInterval(i);
+        };
+    }, [getCandlesHandle, inProgress]);
 
     const support = robotSetting && robotSetting.support;
     const resistance = robotSetting && robotSetting.resistance;
@@ -194,6 +211,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 isBackTest={true}
                 robotPositions={robotPositions}
                 robotSetting={robotSetting}
+                brokerId={brokerId}
             />
             {selectedRobot && (<BacktestButtons
                 interval={interval}
@@ -212,6 +230,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 setRobotPositions={setRobotPositions}
                 setRobotStartedStatus={setRobotStartedStatus}
                 accountId={accountId}
+                brokerId={brokerId}
             />)}
             <Robots
                 serverUri={serverUri}

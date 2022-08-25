@@ -22,6 +22,7 @@ export function BacktestButtons(props) {
         setSelectedRobot,
         setRobotStartedStatus,
         accountId,
+        brokerId,
     } = props;
 
     const [play, setPlay] = useState();

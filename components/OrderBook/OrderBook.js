@@ -4,7 +4,7 @@ import Highcharts from 'highcharts/highstock';
 
 import Accessibility from 'highcharts/modules/accessibility';
 import { getPrice } from '../../utils/price';
-import { getLastPriceAndOrderBook, getOrderBook } from '../../utils/instruments';
+import { getLastPriceAndOrderBook, getOrderBook, getFinamOrderBook } from '../../utils/instruments';
 
 import styles from '../../styles/Terminal.module.css';
 import { withoutTimezoneDate } from '../../utils/serverStatus';
@@ -32,25 +32,34 @@ export function OrderBook(props) {
         isBackTest,
 
         robotSetting,
+
+        brokerId,
     } = props;
 
     const [lastPrice, setLastPrice] = useState();
     const [orderbook, setOrderbook] = useState([]);
 
-    const getOrderBookHandle = React.useCallback(async () => {
+    const getOrderBookHandle = React.useCallback(async () => { // eslint-disable-line
         if (!figi) {
             return;
         }
+        let c;
 
-        const c = await (isBackTest ?
-            data[step] && data[step][0] && getOrderBook(serverUri, figi, withoutTimezoneDate(data[step][0])) :
-            getLastPriceAndOrderBook(serverUri, figi));
+        if (brokerId === 'FINAM') {
+            c = await (isBackTest ?
+                data[step] && data[step][0] && getFinamOrderBook(serverUri, figi, withoutTimezoneDate(data[step][0])) :
+                getFinamOrderBook(serverUri, figi));
+        } else {
+            c = await (isBackTest ?
+                data[step] && data[step][0] && getOrderBook(serverUri, figi, withoutTimezoneDate(data[step][0])) :
+                getLastPriceAndOrderBook(serverUri, figi));
+        }
 
         if (c) {
             if (typeof step === 'undefined' && !isBackTest) {
                 if (c.length) {
                     // const time = new Date(c[0]['lastPrices'][0].time);
-                    const price = getPrice(c[0]['lastPrices'][0]['price']);
+                    const price = c[0] && getPrice(c[0]['lastPrices'][0]['price']);
 
                     setLastPrice(price);
 

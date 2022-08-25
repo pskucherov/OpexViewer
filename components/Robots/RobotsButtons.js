@@ -14,6 +14,7 @@ export function RobotsButtons(props) {
         accountId,
         robotStartedStatus,
         setRobotStartedStatus,
+        brokerId,
     } = props;
 
     const [play, setPlay] = useState();

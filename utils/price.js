@@ -1,6 +1,6 @@
 const getPrice = quotation => {
     if (!quotation || typeof quotation !== 'object') {
-        return quotation;
+        return parseFloat(quotation) || quotation;
     }
 
     if (quotation.nano) {
