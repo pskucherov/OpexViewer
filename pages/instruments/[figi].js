@@ -202,6 +202,7 @@ const Content = props => {
         figi,
         selectedDate,
         brokerId,
+        interval,
     } = props;
 
     const [robotState, setRobotState] = useState();
@@ -242,7 +243,7 @@ const Content = props => {
     return (
         <>
             <Head
-                interval={props.interval}
+                interval={interval}
                 setTickerInterval={props.setTickerInterval}
                 onCalendareChange={props.onCalendareChange}
                 selectedDate={selectedDate}
@@ -258,11 +259,10 @@ const Content = props => {
                     </center>
                 </>
             ) : ''}
-
             {/* TODO: Переделать эту жесть на redux / context :facepalm: */}
             {props.isTradingDay ? (props.isBacktest ? (
                 <Backtest
-                    interval={props.interval}
+                    interval={interval}
                     setInprogress={props.setInprogress}
                     inProgress={props.inProgress}
                     selectedDate={props.selectedDate}

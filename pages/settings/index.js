@@ -254,7 +254,16 @@ const SettingsFormFinam = props => {
                     <center>
                         <h4>
                             {finamStatus ? (finamStatus.connected ? (
-                                <><br/><br/>Соединение установлено<br/><br/></>
+                                <>
+                                    <br/><br/>Соединение установлено<br/><br/>
+                                    {!finamStatus.isFinalInited ?
+                                        <b> 
+                                            <Spinner size="sm"color="success" type="grow" style={{marginRight: 15, position: 'relative', top: -3 }} />
+                                            Подготавливаем данные, наберитесь терпения...
+                                        </b> : 
+                                        <b>Данные готовы, можно пользоваться</b>
+                                    }
+                                </>
                             ) : (!finamStatus.errorMessage) ?
                                 <Spinner size="l" color="primary" /> : (<><br/><br/>{finamStatus.errorMessage}<br/><br/></>
                                 )) : null

@@ -3,7 +3,7 @@ import Head from 'next/head';
 import styles from '../../styles/Page.module.css';
 import {
     Badge, Nav, Navbar, NavbarBrand, NavbarToggler,
-    Collapse, NavItem, NavLink, NavbarText,
+    Collapse, NavItem, NavLink, NavbarText, Spinner,
 } from 'reactstrap';
 
 export default function Page(props) {
@@ -120,7 +120,9 @@ export default function Page(props) {
 
 const badgeBrokerColor = (brokerName, finamStatus) => {
     return !brokerName ? 'danger' :
-        brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.connected && !finamStatus.errorMessage) ? 'warning' :
+        brokerName.toUpperCase() === 'FINAM' &&
+        (!finamStatus || !finamStatus.isFinalInited && !finamStatus.errorMessage) ?
+        'warning' :
             brokerName.toUpperCase() === 'FINAM' && finamStatus && finamStatus.errorMessage ? 'danger' :
                 'success';
 };
@@ -143,7 +145,7 @@ const HeadBadges = props => { // eslint-disable-line sonarjs/cognitive-complexit
             whatToken={whatToken}
             serverStatus={serverStatus}
         />
-        {brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.connected) ? null : <AccountBadge
+        {brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.isFinalInited) ? null : <AccountBadge
             whatToken={whatToken}
             accountId={accountId}
             serverStatus={serverStatus}
@@ -155,6 +157,8 @@ const HeadBadges = props => { // eslint-disable-line sonarjs/cognitive-complexit
             className={styles.PageBadge}
         >
             {brokerName || 'Брокер?'}
+            { Boolean(brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.isFinalInited))
+                && <Spinner size="sm"color="success" type="grow" style={{width: 10, height: 10, marginLeft: 5}} />}
         </Badge>
         {serverStatus && brokerName === 'Tinkoff' ? (
             <Badge

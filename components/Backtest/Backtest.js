@@ -51,7 +51,7 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
     }, [serverUri, setSelectedRobot]);
 
     const getCandlesHandle = React.useCallback(async () => {
-        if (!instrument || !setInprogress || !figi || !selectedDate || data.length) {
+        if (!instrument || !setInprogress || !figi || !selectedDate) {
             return;
         }
 
@@ -81,30 +81,45 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
                 setIsTradingDay(false);
             }
             setInprogress(false);
+        } else {
+            setTimeout(() => {
+                getCandlesHandle();
+            }, 2500);
         }
 
         return c;
     }, [instrument, figi, interval, setInprogress, serverUri,
-        selectedDate, setIsTradingDay, setMaxStep, brokerId, data.length]);
+        selectedDate, setIsTradingDay, setMaxStep, brokerId]);
 
     React.useEffect(() => {
         PriceIndicator(Highcharts);
-        let c = getCandlesHandle();
-        let i;
+        
+        getCandlesHandle();
+        // let i;
+        // (async () => {
+        //     let c = await getCandlesHandle();
+            
+        //     // console.log(1, c);
+    
+        //     if (!c || !c.candles || !c.candles.length) {
+        //         i = setInterval(async () => {
 
-        if (inProgress && (!c || !c.candles || !c.candles.length)) {
-            i = setInterval(() => {
-                c = getCandlesHandle();
-                if (c && c.candles && c.candles.length) {
-                    i && clearInterval(i);
-                }
-            }, 1000);
-        }
+        //             let c = await getCandlesHandle();
+        //             // console.log(2, c);
 
-        return () => {
-            i && clearInterval(i);
-        };
-    }, [getCandlesHandle, inProgress]);
+        //             if (c && c.candles && c.candles.length) {
+        //                 // console.log('clear 2', i)
+        //                 i && clearInterval(i);
+        //             }
+        //         }, 2500);
+        //     }
+        // })();
+
+        // return () => {
+        //     console.log('clear 1', i)
+        //     i && clearInterval(i);
+        // };
+    }, [getCandlesHandle, interval, selectedDate]);
 
     const support = robotSetting && robotSetting.support;
     const resistance = robotSetting && robotSetting.resistance;

@@ -78,7 +78,7 @@ const SelectInstrument = props => {
     return (
         <>
             <ButtonGroup>
-                {instrumentsButtons.map((i, k) => (
+                {instrumentsButtons.filter(i => brokerId !== 'FINAM' || i.page !== 'etfs').map((i, k) => (
                     <Button
                         key={k}
                         color="primary"
@@ -143,6 +143,7 @@ const GroupInstruments = props => {
             <CardInstrument
                 name={i.name + ` (${i.ticker})`}
                 figi={i.figi}
+                isin={i.isin}
                 brokerId={props.brokerId}
                 key={k}
                 serverUri={props.serverUri}
@@ -175,6 +176,7 @@ const CardInstrument = props => {
         serverUri,
         figi,
         name,
+        isin,
     } = props;
 
     return (
@@ -205,14 +207,13 @@ const CardInstrument = props => {
                     className="mb-2 text-muted"
                     tag="h6"
                 >
-                    {brokerId === 'FINAM' ? '' : figi}
+                    {isin || ''}
                 </CardSubtitle>
                 {/* <CardText>История (5 мин):</CardText> */}
-                <FigiBlock
+                { brokerId === 'TINKOFF' ? <FigiBlock
                     serverUri={serverUri}
                     figi={figi}
-                />
-                {/* <Button
+                /> : <Button
                     color="primary"
                     outline
                     onClick={() => {
@@ -220,7 +221,7 @@ const CardInstrument = props => {
                     }}
                 >
                     Терминал
-                </Button> */}
+                </Button>}
             </CardBody>
         </Card>
     );

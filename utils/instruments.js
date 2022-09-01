@@ -61,9 +61,9 @@ const getCandles = async (url, figi, interval, from, to, brokerId) => { // eslin
         to.setHours(20, 59, 59, 999);
     }
 
-    const page = brokerId === 'FINAM' ? 'getfinamcandles' : 'getcandles';
-
     try {
+        const page = brokerId === 'FINAM' ? 'getfinamcandles' : 'getcandles';
+
         response = await window.fetch(`${url}/${page}/${figi}?interval=${interval}&from=${from.getTime()}&to=${to.getTime()}`,
             requestOptions);
     } catch (error) {

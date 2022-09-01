@@ -29,7 +29,7 @@ export function Positions(props) {
                                     pill
                                     color={getPrice(p.expectedYield) >= 0 ? 'success' : 'danger'}
                                 >
-                                    {(getPrice(p.expectedYield) > 0 ? '+' : '') + getPrice(p.expectedYield).toFixed(2)}
+                                    {(getPrice(p.expectedYield) > 0 ? '+' : '') + (getPrice(p.expectedYield || 0) * lots).toFixed(2)}
                                 </Badge></>}
                             </ListGroupItem>
                         );

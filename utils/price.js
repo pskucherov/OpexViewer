@@ -7,7 +7,7 @@ const getPrice = quotation => {
         return quotation.units + quotation.nano / 1e9;
     }
 
-    return quotation.units;
+    return quotation.units || 0;
 };
 
 export {
