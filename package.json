@@ -3,9 +3,6 @@
   "author": "pskucherov",
   "license": "Apache-2.0",
   "version": "0.2.1",
-  "engines": {
-    "node": ">=17.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pskucherov/OpexViewer.git"

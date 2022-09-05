@@ -179,7 +179,7 @@ const AddServerForm = props => {
     );
 };
 
-const SettingsFormFinam = props => {
+const SettingsFormFinam = props => { // eslint-disable-line sonarjs/cognitive-complexity
     const { checkToken, defaultServerUri, brokerId, finamStatus } = props;
 
     const [token, setToken] = React.useState(defaultFinamLogin);
@@ -257,10 +257,10 @@ const SettingsFormFinam = props => {
                                 <>
                                     <br/><br/>Соединение установлено<br/><br/>
                                     {!finamStatus.isFinalInited ?
-                                        <b> 
-                                            <Spinner size="sm"color="success" type="grow" style={{marginRight: 15, position: 'relative', top: -3 }} />
+                                        <b>
+                                            <Spinner size="sm"color="success" type="grow" style={{ marginRight: 15, position: 'relative', top: -3 }} />
                                             Подготавливаем данные, наберитесь терпения...
-                                        </b> : 
+                                        </b> :
                                         <b>Данные готовы, можно пользоваться</b>
                                     }
                                 </>

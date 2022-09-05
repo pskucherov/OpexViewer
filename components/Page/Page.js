@@ -122,7 +122,7 @@ const badgeBrokerColor = (brokerName, finamStatus) => {
     return !brokerName ? 'danger' :
         brokerName.toUpperCase() === 'FINAM' &&
         (!finamStatus || !finamStatus.isFinalInited && !finamStatus.errorMessage) ?
-        'warning' :
+            'warning' :
             brokerName.toUpperCase() === 'FINAM' && finamStatus && finamStatus.errorMessage ? 'danger' :
                 'success';
 };
@@ -157,8 +157,8 @@ const HeadBadges = props => { // eslint-disable-line sonarjs/cognitive-complexit
             className={styles.PageBadge}
         >
             {brokerName || 'Брокер?'}
-            { Boolean(brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.isFinalInited))
-                && <Spinner size="sm"color="success" type="grow" style={{width: 10, height: 10, marginLeft: 5}} />}
+            { Boolean(brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.isFinalInited)) &&
+                <Spinner size="sm"color="success" type="grow" style={{ width: 10, height: 10, marginLeft: 5 }} />}
         </Badge>
         {serverStatus && brokerName === 'Tinkoff' ? (
             <Badge

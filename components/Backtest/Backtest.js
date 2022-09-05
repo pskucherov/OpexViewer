@@ -93,14 +93,15 @@ export default function Backtest(props) { // eslint-disable-line sonarjs/cogniti
 
     React.useEffect(() => {
         PriceIndicator(Highcharts);
-        
+
         getCandlesHandle();
+
         // let i;
         // (async () => {
         //     let c = await getCandlesHandle();
-            
+
         //     // console.log(1, c);
-    
+
         //     if (!c || !c.candles || !c.candles.length) {
         //         i = setInterval(async () => {
 
