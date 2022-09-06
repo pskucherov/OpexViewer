@@ -65,6 +65,23 @@ const addToken = async (url, token, brokerId, password) => {
     return false;
 };
 
+const changePassword = async (url, token, brokerId, oldpassword, newpassword) => {
+    let response;
+
+    try {
+        response = await window.fetch(`${url}/changepassword?token=${token}&brokerId=${brokerId}&oldpassword=${oldpassword}&newpassword=${newpassword}`,
+            requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const selectToken = async (url, token) => {
     let response;
 
@@ -155,6 +172,7 @@ export {
     selectToken,
     getSelectedToken,
     addToken,
+    changePassword,
     getTokens,
     delToken,
     isToday,

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import styles from '../../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
 
-import { checkServer, selectToken, getTokens, addToken, delToken } from '../../utils/serverStatus';
+import { checkServer, selectToken, getTokens, addToken, delToken, changePassword } from '../../utils/serverStatus';
 
 import { setToLS } from '../../utils/storage';
 
@@ -195,9 +195,9 @@ const SettingsFormFinam = props => { // eslint-disable-line sonarjs/cognitive-co
         const newPassword = e.target[1].value;
 
         setTokenInvalid(!newToken || newToken === defaultToken);
-        setTokenInvalid(!newPassword);
+        setPasswordInvalid(!newPassword);
 
-        if (!tokenInvalid) {
+        if (!tokenInvalid && !passwordInvalid) {
             setInprogress(true);
         }
 
@@ -212,7 +212,7 @@ const SettingsFormFinam = props => { // eslint-disable-line sonarjs/cognitive-co
 
         setInprogress(false);
         checkToken();
-    }, [tokenInvalid, checkToken, defaultServerUri, brokerId]);
+    }, [tokenInvalid, checkToken, defaultServerUri, brokerId, passwordInvalid]);
 
     return (
         <>
@@ -256,12 +256,22 @@ const SettingsFormFinam = props => { // eslint-disable-line sonarjs/cognitive-co
                             {finamStatus ? (finamStatus.connected ? (
                                 <>
                                     <br/><br/>Соединение установлено<br/><br/>
-                                    {!finamStatus.isFinalInited ?
+                                    {!finamStatus.isFinalInited &&
                                         <b>
                                             <Spinner size="sm"color="success" type="grow" style={{ marginRight: 15, position: 'relative', top: -3 }} />
                                             Подготавливаем данные, наберитесь терпения...
-                                        </b> :
-                                        <b>Данные готовы, можно пользоваться</b>
+                                        </b>
+                                    }
+                                    {
+                                        finamStatus.isFinalInited ?
+                                            (JSON.stringify(finamStatus.messages).indexOf('Password expired') !== -1 ?
+                                                <FinamChangePassword
+                                                    checkToken={checkToken}
+                                                    defaultServerUri={defaultServerUri}
+                                                    finamStatus={finamStatus}
+                                                    brokerId={brokerId}
+                                                /> :
+                                                <b style={{ color: '#3A3' }}>Всё готово, можно пользоваться</b>) : ''
                                     }
                                 </>
                             ) : (!finamStatus.errorMessage) ?
@@ -279,6 +289,95 @@ const SettingsFormFinam = props => { // eslint-disable-line sonarjs/cognitive-co
                     />
                 </>
             }
+        </>
+    );
+};
+
+const FinamChangePassword = props => { // eslint-disable-line sonarjs/cognitive-complexity
+    const { checkToken, defaultServerUri, finamStatus, brokerId } = props;
+
+    const [passwordInvalid, setPasswordInvalid] = React.useState(false);
+    const [inProgress, setInprogress] = React.useState(false);
+
+    // Обработчик сохранения формы.
+    const handleSubmit = React.useCallback(async e => {
+        e.preventDefault();
+        const newToken = e.target[0].value;
+        const oldPassword = e.target[1].value;
+        const newPassword = e.target[2].value;
+        const confirmPassword = e.target[3].value;
+
+        setPasswordInvalid(newPassword !== confirmPassword);
+
+        if (!passwordInvalid) {
+            setInprogress(true);
+        }
+
+        const passwordStatus = await changePassword(defaultServerUri, newToken, brokerId, oldPassword, newPassword);
+
+        if (!passwordStatus || passwordStatus.error) {
+            setPasswordInvalid(true);
+        }
+
+        setInprogress(false);
+        checkToken();
+    }, [checkToken, defaultServerUri, brokerId, passwordInvalid]);
+
+    return (
+        <>
+            <b style={{ color: '#A33' }}>Password expired. Change password.</b>
+            <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Логин
+                    </Label>
+                    <Input
+                        name="token"
+                        disabled
+                        value={finamStatus.token}
+                    />
+                </FormGroup>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Старый пароль
+                    </Label>
+                    <Input
+                        name="oldpassword"
+                        type="password"
+                        minlength="6"
+                        maxLength="19"
+                    />
+                </FormGroup>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Новый пароль
+                    </Label>
+                    <Input
+                        name="newpassword"
+                        type="password"
+                        minlength="6"
+                        maxLength="19"
+                    />
+                </FormGroup>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Повторите пароль
+                    </Label>
+                    <Input
+                        name="confirmnewpassword"
+                        type="password"
+                        minlength="6"
+                        maxLength="19"
+                        invalid={passwordInvalid}
+                    />
+                    <FormFeedback>Не удалось изменить пароль.</FormFeedback>
+                </FormGroup>
+                {passwordInvalid}
+                {inProgress ?
+                    <Spinner size="sm" color="primary" /> :
+                    <Button color="primary" className={styles.Submit} >Отправить</Button>
+                }
+            </Form>
         </>
     );
 };
