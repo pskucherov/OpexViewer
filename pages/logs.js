@@ -21,7 +21,7 @@ export default function Logs(props) {
     useEffect(function() {
         const checkRequest = async () => {
             const logs = type === 'tconnector' ? JSON.stringify(
-                [finamStatus.errorMessage || '', ...finamStatus.messages].filter(f => Boolean(f)), null, 4,
+                [finamStatus?.errorMessage || '', ...(finamStatus?.messages || [])].filter(f => Boolean(f)), null, 4,
             ) : await getLogs(serverUri, type);
 
             if (logs) {
@@ -37,7 +37,7 @@ export default function Logs(props) {
         }, 5000);
 
         return () => clearInterval(timer);
-    }, [type, serverUri, data, finamStatus.errorMessage, finamStatus.messages]);
+    }, [type, serverUri, data, finamStatus?.errorMessage, finamStatus?.messages]);
 
     return (
         inProgress ?

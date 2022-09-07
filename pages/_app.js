@@ -96,9 +96,10 @@ function MyApp({ Component, pageProps }) {
                 routerPush(`/instruments/${status.figi}`, undefined, { shallow: true });
             }
 
-            if (!robotStartedStatus) {
-                setRobotStartedStatus(status);
-            }
+            // ??? if (!robotStartedStatus) {
+            setRobotStartedStatus(status);
+
+            // }
         } else if (robotStartedStatus && !status) {
             setRobotStartedStatus();
         }
@@ -147,7 +148,7 @@ function MyApp({ Component, pageProps }) {
 
             intervalStatus = setInterval(() => {
                 checkRobot();
-            }, 5000);
+            }, 1000);
 
             checkToken();
             checkRobot();
@@ -203,6 +204,8 @@ function MyApp({ Component, pageProps }) {
                     brokerId={brokerId}
                     setBrokerId={setBrokerId}
                     finamStatus={finamStatus}
+
+                    checkRobot={checkRobot}
                 />
             </Page>
         ) : null;

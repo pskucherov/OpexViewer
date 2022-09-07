@@ -27,6 +27,7 @@ export default function Chart(props) {
 
         robotSetting,
         setRobotSetting,
+        checkRobot,
 
         brokerId,
     } = props;
@@ -202,6 +203,9 @@ export default function Chart(props) {
             <Positions
                 positions={positions}
                 orders={orders}
+                brokerId={brokerId}
+                serverUri={serverUri}
+                checkRobot={checkRobot}
             />
 
             <br></br><br></br><br></br><br></br><br></br><br></br>

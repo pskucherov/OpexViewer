@@ -54,6 +54,7 @@ export default function TerminalFigi(props) {
         robotStartedStatus,
         setRobotStartedStatus,
         brokerId,
+        checkRobot,
     } = props;
 
     const router = useRouter();
@@ -157,6 +158,7 @@ export default function TerminalFigi(props) {
         accountId={accountId}
         robotStartedStatus={robotStartedStatus}
         setRobotStartedStatus={setRobotStartedStatus}
+        checkRobot={checkRobot}
     />);
 }
 
@@ -203,6 +205,7 @@ const Content = props => {
         selectedDate,
         brokerId,
         interval,
+        checkRobot,
     } = props;
 
     const [robotState, setRobotState] = useState();
@@ -303,6 +306,7 @@ const Content = props => {
                         robotSetting={robotSetting}
                         setRobotSetting={setRobotSetting}
                         brokerId={brokerId}
+                        checkRobot={checkRobot}
                     /></>
             )) : (<><br></br><br></br><center>Биржа закрыта.</center></>)}
         </>);
