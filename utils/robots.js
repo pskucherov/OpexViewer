@@ -108,6 +108,23 @@ const closeOrders = async (serverUri, brokerId, transactionid) => {
     return false;
 };
 
+const closePosition = async (serverUri, figi, direction, lots) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/cancelposition?figi=${figi}&direction=${direction}&lots=${lots}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getRobotLogs = async (serverUri, name, accountId, figi, date) => {
     let response;
 
@@ -247,4 +264,6 @@ export {
 
     getSettings,
     setSettings,
+
+    closePosition,
 };

@@ -201,6 +201,7 @@ export default function Chart(props) {
             <br></br>
 
             <Positions
+                figi={figi}
                 positions={positions}
                 orders={orders}
                 brokerId={brokerId}

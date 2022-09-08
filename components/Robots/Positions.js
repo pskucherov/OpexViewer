@@ -2,15 +2,24 @@ import React, { useCallback } from 'react';
 import { Badge, ListGroup, ListGroupItem, CloseButton, Button } from 'reactstrap';
 import { getPrice } from '../../utils/price';
 
-import { closeOrders } from '../../utils/robots';
+import { closeOrders, closePosition } from '../../utils/robots';
 
 export function Positions(props) {
-    const { positions, orders, robotState, isBacktest, brokerId, serverUri, checkRobot } = props;
+    const {
+        positions,
+        orders,
+        robotState,
+        isBacktest,
+        brokerId,
+        serverUri,
+        checkRobot,
+        figi,
+    } = props;
 
-    const onClosePosition = useCallback(async o => {
-        // await closePosition(serverUri, o);
+    const onClosePosition = useCallback(async p => {
+        await closePosition(serverUri, figi, p.direction, p.quantityLots.units);
         await checkRobot();
-    }, [serverUri, checkRobot]);
+    }, [serverUri, checkRobot, figi]);
 
     const onCloseOrder = useCallback(async transactionid => {
         await closeOrders(serverUri, brokerId, transactionid);
