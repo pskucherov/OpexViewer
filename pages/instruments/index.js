@@ -118,6 +118,7 @@ const SelectInstrument = props => {
                             instrumenst={instrumenst.instruments}
                             serverUri={serverUri}
                             brokerId={brokerId}
+                            showCanvas={!buttonActive}
                         />
                     </>
                 ) : ''
@@ -129,6 +130,7 @@ const SelectInstrument = props => {
 const GroupInstruments = props => {
     const chunks = [];
     const group = [];
+    const [portfolioGroup, setPortfolioGroup] = useState([]);
 
     props.instrumenst.sort((a, b) => {
         if (a.name > b.name) {
@@ -147,6 +149,9 @@ const GroupInstruments = props => {
                 brokerId={props.brokerId}
                 key={k}
                 serverUri={props.serverUri}
+                showCanvas={props.showCanvas}
+                setPortfolioGroup={setPortfolioGroup}
+                portfolioGroup={portfolioGroup}
             />
         );
 
@@ -162,15 +167,40 @@ const GroupInstruments = props => {
         group.push(chunks);
     }
 
-    return group.map((g, k) => (
-        <CardGroup key={k}>
-            {g}
-        </CardGroup>
-    ));
+    const onButtonTerminalClick = useCallback(() => {
+        location.href += `/portfolio/${portfolioGroup.join('|')}`;
+    }, [portfolioGroup]);
+
+    return (
+        <>
+            {group.map((g, k) => (
+                <CardGroup key={k}>
+                    {g}
+                </CardGroup>
+            ))}
+            {portfolioGroup.length >= 1 && <center><Button
+                color="primary"
+                outline
+                onClick={onButtonTerminalClick}
+                style={{
+                    marginTop: '2rem',
+                    maxWidth: 200,
+                }}
+            >
+                Открыть терминал
+            </Button></center>}
+        </>
+    );
 };
 
-const CardInstrument = props => {
-    const { brokerId } = props;
+const CardInstrument = props => { // eslint-disable-line sonarjs/cognitive-complexity
+    const {
+        brokerId,
+        showCanvas,
+        portfolioGroup,
+        setPortfolioGroup,
+    } = props;
+
     const router = useRouter();
     const {
         serverUri,
@@ -179,20 +209,36 @@ const CardInstrument = props => {
         isin,
     } = props;
 
-    return (
-        <Card>
-            {/*
-            Здесь может быть график
-            <CardImg
-                alt="Card image cap"
-                src="https://picsum.photos/318/180"
-                top
-                width="100%"
-            /> */}
+    const usePortfoloiInvestment = brokerId === 'FINAM' && showCanvas;
+
+    const [hideCard, setHideCard] = useState(false);
+    const [price, setPrice] = useState();
+    const [color, setColor] = useState();
+
+    const onCardClick = useCallback(() => {
+        if (portfolioGroup.includes(figi)) {
+            setPortfolioGroup([...portfolioGroup].filter(f => f !== figi));
+        } else if (portfolioGroup.length === 3) {
+            setPortfolioGroup([...portfolioGroup.slice(1), figi].filter(f => Boolean(f)));
+        } else {
+            setPortfolioGroup([...portfolioGroup, figi].filter(f => Boolean(f)));
+        }
+    }, [portfolioGroup, setPortfolioGroup, figi]);
+
+    return hideCard ? null : (
+        <Card
+            onClick={usePortfoloiInvestment ? onCardClick : undefined}
+            color={usePortfoloiInvestment && portfolioGroup.includes(figi) ? 'info' : undefined}
+            style={
+                usePortfoloiInvestment ? {
+                    cursor: 'pointer',
+                } : undefined
+            }
+        >
             <CardBody>
                 <CardTitle
                     tag="h5"
-                    onClick={() => {
+                    onClick={usePortfoloiInvestment ? undefined : () => {
                         router.push('/instruments/' + figi);
                     }}
                     style={{
@@ -202,6 +248,9 @@ const CardInstrument = props => {
                     title="Открыть терминал"
                 >
                     {name}
+                    {price && <span style={{
+                        color: `${color}`,
+                    }}> {price} ₽</span>}
                 </CardTitle>
                 <CardSubtitle
                     className="mb-2 text-muted"
@@ -209,14 +258,17 @@ const CardInstrument = props => {
                 >
                     {isin || ''}
                 </CardSubtitle>
-                {/* <CardText>История (5 мин):</CardText> */}
-                { brokerId === 'TINKOFF' ? <FigiBlock
+                {showCanvas ? <FigiBlock
                     serverUri={serverUri}
                     figi={figi}
+                    brokerId={brokerId}
+                    setHideCard={setHideCard}
+                    setPrice={setPrice}
+                    setColor={setColor}
                 /> : <Button
                     color="primary"
                     outline
-                    onClick={() => {
+                    onClick={usePortfoloiInvestment ? undefined : () => {
                         router.push('/instruments/' + props.figi);
                     }}
                 >
@@ -235,15 +287,23 @@ const FigiBlock = props => {
     const {
         serverUri,
         figi,
+        brokerId,
+        setHideCard,
+        setPrice,
+        setColor,
     } = props;
 
     const [data, setData] = useState();
 
     const getChart = useCallback(async () => {
+        if (!brokerId) {
+            return;
+        }
+
         const to = new Date();
         const from = new Date(to - (6 * 24 * 3600 * 1000));
 
-        const c = await getCandles(serverUri, figi, 4, from, to);
+        const c = await getCandles(serverUri, figi, brokerId === 'FINAM' ? 1 : 4, from, to, brokerId);
 
         if (c && c.candles && c.candles.length) {
             let max = getPrice(c.candles[0].high);
@@ -254,7 +314,7 @@ const FigiBlock = props => {
                 min = Math.min(getPrice(c.low), min);
             });
 
-            const step = Math.floor(canvasWidth / c.candles.length);
+            const step = (canvasWidth / c.candles.length);
             const hStep = (max - min);
 
             const d = c.candles.map((c, k) => {
@@ -272,42 +332,35 @@ const FigiBlock = props => {
             });
 
             d[d.length - 1][0] = canvasWidth;
+            setPrice(c.candles[c.candles.length - 1].close);
 
             setData(d);
         } else {
             setData([]);
+            setPrice();
+            setHideCard(true);
         }
-
-        queue[figi] = 1;
-    }, [figi, serverUri]);
+    }, [figi, serverUri, brokerId, setHideCard, setPrice]);
 
     useEffect(() => {
-        if (typeof queue[figi] === 'undefined') {
-            queue[figi] = 0;
-        }
+        let i;
 
-        const i = setInterval(async () => {
-            const needGetChart = false;
+        const getChartInterval = async () => {
+            const timeout = parseInt(Math.random() * 1000, 10);
 
-            for (const q in queue) {
-                if (queue[q] === 2) {
-                    needGetChart = false;
-                    break;
-                } else if (!queue[q] && q === figi) {
-                    needGetChart = q;
-                } else if (queue[q] && q === figi) {
-                    clearInterval(i);
-                }
-            }
-
-            if (needGetChart) {
-                queue[needGetChart] = 2;
+            i = setTimeout(async () => {
                 await getChart();
-            }
-        }, 1000);
+                await getChartInterval();
+            }, timeout);
+        };
+
+        (async () => {
+            // await getChart();
+            await getChartInterval();
+        })();
 
         return () => {
-            clearInterval(i);
+            clearTimeout(i);
         };
     }, [figi, getChart]);
 
@@ -319,8 +372,9 @@ const FigiBlock = props => {
             { data ? (
                 <ChartCanvas
                     data={data}
+                    setColor={setColor}
                 />
-            ) : 'Клик для загрузки' }
+            ) : brokerId === 'FINAM' ? 'Здесь будет график' : 'Клик для загрузки' }
         </div>
     );
 };
@@ -328,6 +382,7 @@ const FigiBlock = props => {
 const ChartCanvas = props => {
     const {
         data,
+        setColor,
     } = props;
 
     const canvasRef = useRef();
@@ -338,13 +393,16 @@ const ChartCanvas = props => {
 
         ctx.clearRect(0, 0, canvasWidth, canvasHeight);
         ctx.beginPath();
-        ctx.strokeStyle = startY <= (data.length && data[data.length - 1][1]) ? 'red' : 'green';
+        const color = startY <= (data.length && data[data.length - 1][1]) ? 'red' : 'green';
+
+        ctx.strokeStyle = color;
+        setColor(color);
         ctx.moveTo(0, startY);
 
         for (let i = 1; i < data.length; i++) {
             const x = data[i][0];
 
-            const cp1X = Math.round((data[i - 1][0] + x) / 2);
+            const cp1X = (data[i - 1][0] + x) / 2;
             let cp1Y;
 
             // Если дата закрытия выше прошлого
@@ -364,7 +422,7 @@ const ChartCanvas = props => {
         }
 
         ctx.stroke();
-    }, [data]);
+    }, [data, setColor]);
 
     return (
         <canvas
