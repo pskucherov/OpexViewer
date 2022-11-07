@@ -1,15 +1,16 @@
 import React, { useEffect, useCallback, useState } from 'react';
 
-import { Button, CardGroup, Card, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
+import { Button, CardGroup, Card, CardBody, CardTitle, CardSubtitle, Spinner } from 'reactstrap';
 
 import { getAccountInfo, getAccounts, selectAccount } from '../../utils/accounts';
 import { getPrice } from '../../utils/price';
 
 export default function Accounts(props) {
-    const { setTitle, checkToken, serverUri, accountId } = props;
+    const { setTitle, checkToken, serverUri, accountId, brokerId } = props;
 
     const [accounts, setAccounts] = useState();
     const [isReady, setIsReady] = useState();
+    const [inProgress, setInProgress] = useState(!accountId);
     const [info, setInfo] = useState();
     const [tarrif, setTarrif] = useState();
     const [portfolio, setPortfolio] = useState();
@@ -50,7 +51,7 @@ export default function Accounts(props) {
         setWithdrawLimits(withdrawlimits);
         setMarginAttr(marginattr);
 
-        if (portfolio && portfolio.totalAmountShares.currency === 'rub') {
+        if (portfolio && portfolio.totalAmountShares?.currency === 'rub') {
             setCurrency(' ₽');
         }
     }, [setCurrency, accountId, serverUri]);
@@ -63,15 +64,31 @@ export default function Accounts(props) {
             accountsCb();
             accountInfoCb();
         }
-    }, [isReady, accountsCb, accountId, setTitle, serverUri, accountInfoCb]);
+
+        const i = setInterval(() => {
+            if (!accounts || !accounts.length) {
+                accountsCb();
+                accountInfoCb();
+            } else {
+                clearInterval(i);
+            }
+        }, 5000);
+
+        return () => {
+            i && clearInterval(i);
+        };
+    }, [isReady, accountsCb, accountId, setTitle, serverUri, accountInfoCb, brokerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <>
-            <GroupAccounts
-                accounts={accounts}
-                serverUri={serverUri}
-                accountId={accountId}
-                checkToken={checkToken} />
+            {accounts && accounts.length ?
+                <GroupAccounts
+                    accounts={accounts}
+                    serverUri={serverUri}
+                    accountId={accountId}
+                    checkToken={checkToken}
+                    brokerId={brokerId}
+                /> : <center><br/><br/><Spinner size="l" color="primary" /><br/><br/></center>}
 
             <Card
                 body
@@ -88,19 +105,29 @@ export default function Accounts(props) {
                     </CardSubtitle>
                 </>}
 
-                {portfolio && typeof portfolio.totalAmountCurrencies !== 'undefined' &&
+                {Boolean(portfolio &&
+                    (typeof portfolio.totalAmountCurrencies !== 'undefined' ||
+                    brokerId === 'FINAM' && Object.keys(portfolio).length)) &&
                 <>
                     <CardTitle tag="h6" className="text-start">Портфель</CardTitle>
                     <CardSubtitle
                         className="mb-2 text-muted"
                         tag="h6"
                     >
-                        {'Общая стоимость акций: ' + getPrice(portfolio.totalAmountShares) + currency} <br/>
-                        {'Общая стоимость валют: ' + getPrice(portfolio.totalAmountCurrencies) + currency} <br/>
-                        {'Общая стоимость облигаций: ' + getPrice(portfolio.totalAmountBonds) + currency} <br/>
-                        {'Общая стоимость фьючерсов: ' + getPrice(portfolio.totalAmountFutures) + currency} <br/>
-                        {'Общая стоимость фондов: ' + getPrice(portfolio.totalAmountEtf) + currency} <br/>
-                        {portfolio.expectedYield && 'Текущая доходность портфеля: ' + getPrice(portfolio.expectedYield) + '%'}
+                        {brokerId === 'FINAM' ? (
+                            <pre>{JSON.stringify(portfolio, null, 4)}</pre>
+                        ) : (
+                            <>
+                                {'Общая стоимость акций: ' + getPrice(portfolio.totalAmountShares) + currency} <br/>
+                                {'Общая стоимость валют: ' + getPrice(portfolio.totalAmountCurrencies) + currency} <br/>
+                                {'Общая стоимость облигаций: ' + getPrice(portfolio.totalAmountBonds) + currency} <br/>
+                                {'Общая стоимость фьючерсов: ' + getPrice(portfolio.totalAmountFutures) + currency} <br/>
+                                {'Общая стоимость фондов: ' + getPrice(portfolio.totalAmountEtf) + currency} <br/>
+                                {portfolio.expectedYield && 'Текущая доходность портфеля: ' + getPrice(portfolio.expectedYield) + '%'}
+                            </>
+                        )
+                        }
+
                     </CardSubtitle>
                 </>
                 }
@@ -135,17 +162,17 @@ export default function Accounts(props) {
 
 const GroupAccounts = props => {
     const {
-        accountId, checkToken, serverUri,
+        accountId, checkToken, serverUri, accounts, brokerId,
     } = props;
 
     const chunks = [];
     const group = [];
 
-    (props.accounts || []).forEach((a, k) => {
+    (accounts || []).forEach((a, k) => {
         const card = (
             <CardAccount
                 key={k}
-                name={a.name}
+                name={a.name || a.union}
                 id={a.id}
                 type={a.type}
                 status={a.status}
@@ -153,6 +180,7 @@ const GroupAccounts = props => {
                 serverUri={serverUri}
                 accountId={accountId}
                 checkToken={checkToken}
+                other={brokerId === 'FINAM' ? JSON.stringify(a) : undefined}
             />
         );
 
@@ -183,7 +211,7 @@ const CardAccount = props => {
     const {
         name, id, type, status,
         accessLevel, accountId,
-        checkToken, serverUri,
+        checkToken, serverUri, other,
     } = props;
 
     const onSelect = useCallback(async id => {
@@ -198,6 +226,14 @@ const CardAccount = props => {
                 <CardTitle tag="h5">
                     {name} ({id})
                 </CardTitle>
+
+                {other && <CardSubtitle
+                    className="mb-2 text-muted"
+                    tag="h6"
+                >
+                    {other}
+                </CardSubtitle>}
+
                 <CardSubtitle
                     className="mb-2 text-muted"
                     tag="h6"

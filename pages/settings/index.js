@@ -1,16 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import Image from 'next/image';
 
 import styles from '../../styles/Settings.module.css';
 import { Button, Form, FormGroup, Label, Input, FormFeedback, Spinner, FormText, Badge } from 'reactstrap';
 
-import { checkServer, selectToken, getTokens, addToken, delToken } from '../../utils/serverStatus';
+import { checkServer, selectToken, getTokens, addToken, delToken, changePassword } from '../../utils/serverStatus';
 
 import { setToLS } from '../../utils/storage';
 
 import { QRCode } from 'react-qrcode-logo';
+import { BROKERS } from '../constants';
+
+const isWin32 = process && process.platform === 'win32' || navigator?.platform === 'Win32' || navigator?.userAgentData?.platform === 'Windows';
 
 export default function Settings(props) {
-    const { setTitle, checkToken, serverUri } = props;
+    const {
+        setTitle,
+        checkToken,
+        serverUri,
+        brokerId,
+        setBrokerId,
+        finamStatus,
+    } = props;
     const [qrcode, setQrcode] = React.useState(false);
 
     React.useEffect(() => {
@@ -25,10 +36,25 @@ export default function Settings(props) {
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
             />
-            <SettingsForm
+            <SelectBroker
+                brokerId={brokerId}
+                setBrokerId={setBrokerId}
+            />
+            {brokerId === 'TINKOFF' && <SettingsFormTinkoff
                 checkToken={checkToken}
                 defaultServerUri={serverUri}
-            />
+                brokerId={brokerId}
+            />}
+            {brokerId === 'FINAM' && <SettingsFormFinam
+                checkToken={checkToken}
+                defaultServerUri={serverUri}
+                brokerId={brokerId}
+                finamStatus={finamStatus}
+            />}
+            {brokerId === 'BINANCE' && <SettingsFormBinance
+                defaultServerUri={serverUri}
+                brokerId={brokerId}
+            />}
             {qrcode &&
             <div className={styles.qrcode}>
                 <FormText color="dark"><h4>Открыть интерфейс на телефоне</h4></FormText>
@@ -39,6 +65,43 @@ export default function Settings(props) {
 }
 
 const defaultToken = 't.SDIFGUIUbidsGIDBSG-BKMXCJKjgdfgKDSRHGd-HDFHnbdddfg';
+const defaultFinamLogin = 'FZTC123456';
+
+const SelectBroker = props => {
+    const {
+        brokerId,
+        setBrokerId,
+    } = props;
+
+    const onBrokerClick = useCallback(async b => {
+        setBrokerId(b);
+    }, [setBrokerId]);
+
+    return (
+        <div className={styles.SettingsForm}>
+            <h4>Выберите брокера</h4>
+            {
+                Object.keys(BROKERS).map(b => {
+                    const bObj = BROKERS[b];
+
+                    return (
+                        <div
+                            className={
+                                b !== brokerId ?
+                                    styles.BrokerSelect :
+                                    styles.BrokerSelected
+                            }
+                            onClick={onBrokerClick.bind(this, b)}
+                            key={b}
+                        >
+                            <Image src={bObj.logo} width={bObj.w} height={bObj.h} alt={bObj.name} /><br/>
+                        </div>
+                    );
+                })
+            }
+        </div>
+    );
+};
 
 const AddServerForm = props => {
     const { checkToken, defaultServerUri } = props;
@@ -116,8 +179,232 @@ const AddServerForm = props => {
     );
 };
 
-const SettingsForm = props => {
-    const { checkToken, defaultServerUri } = props;
+const SettingsFormFinam = props => { // eslint-disable-line sonarjs/cognitive-complexity
+    const { checkToken, defaultServerUri, brokerId, finamStatus } = props;
+
+    const [token, setToken] = React.useState(defaultFinamLogin);
+
+    const [tokenInvalid, setTokenInvalid] = React.useState(false);
+    const [passwordInvalid, setPasswordInvalid] = React.useState(false);
+    const [inProgress, setInprogress] = React.useState(false);
+
+    // Обработчик сохранения формы.
+    const handleSubmit = React.useCallback(async e => {
+        e.preventDefault();
+        const newToken = e.target[0].value;
+        const newPassword = e.target[1].value;
+
+        setTokenInvalid(!newToken || newToken === defaultToken);
+        setPasswordInvalid(!newPassword);
+
+        if (!tokenInvalid && !passwordInvalid) {
+            setInprogress(true);
+        }
+
+        const tokenStatus = await addToken(defaultServerUri, newToken, brokerId, newPassword);
+        const isInvalid = !tokenStatus || tokenStatus.error;
+
+        setTokenInvalid(isInvalid);
+
+        if (!isInvalid) {
+            setToken(newToken);
+        }
+
+        setInprogress(false);
+        checkToken();
+    }, [tokenInvalid, checkToken, defaultServerUri, brokerId, passwordInvalid]);
+
+    return (
+        <>
+            {!isWin32 ?
+                <Form className={styles.SettingsForm} ><FormText color="dark"><h4>Finam доступен только на Windows.</h4></FormText></Form> :
+                <>
+                    <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
+                        <FormText color="dark"><h4>Добавить пользователя</h4></FormText>
+                        <FormGroup className={styles.label}>
+                            <Label>
+                                    Логин
+                                <a href="https://articles.opexflow.com/broker" target="_blank" rel="noreferrer" >(?)</a>
+                            </Label>
+                            <Input
+                                name="token"
+                                placeholder={token}
+                                invalid={tokenInvalid}
+                            />
+                            <FormFeedback>Не удалось авторизоваться. Проверьте логин.</FormFeedback>
+                        </FormGroup>
+                        <FormGroup className={styles.label}>
+                            <Label>
+                                    Пароль
+                            </Label>
+                            <Input
+                                name="password"
+                                type="password"
+                                invalid={passwordInvalid}
+                            />
+                            <FormFeedback>Не удалось авторизоваться. Проверьте пароль.</FormFeedback>
+                        </FormGroup>
+
+                        {inProgress ?
+                            <Spinner size="sm" color="primary" /> :
+                            <Button color="primary" className={styles.Submit} >Добавить</Button>
+                        }
+                    </Form>
+
+                    <center>
+                        <h4>
+                            {finamStatus ? (finamStatus.connected ? (
+                                <>
+                                    <br/><br/>Соединение установлено<br/><br/>
+                                    {!finamStatus.isFinalInited &&
+                                        <b>
+                                            <Spinner size="sm"color="success" type="grow" style={{ marginRight: 15, position: 'relative', top: -3 }} />
+                                            Подготавливаем данные, наберитесь терпения...
+                                        </b>
+                                    }
+                                    {
+                                        finamStatus.isFinalInited ?
+                                            (JSON.stringify(finamStatus.messages).indexOf('Password expired') !== -1 ?
+                                                <FinamChangePassword
+                                                    checkToken={checkToken}
+                                                    defaultServerUri={defaultServerUri}
+                                                    finamStatus={finamStatus}
+                                                    brokerId={brokerId}
+                                                /> :
+                                                <b style={{ color: '#3A3' }}>Всё готово, можно пользоваться</b>) : ''
+                                    }
+                                </>
+                            ) : (!finamStatus.errorMessage) ?
+                                <Spinner size="l" color="primary" /> : (<><br/><br/>{finamStatus.errorMessage}<br/><br/></>
+                                )) : null
+                            }
+                        </h4>
+                    </center>
+
+                    <TokensList
+                        token={token}
+                        brokerId={brokerId}
+                        checkToken={checkToken}
+                        defaultServerUri={defaultServerUri}
+                    />
+                </>
+            }
+        </>
+    );
+};
+
+const FinamChangePassword = props => { // eslint-disable-line sonarjs/cognitive-complexity
+    const { checkToken, defaultServerUri, finamStatus, brokerId } = props;
+
+    const [passwordInvalid, setPasswordInvalid] = React.useState(false);
+    const [inProgress, setInprogress] = React.useState(false);
+
+    // Обработчик сохранения формы.
+    const handleSubmit = React.useCallback(async e => {
+        e.preventDefault();
+        const newToken = e.target[0].value;
+        const oldPassword = e.target[1].value;
+        const newPassword = e.target[2].value;
+        const confirmPassword = e.target[3].value;
+
+        setPasswordInvalid(newPassword !== confirmPassword);
+
+        if (!passwordInvalid) {
+            setInprogress(true);
+        }
+
+        const passwordStatus = await changePassword(defaultServerUri, newToken, brokerId, oldPassword, newPassword);
+
+        if (!passwordStatus || passwordStatus.error) {
+            setPasswordInvalid(true);
+        }
+
+        setInprogress(false);
+        checkToken();
+    }, [checkToken, defaultServerUri, brokerId, passwordInvalid]);
+
+    return (
+        <>
+            <b style={{ color: '#A33' }}>Password expired. Change password.</b>
+            <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Логин
+                    </Label>
+                    <Input
+                        name="token"
+                        disabled
+                        value={finamStatus.token}
+                    />
+                </FormGroup>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Старый пароль
+                    </Label>
+                    <Input
+                        name="oldpassword"
+                        type="password"
+                        minlength="6"
+                        maxLength="19"
+                    />
+                </FormGroup>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Новый пароль
+                    </Label>
+                    <Input
+                        name="newpassword"
+                        type="password"
+                        minlength="6"
+                        maxLength="19"
+                    />
+                </FormGroup>
+                <FormGroup className={styles.label}>
+                    <Label>
+                            Повторите пароль
+                    </Label>
+                    <Input
+                        name="confirmnewpassword"
+                        type="password"
+                        minlength="6"
+                        maxLength="19"
+                        invalid={passwordInvalid}
+                    />
+                    <FormFeedback>Не удалось изменить пароль.</FormFeedback>
+                </FormGroup>
+                {passwordInvalid}
+                {inProgress ?
+                    <Spinner size="sm" color="primary" /> :
+                    <Button color="primary" className={styles.Submit} >Отправить</Button>
+                }
+            </Form>
+        </>
+    );
+};
+
+const SettingsFormBinance = props => {
+    const { defaultServerUri } = props;
+
+    // Обработчик сохранения формы.
+    // const handleSubmit = React.useCallback(async e => {
+    //     e.preventDefault();
+    // });
+
+    return (
+        <>
+            <Form
+                className={styles.SettingsForm}
+
+                // onSubmit={handleSubmit}
+            >
+                <FormText color="dark"><h4>Binance в процессе подключения.</h4></FormText>
+            </Form>
+        </>
+    );
+};
+
+const SettingsFormTinkoff = props => {
+    const { checkToken, defaultServerUri, brokerId } = props;
 
     const [token, setToken] = React.useState(defaultToken);
 
@@ -135,7 +422,7 @@ const SettingsForm = props => {
             setInprogress(true);
         }
 
-        const tokenStatus = await addToken(defaultServerUri, newToken);
+        const tokenStatus = await addToken(defaultServerUri, newToken, brokerId);
         const isInvalid = !tokenStatus || tokenStatus.error;
 
         setTokenInvalid(isInvalid);
@@ -146,14 +433,14 @@ const SettingsForm = props => {
 
         setInprogress(false);
         checkToken();
-    }, [tokenInvalid, checkToken, defaultServerUri]);
+    }, [tokenInvalid, checkToken, defaultServerUri, brokerId]);
 
     return (
         <>
             <Form className={styles.SettingsForm} onSubmit={handleSubmit}>
                 <FormText color="dark"><h4>Добавить Token</h4></FormText>
                 <FormGroup className={styles.label}>
-                    <Label>Token <a href="https://tinkoff.github.io/investAPI/token/" target="_blank" rel="noreferrer" >(?)</a></Label>
+                    <Label>Token <a href="https://articles.opexflow.com/t" target="_blank" rel="noreferrer" >(?)</a></Label>
                     <Input
                         name="token"
                         placeholder={token}
@@ -168,6 +455,7 @@ const SettingsForm = props => {
             </Form>
             <TokensList
                 token={token}
+                brokerId={brokerId}
                 checkToken={checkToken}
                 defaultServerUri={defaultServerUri}
             />
@@ -177,7 +465,7 @@ const SettingsForm = props => {
 };
 
 const TokensList = props => {
-    const { token, checkToken, defaultServerUri } = props;
+    const { token, checkToken, defaultServerUri, brokerId } = props;
 
     const [tokens, setTokens] = React.useState([]);
 
@@ -214,10 +502,10 @@ const TokensList = props => {
             <Form className={styles.SettingsForm}>
                 <FormText color="dark"><h4>Сохранённые токены</h4></FormText>
 
-                {tokens && tokens.map((t, i) => (
+                {tokens && tokens.filter(t => t.brokerId === brokerId).map((t, i) => (
                     <FormGroup key={i} className={styles.Tokens}>
                         <Label className={styles.TokenLable}>
-                            {t.token.substr(0, 5)}
+                            {brokerId === 'FINAM' ? t.token : t.token.substr(0, 5)}
                         </Label>
                         {t.isSandbox && (<Badge pill color="warning" className={styles.Badge}>
                             Sandbox

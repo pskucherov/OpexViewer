@@ -5,11 +5,12 @@ import Page from '../components/Page/Page';
 import { useRouter } from 'next/router';
 
 import React, { useCallback, useEffect } from 'react';
-import { getSelectedToken, checkServer } from '../utils/serverStatus';
+import { getSelectedToken, checkServer, getFinamAuthStatus } from '../utils/serverStatus';
 import { getFromLS } from '../utils/storage';
 import { statusRobot } from '../utils/robots';
 import { getBalance } from '../utils/accounts';
 import { getPrice } from '../utils/price';
+import { BROKERS } from './constants';
 
 const defaultServerUri = 'http://localhost:8000';
 
@@ -21,6 +22,7 @@ function MyApp({ Component, pageProps }) {
     const { isReady, pathname, asPath, query } = router;
 
     const [ready, setReady] = React.useState(false);
+    const [finamStatus, setFinamStatus] = React.useState();
     const [title, setTitle] = React.useState('');
     const [serverUri, setServerUri] = React.useState(defaultServerUri);
     const [serverStatus, setServerStatus] = React.useState();
@@ -30,6 +32,7 @@ function MyApp({ Component, pageProps }) {
     const [robotStartedStatus, setRobotStartedStatus] = React.useState(false);
 
     const [balance, setBalance] = React.useState();
+    const [brokerId, setBrokerId] = React.useState();
 
     const checkToken = React.useCallback(async () => {
         const newUri = getFromLS('serverUri');
@@ -39,6 +42,10 @@ function MyApp({ Component, pageProps }) {
         }
 
         const t = await getSelectedToken(serverUri);
+
+        if (t && t.brokerId && brokerId !== t.brokerId) {
+            setBrokerId(t.brokerId);
+        }
 
         if (!t) {
             setIsSandboxToken();
@@ -54,16 +61,31 @@ function MyApp({ Component, pageProps }) {
             if (t.accountId && t.accountId !== accountId) {
                 setAccountId(t.accountId);
             } else if (!t.accountId && pathname !== '/settings') {
-                routerPush('/accounts', undefined, { shallow: true });
+                // routerPush('/accounts', undefined, { shallow: true });
+            }
+
+            if (t.brokerId === 'TINKOFF') {
+                if (typeof t.isSandbox === 'boolean') {
+                    setIsSandboxToken(t.isSandbox);
+                }
+            } else if (t.brokerId === 'FINAM') {
+                const f = await getFinamAuthStatus(serverUri);
+
+                setFinamStatus(f);
+                setIsSandboxToken(false);
+
+                if ((!f || !f.connected) && pathname !== '/settings' && pathname !== '/logs') {
+                    routerPush('/settings', undefined, { shallow: true });
+                } else if (!f.accountId && pathname !== '/settings' && pathname !== '/logs') {
+                    // routerPush('/accounts', undefined, { shallow: true });
+                }
             }
         }
 
-        if (t && typeof t.isSandbox === 'boolean') {
-            setIsSandboxToken(t.isSandbox);
-        } else if (pathname !== '/settings') {
+        if ((!t || !t.brokerId) && pathname !== '/settings') {
             routerPush('/settings', undefined, { shallow: true });
         }
-    }, [routerPush, pathname, accountId, serverUri]);
+    }, [routerPush, pathname, setAccountId, accountId, serverUri, setBrokerId, setFinamStatus, brokerId]);
 
     const checkRobot = useCallback(async () => {
         const status = await statusRobot(serverUri);
@@ -74,9 +96,10 @@ function MyApp({ Component, pageProps }) {
                 routerPush(`/instruments/${status.figi}`, undefined, { shallow: true });
             }
 
-            if (!robotStartedStatus) {
-                setRobotStartedStatus(status);
-            }
+            // ??? if (!robotStartedStatus) {
+            setRobotStartedStatus(status);
+
+            // }
         } else if (robotStartedStatus && !status) {
             setRobotStartedStatus();
         }
@@ -121,11 +144,11 @@ function MyApp({ Component, pageProps }) {
             interval = setInterval(() => {
                 checkToken();
                 getBalanceRequest();
-            }, 25000);
+            }, brokerId === 'FINAM' ? 10000 : 25000);
 
             intervalStatus = setInterval(() => {
                 checkRobot();
-            }, 5000);
+            }, 1000);
 
             checkToken();
             checkRobot();
@@ -153,7 +176,9 @@ function MyApp({ Component, pageProps }) {
 
     return ((typeof isSandboxToken !== 'undefined' && typeof accountId !== 'undefined') ||
         pathname === '/settings' ||
-        pathname === '/accounts'
+        pathname === '/accounts' ||
+        pathname === '/instruments' ||
+        pathname === '/logs'
     ) ? (
             <Page
                 title={title}
@@ -164,6 +189,8 @@ function MyApp({ Component, pageProps }) {
                 balance={balance}
                 serverUri={serverUri}
                 robotStartedStatus={robotStartedStatus}
+                brokerName={BROKERS[brokerId] && BROKERS[brokerId].name}
+                finamStatus={finamStatus}
             >
                 <Component
                     {...pageProps}
@@ -174,6 +201,11 @@ function MyApp({ Component, pageProps }) {
                     accountId={accountId}
                     robotStartedStatus={robotStartedStatus}
                     setRobotStartedStatus={setRobotStartedStatus}
+                    brokerId={brokerId}
+                    setBrokerId={setBrokerId}
+                    finamStatus={finamStatus}
+
+                    checkRobot={checkRobot}
                 />
             </Page>
         ) : null;

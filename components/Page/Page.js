@@ -3,13 +3,14 @@ import Head from 'next/head';
 import styles from '../../styles/Page.module.css';
 import {
     Badge, Nav, Navbar, NavbarBrand, NavbarToggler,
-    Collapse, NavItem, NavLink, NavbarText,
+    Collapse, NavItem, NavLink, NavbarText, Spinner,
 } from 'reactstrap';
 
 export default function Page(props) {
     const { isSandboxToken, serverStatus,
         accountId, pathname, balance,
         robotStartedStatus, serverUri,
+        brokerName, finamStatus,
     } = props;
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -90,6 +91,8 @@ export default function Page(props) {
                                 serverStatus={serverStatus}
                                 accountId={accountId}
                                 balance={balance}
+                                brokerName={brokerName}
+                                finamStatus={finamStatus}
                             />
                         </Collapse>
                     </Navbar>
@@ -115,12 +118,23 @@ export default function Page(props) {
     );
 }
 
-const HeadBadges = props => {
+const badgeBrokerColor = (brokerName, finamStatus) => {
+    return !brokerName ? 'danger' :
+        brokerName.toUpperCase() === 'FINAM' &&
+        (!finamStatus || !finamStatus.isFinalInited && !finamStatus.errorMessage) ?
+            'warning' :
+            brokerName.toUpperCase() === 'FINAM' && finamStatus && finamStatus.errorMessage ? 'danger' :
+                'success';
+};
+
+const HeadBadges = props => { // eslint-disable-line sonarjs/cognitive-complexity
     const {
         whatToken,
         serverStatus,
         accountId,
         balance,
+        brokerName,
+        finamStatus,
     } = props;
 
     return (<NavbarText>
@@ -131,17 +145,29 @@ const HeadBadges = props => {
             whatToken={whatToken}
             serverStatus={serverStatus}
         />
-        <AccountBadge
+        {brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.isFinalInited) ? null : <AccountBadge
             whatToken={whatToken}
             accountId={accountId}
             serverStatus={serverStatus}
-        />
-        {serverStatus ? (<Badge
-            color={whatToken === 2 ? 'success' : whatToken ? 'warning' : 'danger'}
+            brokerName={brokerName}
+        />}
+        <Badge
+            color={badgeBrokerColor(brokerName, finamStatus)}
             href="/settings"
+            className={styles.PageBadge}
         >
-        Токен: {whatToken === 2 ? 'боевой' : whatToken ? 'песочница' : 'не задан'}
-        </Badge>) : ''}
+            {brokerName || 'Брокер?'}
+            { Boolean(brokerName && brokerName.toUpperCase() === 'FINAM' && (!finamStatus || !finamStatus.isFinalInited)) &&
+                <Spinner size="sm"color="success" type="grow" style={{ width: 10, height: 10, marginLeft: 5 }} />}
+        </Badge>
+        {serverStatus && brokerName === 'Tinkoff' ? (
+            <Badge
+                color={whatToken === 2 ? 'success' : whatToken ? 'warning' : 'danger'}
+                href="/settings"
+            >
+                Токен: {whatToken === 2 ? 'боевой' : whatToken ? 'песочница' : 'не задан'}
+            </Badge>
+        ) : ''}
 
     </NavbarText>);
 };
@@ -167,7 +193,11 @@ const AccountBadge = props => {
         whatToken,
         accountId,
         serverStatus,
+
+        // brokerName,
     } = props;
+
+    // brokerName && brokerName.toUpperCase() === 'FINAM' ? 'Ожидаем счёт' :
 
     return whatToken && serverStatus ? (
         <Badge

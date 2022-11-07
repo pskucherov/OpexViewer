@@ -49,11 +49,28 @@ const getLogs = async (url, type) => {
     return false;
 };
 
-const addToken = async (url, token) => {
+const addToken = async (url, token, brokerId, password) => {
     let response;
 
     try {
-        response = await window.fetch(url + '/addtoken?token=' + token, requestOptions);
+        response = await window.fetch(`${url}/addtoken?token=${token}&brokerId=${brokerId}&password=${password}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const changePassword = async (url, token, brokerId, oldpassword, newpassword) => {
+    let response;
+
+    try {
+        response = await window.fetch(`${url}/changepassword?token=${token}&brokerId=${brokerId}&oldpassword=${oldpassword}&newpassword=${newpassword}`,
+            requestOptions);
     } catch (error) {
         return false;
     }
@@ -85,7 +102,23 @@ const getSelectedToken = async url => {
     let response;
 
     try {
-        response = await window.fetch(url + '/getselectedtoken', requestOptions);
+        response = await window.fetch(url + '/getncheckselectedtoken', requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const getFinamAuthStatus = async url => {
+    let response;
+
+    try {
+        response = await window.fetch(url + '/getfinamauthstatus', requestOptions);
     } catch (error) {
         return false;
     }
@@ -139,9 +172,12 @@ export {
     selectToken,
     getSelectedToken,
     addToken,
+    changePassword,
     getTokens,
     delToken,
     isToday,
     timezoneDate,
     withoutTimezoneDate,
+
+    getFinamAuthStatus,
 };

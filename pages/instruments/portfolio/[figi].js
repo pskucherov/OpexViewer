@@ -1,18 +1,18 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import Chart from '../../components/Chart/Chart';
-import Backtest from '../../components/Backtest/Backtest';
-import { getInstrument, getTradingSchedules, getFinamInstrument } from '../../utils/instruments';
+import Chart from '../../../components/Chart/Chart';
+import Backtest from '../../../components/Backtest/Backtest';
+import { getInstrument, getTradingSchedules, getFinamInstrument } from '../../../utils/instruments';
 import { Spinner, FormGroup, Button, ButtonGroup } from 'reactstrap';
 
-import { getFromSS, setToSS } from '../../utils/storage';
+import { getFromSS, setToSS } from '../../../utils/storage';
 
 import DatePicker from 'react-datepicker';
 const INIT_INTERVAL_TEXT = ['1 мин', '5 мин', '15 мин', '1 час'];
 
 import 'react-datepicker/dist/react-datepicker.css';
-import { getRobotLogs } from '../../utils/robots';
-import { isToday } from '../../utils/serverStatus';
+import { getRobotLogs } from '../../../utils/robots';
+import { isToday } from '../../../utils/serverStatus';
 
 const INIT_INTERVAL = 1;
 
@@ -46,7 +46,17 @@ const SelectInterval = props => {
     );
 };
 
-export default function TerminalFigi(props) {
+export default function PortfolioTerminal(props) {
+    const router = useRouter();
+
+    return router.query.figi.split('|').map((figi, k) => <TerminalFigi
+        {...props}
+        figi={figi}
+        key={k}
+    />);
+}
+
+function TerminalFigi(props) {
     const {
         setTitle,
         serverUri,
@@ -55,13 +65,12 @@ export default function TerminalFigi(props) {
         setRobotStartedStatus,
         brokerId,
         checkRobot,
+        figi,
     } = props;
 
     const router = useRouter();
     const routerPush = router.push;
     const { isReady } = router;
-
-    const { figi } = router.query;
 
     const lsData = getFromSS();
 

@@ -91,6 +91,40 @@ const statusRobot = async serverUri => {
     return false;
 };
 
+const closeOrders = async (serverUri, brokerId, transactionid) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/cancelorder?brokerId=${brokerId}&transactionid=${transactionid}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const closePosition = async (serverUri, figi, direction, lots) => {
+    let response;
+
+    try {
+        response = await window.fetch(serverUri +
+            `/robots/cancelposition?figi=${figi}&direction=${direction}&lots=${lots}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
 const getRobotLogs = async (serverUri, name, accountId, figi, date) => {
     let response;
 
@@ -226,6 +260,10 @@ export {
     getRobotLogs,
     robotFlagsForChart,
 
+    closeOrders,
+
     getSettings,
     setSettings,
+
+    closePosition,
 };

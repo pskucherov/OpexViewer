@@ -35,7 +35,23 @@ const getInstrument = async (url, figi) => {
     return false;
 };
 
-const getCandles = async (url, figi, interval, from, to) => {
+const getFinamInstrument = async (url, figi) => {
+    let response;
+
+    try {
+        response = await window.fetch(`${url}/seccode/${figi}`, requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const getCandles = async (url, figi, interval, from, to, brokerId) => { // eslint-disable-line max-params
     let response;
 
     // Если отсутствует to, тогда запрашиваем за текущий день из from.
@@ -46,7 +62,9 @@ const getCandles = async (url, figi, interval, from, to) => {
     }
 
     try {
-        response = await window.fetch(`${url}/getcandles/${figi}?interval=${interval}&from=${from.getTime()}&to=${to.getTime()}`,
+        const page = brokerId === 'FINAM' ? 'getfinamcandles' : 'getcandles';
+
+        response = await window.fetch(`${url}/${page}/${figi}?interval=${interval}&from=${from.getTime()}&to=${to.getTime()}`,
             requestOptions);
     } catch (error) {
         return false;
@@ -64,6 +82,23 @@ const getLastPriceAndOrderBook = async (url, figi) => {
 
     try {
         response = await window.fetch(`${url}/getlastpriceandorderbook/${figi}`,
+            requestOptions);
+    } catch (error) {
+        return false;
+    }
+
+    if (response && response.ok) {
+        return await response.json();
+    }
+
+    return false;
+};
+
+const getFinamOrderBook = async (url, figi, time) => {
+    let response;
+
+    try {
+        response = await window.fetch(`${url}/getfinamorderbook/${figi}` + (time ? `?time=${time}` : ''),
             requestOptions);
     } catch (error) {
         return false;
@@ -130,4 +165,7 @@ export {
 
     getOrderBook,
     getLastPriceAndOrderBook,
+    getFinamInstrument,
+
+    getFinamOrderBook,
 };
